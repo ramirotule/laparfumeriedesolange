@@ -38,7 +38,7 @@ async function getPerfumes(params: SearchParams): Promise<Perfume[]> {
     if (params.busqueda || params.q) {
       const term = params.busqueda || params.q || "";
       query = query.or(
-        `nombre.ilike.%${term}%,marca.ilike.%${term}%,descripcion.ilike.%${term}%`
+        `nombre.ilike.%${term}%,marca.ilike.%${term}%,descripcion.ilike.%${term}%`,
       );
     }
 
@@ -62,7 +62,9 @@ async function getPerfumes(params: SearchParams): Promise<Perfume[]> {
         query = query.order("nombre", { ascending: true });
         break;
       default:
-        query = query.order("destacado", { ascending: false }).order("created_at", { ascending: false });
+        query = query
+          .order("destacado", { ascending: false })
+          .order("created_at", { ascending: false });
     }
 
     const { data } = await query.limit(100);
@@ -83,35 +85,40 @@ export default async function CatalogPage({
   const titulo = params.genero
     ? `Perfumes ${params.genero}s`
     : params.familia
-    ? `Perfumes ${params.familia}s`
-    : params.nuevo === "true"
-    ? "Novedades"
-    : params.destacado === "true"
-    ? "Perfumes Destacados"
-    : "Catálogo de Perfumes";
+      ? `Perfumes ${params.familia}s`
+      : params.nuevo === "true"
+        ? "Novedades"
+        : params.destacado === "true"
+          ? "Perfumes Destacados"
+          : "Catálogo de Perfumes";
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      {/* Header */}
-      <div className="mb-10">
+    <div className="w-full mx-auto px-15 sm:px-6 lg:px-18 py-12">
+      {/* Header con padding normal */}
+      <div className="px-4 sm:px-6 lg:px-8 mb-10">
         <p className="text-[#D4AF37] text-xs tracking-[0.3em] uppercase mb-2">
           La Parfumerie de Solange
         </p>
-        <h1 className="font-serif text-4xl md:text-5xl text-white mb-4">{titulo}</h1>
+        <h1 className="font-serif text-4xl md:text-5xl text-white mb-4">
+          {titulo}
+        </h1>
         <p className="text-[#888888] text-sm">
-          {perfumes.length} fragancia{perfumes.length !== 1 ? "s" : ""} encontrada
+          {perfumes.length} fragancia{perfumes.length !== 1 ? "s" : ""}{" "}
+          encontrada
           {perfumes.length !== 1 ? "s" : ""}
         </p>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Sidebar filtros */}
-        <aside className="lg:w-64 shrink-0">
-          <FiltrosCatalogo activeParams={params as Record<string, string | undefined>} />
+        {/* Sidebar filtros — pegado al borde izquierdo sin padding */}
+        <aside className="lg:w-52 shrink-0">
+          <FiltrosCatalogo
+            activeParams={params as Record<string, string | undefined>}
+          />
         </aside>
 
-        {/* Grid */}
-        <div className="flex-1 min-w-0">
+        {/* Grid con padding derecho */}
+        <div className="flex-1 min-w-0 pr-4 sm:pr-6 lg:pr-8">
           <PerfumeGrid
             perfumes={perfumes}
             emptyMessage="No encontramos perfumes con ese filtro. Probá con otras opciones."

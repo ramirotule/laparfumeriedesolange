@@ -1,6 +1,8 @@
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Perfume } from "@/types";
+
+export const dynamic = "force-dynamic";
 import PerfumeForm from "@/components/dashboard/PerfumeForm";
 
 interface Props {

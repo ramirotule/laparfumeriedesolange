@@ -36,7 +36,7 @@ export default function FiltrosCatalogo({ activeParams }: Props) {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pl-4 pr-5 border-r border-[#1A1A1A]">
       {/* Limpiar filtros */}
       {Object.values(activeParams).some(Boolean) && (
         <Link
