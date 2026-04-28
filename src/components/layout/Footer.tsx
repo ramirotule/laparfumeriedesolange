@@ -64,30 +64,21 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Familias */}
+          {/* Horarios */}
           <div>
             <h4 className="text-white text-xs font-bold tracking-[0.2em] uppercase mb-4">
-              Familias Olfativas
+              🕒 Horarios de Atención
             </h4>
-            <ul className="space-y-2">
-              {[
-                "Floral",
-                "Oriental",
-                "Amaderado",
-                "Fresco",
-                "Chipre",
-                "Gourmand",
-              ].map((familia) => (
-                <li key={familia}>
-                  <Link
-                    href={`/perfumes?familia=${familia}`}
-                    className="text-[#888888] text-sm hover:text-[#D4AF37] transition-colors"
-                  >
-                    {familia}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <div className="space-y-2">
+              <div className="flex items-start gap-2">
+                <span className="text-[#888888] text-xs">🗓</span>
+                <div>
+                  <p className="text-[#cccccc] text-sm font-medium">Lunes a Viernes</p>
+                  <p className="text-[#888888] text-sm">9:30 a 12 hs</p>
+                  <p className="text-[#888888] text-sm">14 a 18 hs</p>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Contacto */}

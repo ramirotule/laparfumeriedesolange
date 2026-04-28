@@ -4,6 +4,7 @@ import { Perfume } from "@/types";
 import PerfumeGrid from "@/components/perfumes/PerfumeGrid";
 import FiltrosCatalogo from "@/components/perfumes/FiltrosCatalogo";
 import BuscadorAcordes from "@/components/perfumes/BuscadorAcordes";
+import BuscadorNotas from "@/components/perfumes/BuscadorNotas";
 
 interface SearchParams {
   genero?: string;
@@ -14,6 +15,8 @@ interface SearchParams {
   destacado?: string;
   q?: string;
   acordes?: string;
+  notas?: string;
+  marca?: string;
 }
 
 export const metadata: Metadata = {
@@ -47,8 +50,16 @@ async function getPerfumes(params: SearchParams): Promise<Perfume[]> {
     if (params.acordes) {
       const acordesList = params.acordes.split(",").map(a => a.trim());
       acordesList.forEach(acorde => {
-        // Filtrar perfumes donde la descripción incluya la palabra clave del acorde
         query = query.ilike("descripcion", `%${acorde}%`);
+      });
+    }
+
+    if (params.notas) {
+      const notasList = params.notas.split(",").map(n => n.trim());
+      notasList.forEach(nota => {
+        // En un futuro podrías filtrar por la relación 'notas' real
+        // Por ahora lo filtramos buscando la palabra en la descripción
+        query = query.ilike("descripcion", `%${nota}%`);
       });
     }
 
@@ -119,9 +130,12 @@ export default async function CatalogPage({
         </p>
       </div>
 
-      <div className="px-4 sm:px-6 lg:px-8">
-        <BuscadorAcordes />
-      </div>
+      {!params.familia && !params.genero && params.nuevo !== "true" && params.destacado !== "true" && !params.marca && (
+        <div className="px-4 sm:px-6 lg:px-8">
+          <BuscadorNotas />
+          <BuscadorAcordes />
+        </div>
+      )}
 
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Sidebar filtros — pegado al borde izquierdo sin padding */}

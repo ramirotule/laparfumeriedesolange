@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { X, Search } from "lucide-react";
+import { X, Search, ChevronDown } from "lucide-react";
 
 export const ACORDES_PREDEFINIDOS = [
   { nombre: "Amaderado", bg: "#6b4423", text: "#ffffff", barBg: "#4a2f18" },
@@ -31,13 +31,21 @@ export default function BuscadorAcordes() {
   const [acordesSeleccionados, setAcordesSeleccionados] = useState<string[]>([]);
   const [busqueda, setBusqueda] = useState("");
   const [mostrarDropdown, setMostrarDropdown] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     const queryAcordes = searchParams.get("acordes");
+    const openParam = searchParams.get("open");
+
     if (queryAcordes) {
       setAcordesSeleccionados(queryAcordes.split(",").map(a => a.trim()));
+      setIsOpen(true);
     } else {
       setAcordesSeleccionados([]);
+    }
+
+    if (openParam === "acordes") {
+      setIsOpen(true);
     }
   }, [searchParams]);
 
@@ -79,23 +87,37 @@ export default function BuscadorAcordes() {
   );
 
   return (
-    <div className="bg-[#0D0D0D] border border-[#1A1A1A] p-4 sm:p-6 mb-8 w-full max-w-4xl mx-auto rounded-lg">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+    <div className="bg-[#0D0D0D] border border-[#1A1A1A] mb-8 w-full max-w-4xl mx-auto rounded-lg">
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center justify-between p-4 sm:p-6 text-left group transition-colors hover:bg-[#111111] rounded-lg"
+      >
         <div>
-          <h2 className="text-white font-serif text-2xl mb-1">Buscar por Acordes</h2>
+          <h2 className="text-white font-serif text-xl sm:text-2xl mb-1 transition-colors group-hover:text-[#D4AF37]">Buscar por Acordes</h2>
           <p className="text-[#888888] text-xs">Añadí acordes para filtrar los perfumes.</p>
         </div>
-        {acordesSeleccionados.length > 0 && (
-          <button
-            onClick={limpiar}
-            className="text-xs text-[#D4AF37] border border-[#D4AF37] hover:bg-[#D4AF37] hover:text-black px-3 py-1.5 transition-colors uppercase tracking-wider"
-          >
-            Limpiar Filtros
-          </button>
-        )}
-      </div>
+        <div className="flex items-center gap-4">
+          {acordesSeleccionados.length > 0 && (
+            <span
+              onClick={(e) => {
+                e.stopPropagation();
+                limpiar();
+              }}
+              className="text-[10px] sm:text-xs text-[#D4AF37] border border-[#D4AF37] hover:bg-[#D4AF37] hover:text-black px-2 py-1 sm:px-3 sm:py-1.5 transition-colors uppercase tracking-wider rounded"
+            >
+              Limpiar Filtros
+            </span>
+          )}
+          <ChevronDown 
+            size={20} 
+            className={`text-[#888888] transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+          />
+        </div>
+      </button>
 
-      <div className="relative mb-8">
+      {isOpen && (
+        <div className="p-4 sm:p-6 pt-0 border-t border-[#1A1A1A] mt-2">
+          <div className="relative mb-8 mt-4">
         <div className="flex items-center bg-[#1A1A1A] border border-[#2D2D2D] p-2 focus-within:border-[#D4AF37] transition-colors">
           <Search size={18} className="text-[#555555] mx-2" />
           <input
@@ -187,6 +209,8 @@ export default function BuscadorAcordes() {
           className="fixed inset-0 z-40" 
           onClick={() => setMostrarDropdown(false)}
         />
+      )}
+        </div>
       )}
     </div>
   );
