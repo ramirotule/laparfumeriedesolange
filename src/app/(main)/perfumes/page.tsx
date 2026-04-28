@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Perfume } from "@/types";
 import PerfumeGrid from "@/components/perfumes/PerfumeGrid";
 import FiltrosCatalogo from "@/components/perfumes/FiltrosCatalogo";
+import BuscadorAcordes from "@/components/perfumes/BuscadorAcordes";
 
 interface SearchParams {
   genero?: string;
@@ -12,6 +13,7 @@ interface SearchParams {
   nuevo?: string;
   destacado?: string;
   q?: string;
+  acordes?: string;
 }
 
 export const metadata: Metadata = {
@@ -40,6 +42,14 @@ async function getPerfumes(params: SearchParams): Promise<Perfume[]> {
       query = query.or(
         `nombre.ilike.%${term}%,marca.ilike.%${term}%,descripcion.ilike.%${term}%`,
       );
+    }
+
+    if (params.acordes) {
+      const acordesList = params.acordes.split(",").map(a => a.trim());
+      acordesList.forEach(acorde => {
+        // Filtrar perfumes donde la descripción incluya la palabra clave del acorde
+        query = query.ilike("descripcion", `%${acorde}%`);
+      });
     }
 
     if (params.familia) {
@@ -107,6 +117,10 @@ export default async function CatalogPage({
           encontrada
           {perfumes.length !== 1 ? "s" : ""}
         </p>
+      </div>
+
+      <div className="px-4 sm:px-6 lg:px-8">
+        <BuscadorAcordes />
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8">

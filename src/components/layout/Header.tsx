@@ -31,6 +31,7 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [megaMenuOpen, setMegaMenuOpen] = useState(false);
+  const [busquedaOpen, setBusquedaOpen] = useState(false);
   const [busqueda, setBusqueda] = useState("");
   const [, startTransition] = useTransition();
   const pathname = usePathname();
@@ -93,24 +94,81 @@ export default function Header() {
                 </button>
 
                 {megaMenuOpen && (
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 w-[520px] pt-4 z-50">
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 w-[360px] pt-4 z-50">
                     <div className="bg-[#0D0D0D] border border-[#2D2D2D] shadow-2xl shadow-black/80 p-6">
-                      <div className="grid grid-cols-3 gap-6">
-                      <div>
-                        <h3 className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase">
-                          Por Género
-                        </h3>
-                        {generos.map((g) => (
-                          <Link key={g.nombre} href={g.href}
+                      <div className="grid grid-cols-2 gap-6">
+                        <div>
+                          <h3 className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase">
+                            Por Género
+                          </h3>
+                          {generos.map((g) => (
+                            <Link key={g.nombre} href={g.href}
+                              className="block text-sm text-[#cccccc] hover:text-[#D4AF37] py-1 transition-colors">
+                              {g.nombre}
+                            </Link>
+                          ))}
+                        </div>
+                        <div>
+                          <h3 className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase">
+                            Colecciones
+                          </h3>
+                          <Link href="/perfumes?destacado=true"
                             className="block text-sm text-[#cccccc] hover:text-[#D4AF37] py-1 transition-colors">
-                            {g.nombre}
+                            Destacados
                           </Link>
-                        ))}
+                          <Link href="/perfumes?nuevo=true"
+                            className="block text-sm text-[#cccccc] hover:text-[#D4AF37] py-1 transition-colors">
+                            Novedades
+                          </Link>
+                          <Link href="/arabes"
+                            className="block text-sm text-[#D4AF37] hover:text-[#E8CC6B] py-1 transition-colors font-semibold">
+                            ✦ Árabes
+                          </Link>
+                          <Link href="/perfumes?marca=Unlock"
+                            className="block text-sm text-[#D4AF37] hover:text-[#E8CC6B] py-1 transition-colors font-semibold">
+                            ✱ Unlock
+                          </Link>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase">
-                          Familia Olfativa
-                        </h3>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Búsqueda dropdown */}
+              <div
+                className="relative"
+                onMouseEnter={() => setBusquedaOpen(true)}
+                onMouseLeave={() => setBusquedaOpen(false)}
+              >
+                <button
+                  onClick={() => setBusquedaOpen(!busquedaOpen)}
+                  className="flex items-center gap-1.5 text-xs tracking-[0.2em] text-white hover:text-[#D4AF37] transition-colors font-medium uppercase"
+                >
+                  Búsqueda
+                  <ChevronDown
+                    size={14}
+                    className={`transition-transform ${busquedaOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
+
+                {busquedaOpen && (
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 w-[220px] pt-4 z-50">
+                    <div className="bg-[#0D0D0D] border border-[#2D2D2D] shadow-2xl shadow-black/80 p-5">
+                      <Link href="/buscar?tipo=notas"
+                        className="block text-sm text-[#cccccc] hover:text-[#D4AF37] py-1.5 transition-colors">
+                        Buscar por Notas
+                      </Link>
+                      <Link href="/buscar?tipo=acordes"
+                        className="block text-sm text-[#cccccc] hover:text-[#D4AF37] py-1.5 transition-colors">
+                        Buscar por Acordes
+                      </Link>
+                      <Link href="/mapa-de-perfumes"
+                        className="block text-sm text-[#cccccc] hover:text-[#D4AF37] py-1.5 transition-colors">
+                        Mapa de Perfumes
+                      </Link>
+                      <div className="border-t border-[#2D2D2D] mt-2 pt-2">
+                        <p className="text-[#555555] text-[10px] tracking-widest mb-1.5 uppercase">Familia Olfativa</p>
                         {familias.map((f) => (
                           <Link key={f.nombre} href={f.href}
                             className="block text-sm text-[#cccccc] hover:text-[#D4AF37] py-1 transition-colors">
@@ -118,26 +176,8 @@ export default function Header() {
                           </Link>
                         ))}
                       </div>
-                      <div>
-                        <h3 className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase">
-                          Colecciones
-                        </h3>
-                        <Link href="/perfumes?destacado=true"
-                          className="block text-sm text-[#cccccc] hover:text-[#D4AF37] py-1 transition-colors">
-                          Destacados
-                        </Link>
-                        <Link href="/perfumes?nuevo=true"
-                          className="block text-sm text-[#cccccc] hover:text-[#D4AF37] py-1 transition-colors">
-                          Novedades
-                        </Link>
-                        <Link href="/arabes"
-                          className="block text-sm text-[#D4AF37] hover:text-[#E8CC6B] py-1 transition-colors font-semibold">
-                          ✦ Árabes
-                        </Link>
-                      </div>
                     </div>
                   </div>
-                </div>
                 )}
               </div>
 
@@ -278,6 +318,10 @@ export default function Header() {
               className="text-sm tracking-wider text-[#D4AF37]">
               ✦ PERFUMES ÁRABES
             </Link>
+            <Link href="/perfumes?marca=Unlock" onClick={() => setMenuOpen(false)}
+              className="text-sm tracking-wider text-[#D4AF37]">
+              ✱ UNLOCK
+            </Link>
             <Link href="/quienes-somos" onClick={() => setMenuOpen(false)}
               className={`text-sm tracking-wider transition-colors ${pathname === "/quienes-somos" ? "text-[#D4AF37]" : "text-white hover:text-[#D4AF37]"}`}>
               QUIÉNES SOMOS
@@ -292,7 +336,22 @@ export default function Header() {
               ))}
             </div>
             <div className="border-t border-[#2D2D2D] pt-4">
-              <p className="text-[#888888] text-xs tracking-widest mb-3">FAMILIAS OLFATIVAS</p>
+              <p className="text-[#888888] text-xs tracking-widest mb-3">BÚSQUEDA</p>
+              <Link href="/buscar?tipo=notas" onClick={() => setMenuOpen(false)}
+                className="block text-sm text-[#cccccc] hover:text-[#D4AF37] py-1.5 transition-colors">
+                Buscar por Notas
+              </Link>
+              <Link href="/buscar?tipo=acordes" onClick={() => setMenuOpen(false)}
+                className="block text-sm text-[#cccccc] hover:text-[#D4AF37] py-1.5 transition-colors">
+                Buscar por Acordes
+              </Link>
+              <Link href="/mapa-de-perfumes" onClick={() => setMenuOpen(false)}
+                className="block text-sm text-[#cccccc] hover:text-[#D4AF37] py-1.5 transition-colors">
+                Mapa de Perfumes
+              </Link>
+            </div>
+            <div className="border-t border-[#2D2D2D] pt-4">
+              <p className="text-[#888888] text-xs tracking-widest mb-3">FAMILIA OLFATIVA</p>
               {familias.map((f) => (
                 <Link key={f.nombre} href={f.href} onClick={() => setMenuOpen(false)}
                   className="block text-sm text-[#cccccc] hover:text-[#D4AF37] py-1.5 transition-colors">

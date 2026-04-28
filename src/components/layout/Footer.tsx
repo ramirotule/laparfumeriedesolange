@@ -49,6 +49,7 @@ export default function Footer() {
                 },
                 { label: "Unisex", href: "/perfumes?genero=Unisex" },
                 { label: "Árabes & Oud", href: "/arabes" },
+                { label: "✱ Unlock", href: "/perfumes?marca=Unlock" },
                 { label: "Novedades", href: "/perfumes?nuevo=true" },
               ].map((item) => (
                 <li key={item.href}>
@@ -148,7 +149,7 @@ export default function Footer() {
               href="https://www.rtsoftwarefactory.com.ar"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[#555555] hover:text-[#D4AF37] transition-colors"
+              className="text-[#00D0FC] hover:text-[#D4AF37] transition-colors"
             >
               RT Software Factory
             </a>
