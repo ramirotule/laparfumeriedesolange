@@ -9,7 +9,7 @@ export default function TopBanner() {
       ENVÍO GRATIS DENTRO DE SANTA ROSA - LA PAMPA
       <span className="hidden sm:inline"> ✦</span>
       <Link
-        href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "2954808202"}`}
+        href="https://wa.me/5492954808202"
         target="_blank"
         rel="noopener noreferrer"
         className="ml-4 underline hover:no-underline hidden sm:inline"

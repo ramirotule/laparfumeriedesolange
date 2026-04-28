@@ -134,7 +134,7 @@ export default async function ArabesPage() {
               Ver Colección
             </a>
             <a
-              href="https://wa.me/2954808202?text=Hola!%20Me%20interesan%20los%20perfumes%20%C3%A1rabes"
+              href="https://wa.me/5492954808202?text=Hola!%20Me%20interesan%20los%20perfumes%20%C3%A1rabes"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 border border-[#D4AF37]/60 text-[#D4AF37] font-semibold px-8 py-4 text-sm hover:bg-[#D4AF37]/10 transition-colors"
@@ -190,7 +190,7 @@ export default async function ArabesPage() {
         {perfumes.length === 0 && (
           <div className="text-center mt-8">
             <a
-              href="https://wa.me/2954808202?text=Hola!%20Me%20interesan%20los%20perfumes%20%C3%A1rabes.%20%C2%BFQu%C3%A9%20tienen%20disponible?"
+              href="https://wa.me/5492954808202?text=Hola!%20Me%20interesan%20los%20perfumes%20%C3%A1rabes.%20%C2%BFQu%C3%A9%20tienen%20disponible?"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-[#D4AF37] text-black font-bold px-8 py-4 text-sm uppercase tracking-wider hover:bg-[#E8CC6B] transition-colors"

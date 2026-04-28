@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Perfume } from "@/types";
 import { MessageCircle, ChevronRight, MapPin } from "lucide-react";
 import InstagramIcon from "@/components/ui/InstagramIcon";
+import AddToCartButton from "@/components/cart/AddToCartButton";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -71,9 +72,9 @@ export default async function PerfumePage({ params }: Props) {
   if (!perfume) notFound();
 
   const whatsappMsg = encodeURIComponent(
-    `Hola! Me interesa el perfume *${perfume.nombre}* de *${perfume.marca}* (${perfume.volumen_ml || ""}ml ${perfume.concentracion || ""}). ¿Tienen stock disponible? ¿Cuál es el precio?`
+    `Hola! Me interesa el perfume *${perfume.nombre}* de *${perfume.marca}*. ¿Tienen stock disponible?`
   );
-  const whatsappUrl = `https://wa.me/2954808202?text=${whatsappMsg}`;
+  const whatsappUrl = `https://wa.me/5492954808202?text=${whatsappMsg}`;
 
   const notasSalida = perfume.notas?.filter((n) => n.categoria === "salida") || [];
   const notasCorazon = perfume.notas?.filter((n) => n.categoria === "corazon") || [];
@@ -217,25 +218,28 @@ export default async function PerfumePage({ params }: Props) {
 
             {/* CTA */}
             <div className="flex flex-col sm:flex-row gap-3 mb-8">
+              <AddToCartButton
+                item={{
+                  id: perfume.id,
+                  nombre: perfume.nombre,
+                  marca: perfume.marca,
+                  slug: perfume.slug,
+                  precio_venta: perfume.precio_venta,
+                  imagen_url: perfume.imagen_url,
+                }}
+                inStock={perfume.stock > 0}
+                variant="page"
+              />
               <a
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 data-umami-event="compra-whatsapp"
                 data-umami-event-perfume={perfume.nombre}
-                className="flex items-center justify-center gap-2 bg-[#D4AF37] text-black font-bold px-6 py-4 tracking-wider text-sm uppercase hover:bg-[#E8CC6B] transition-colors flex-1"
+                className="flex items-center justify-center gap-2 border border-[#D4AF37]/40 text-[#D4AF37] font-semibold px-4 py-3.5 text-sm hover:bg-[#D4AF37]/10 transition-colors flex-1 whitespace-nowrap"
               >
                 <MessageCircle size={18} />
-                Consultar por WhatsApp
-              </a>
-              <a
-                href="https://www.instagram.com/laparfumerie.desolange/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 border border-[#D4AF37]/40 text-[#D4AF37] font-semibold px-6 py-4 text-sm hover:bg-[#D4AF37]/10 transition-colors"
-              >
-                <InstagramIcon size={16} />
-                Ver en Instagram
+                Consultar
               </a>
             </div>
 

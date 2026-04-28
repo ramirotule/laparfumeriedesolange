@@ -98,7 +98,10 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-full flex flex-col bg-black text-white antialiased">
+      <body 
+        className="min-h-full flex flex-col bg-black text-white antialiased"
+        suppressHydrationWarning
+      >
         {children}
 
         {umamiId && (

@@ -1,0 +1,172 @@
+"use client";
+
+import { useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { X, ShoppingBag, Plus, Minus, Trash2, ArrowRight } from "lucide-react";
+import { useCart } from "@/context/CartContext";
+
+export default function CartDrawer() {
+  const { items, count, total, drawerOpen, closeDrawer, removeItem, updateCantidad } =
+    useCart();
+
+  // Lock body scroll when open
+  useEffect(() => {
+    if (drawerOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [drawerOpen]);
+
+  return (
+    <>
+      {/* Backdrop */}
+      {drawerOpen && (
+        <div
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
+          onClick={closeDrawer}
+        />
+      )}
+
+      {/* Drawer */}
+      <div
+        className={`fixed top-0 right-0 h-full w-full max-w-sm bg-[#0D0D0D] border-l border-[#1A1A1A] z-50 flex flex-col transition-transform duration-300 ease-in-out ${
+          drawerOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#1A1A1A]">
+          <div className="flex items-center gap-2">
+            <ShoppingBag size={16} className="text-[#D4AF37]" />
+            <span className="text-white text-sm font-semibold tracking-wider uppercase">
+              Carrito
+            </span>
+            {count > 0 && (
+              <span className="bg-[#D4AF37] text-black text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                {count}
+              </span>
+            )}
+          </div>
+          <button
+            onClick={closeDrawer}
+            className="text-[#555555] hover:text-white transition-colors"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        {/* Items */}
+        <div className="flex-1 overflow-y-auto py-4 px-5">
+          {items.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-center">
+              <ShoppingBag size={40} className="text-[#2D2D2D] mb-4" />
+              <p className="text-[#555555] text-sm">Tu carrito está vacío</p>
+              <button
+                onClick={closeDrawer}
+                className="mt-4 text-[#D4AF37] text-xs hover:underline"
+              >
+                Seguir explorando
+              </button>
+            </div>
+          ) : (
+            <ul className="space-y-4">
+              {items.map((item) => (
+                <li
+                  key={item.id}
+                  className="flex gap-3 pb-4 border-b border-[#1A1A1A] last:border-0"
+                >
+                  {/* Thumbnail */}
+                  <div className="w-16 h-16 shrink-0 bg-[#111111] border border-[#1A1A1A] overflow-hidden">
+                    {item.imagen_url ? (
+                      <Image
+                        src={item.imagen_url}
+                        alt={item.nombre}
+                        width={64}
+                        height={64}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-[#333333] text-xl">
+                        ✦
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[#888888] text-[10px] tracking-wider uppercase truncate">
+                      {item.marca}
+                    </p>
+                    <p className="text-white text-sm font-medium leading-snug truncate">
+                      {item.nombre}
+                    </p>
+                    <p className="text-[#D4AF37] text-sm font-bold mt-0.5">
+                      ${item.precio_venta.toLocaleString("es-AR")}
+                    </p>
+
+                    {/* Quantity controls */}
+                    <div className="flex items-center gap-2 mt-2">
+                      <button
+                        onClick={() => updateCantidad(item.id, item.cantidad - 1)}
+                        className="w-6 h-6 border border-[#2D2D2D] flex items-center justify-center text-[#888888] hover:text-white hover:border-[#555555] transition-colors"
+                      >
+                        <Minus size={11} />
+                      </button>
+                      <span className="text-white text-sm w-5 text-center">
+                        {item.cantidad}
+                      </span>
+                      <button
+                        onClick={() => updateCantidad(item.id, item.cantidad + 1)}
+                        className="w-6 h-6 border border-[#2D2D2D] flex items-center justify-center text-[#888888] hover:text-white hover:border-[#555555] transition-colors"
+                      >
+                        <Plus size={11} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Remove */}
+                  <button
+                    onClick={() => removeItem(item.id)}
+                    className="text-[#333333] hover:text-red-400 transition-colors self-start mt-0.5"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {/* Footer */}
+        {items.length > 0 && (
+          <div className="border-t border-[#1A1A1A] px-5 py-5 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[#888888] text-sm">Total</span>
+              <span className="text-[#D4AF37] font-bold text-xl">
+                ${total.toLocaleString("es-AR")}
+              </span>
+            </div>
+            <Link
+              href="/checkout"
+              onClick={closeDrawer}
+              className="flex items-center justify-center gap-2 w-full bg-[#D4AF37] text-black font-bold py-3.5 text-sm tracking-wider uppercase hover:bg-[#E8CC6B] transition-colors"
+            >
+              Finalizar compra
+              <ArrowRight size={16} />
+            </Link>
+            <button
+              onClick={closeDrawer}
+              className="w-full text-[#555555] hover:text-white text-xs py-1 transition-colors"
+            >
+              Seguir comprando
+            </button>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}

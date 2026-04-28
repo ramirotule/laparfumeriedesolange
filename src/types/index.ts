@@ -39,6 +39,18 @@ export interface Perfume {
   updated_at: string;
 }
 
+export interface Vendedora {
+  id: string;
+  nombre: string;
+  apellido: string;
+  telefono?: string;
+  email?: string;
+  activo: boolean;
+  notas?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface FiltroPerfumes {
   genero?: string;
   familia?: number;

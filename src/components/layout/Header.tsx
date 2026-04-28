@@ -4,7 +4,8 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { Search, Menu, X, ChevronDown } from "lucide-react";
+import { Search, Menu, X, ChevronDown, ShoppingBag } from "lucide-react";
+import { useCart } from "@/context/CartContext";
 
 const familias = [
   { nombre: "Floral", href: "/perfumes?familia=Floral" },
@@ -34,6 +35,7 @@ export default function Header() {
   const [, startTransition] = useTransition();
   const pathname = usePathname();
   const router = useRouter();
+  const { count, openDrawer } = useCart();
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -156,13 +158,23 @@ export default function Header() {
               >
                 CATÁLOGO
               </Link>
+
+              <Link
+                href="/quienes-somos"
+                className={`text-xs tracking-[0.2em] transition-colors font-medium ${
+                  pathname === "/quienes-somos" ? "text-[#D4AF37]" : "text-white hover:text-[#D4AF37]"
+                }`}
+              >
+                QUIÉNES SOMOS
+              </Link>
             </nav>
 
             <div className="flex items-center gap-6 shrink-0">
               {/* Bagués Link */}
               <Link 
-                href="https://wa.me/5492954592312" 
+                href="https://wa.me/5492954808202?text=Me%20interesa%20que%20me%20cuentes%20qu%C3%A9%20hacer%20para%20vender%20Bagu%C3%A9s" 
                 target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center gap-2 group"
               >
                 <WhatsAppIcon className="text-[#D4AF37] transition-transform group-hover:scale-110" />
@@ -188,12 +200,26 @@ export default function Header() {
                   <Search size={14} />
                 </button>
               </form>
+
+              {/* Cart */}
+              <button
+                onClick={openDrawer}
+                aria-label="Ver carrito"
+                className="relative text-white hover:text-[#D4AF37] transition-colors shrink-0"
+              >
+                <ShoppingBag size={20} />
+                {count > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 bg-[#D4AF37] text-black text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center leading-none">
+                    {count > 9 ? "9+" : count}
+                  </span>
+                )}
+              </button>
             </div>
           </div>
 
-          {/* Mobile: buscador + hamburguesa */}
-          <div className="flex md:hidden items-center gap-3 flex-1 justify-end">
-            <form onSubmit={handleSearch} className="flex flex-1 max-w-[220px]">
+          {/* Mobile: buscador + carrito + hamburguesa */}
+          <div className="flex md:hidden items-center gap-2 flex-1 justify-end">
+            <form onSubmit={handleSearch} className="flex flex-1 max-w-[180px]">
               <input
                 type="search"
                 value={busqueda}
@@ -209,6 +235,20 @@ export default function Header() {
                 <Search size={14} />
               </button>
             </form>
+
+            {/* Cart mobile */}
+            <button
+              onClick={openDrawer}
+              aria-label="Ver carrito"
+              className="relative text-white hover:text-[#D4AF37] transition-colors shrink-0 p-1"
+            >
+              <ShoppingBag size={20} />
+              {count > 0 && (
+                <span className="absolute top-0 right-0 bg-[#D4AF37] text-black text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center leading-none">
+                  {count > 9 ? "9+" : count}
+                </span>
+              )}
+            </button>
 
             <button
               className="text-white hover:text-[#D4AF37] transition-colors shrink-0"
@@ -237,6 +277,10 @@ export default function Header() {
             <Link href="/arabes" onClick={() => setMenuOpen(false)}
               className="text-sm tracking-wider text-[#D4AF37]">
               ✦ PERFUMES ÁRABES
+            </Link>
+            <Link href="/quienes-somos" onClick={() => setMenuOpen(false)}
+              className={`text-sm tracking-wider transition-colors ${pathname === "/quienes-somos" ? "text-[#D4AF37]" : "text-white hover:text-[#D4AF37]"}`}>
+              QUIÉNES SOMOS
             </Link>
             <div className="border-t border-[#2D2D2D] pt-4">
               <p className="text-[#888888] text-xs tracking-widest mb-3">POR GÉNERO</p>

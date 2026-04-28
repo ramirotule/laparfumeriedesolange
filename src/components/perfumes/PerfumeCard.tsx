@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Perfume } from "@/types";
 import { MessageCircle } from "lucide-react";
+import AddToCartButton from "@/components/cart/AddToCartButton";
 
 interface Props {
   perfume: Perfume;
@@ -80,25 +81,39 @@ export default function PerfumeCard({ perfume }: Props) {
           </p>
         )}
 
-        <div className="mt-auto pt-4 flex items-center justify-between gap-2">
-          <div>
+        <div className="mt-auto pt-4">
+          <div className="mb-3">
             <span className="text-[#D4AF37] font-bold text-lg">
               ${perfume.precio_venta.toLocaleString("es-AR")}
             </span>
           </div>
 
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            data-umami-event="whatsapp-consulta"
-            data-umami-event-perfume={perfume.nombre}
-            className="flex items-center gap-1.5 bg-[#1A1A1A] border border-[#2D2D2D] hover:border-[#D4AF37]/50 hover:bg-[#D4AF37]/10 text-white hover:text-[#D4AF37] text-xs px-3 py-2 transition-all duration-200"
-            aria-label={`Consultar ${perfume.nombre} por WhatsApp`}
-          >
-            <MessageCircle size={13} />
-            <span className="hidden sm:inline">Consultar</span>
-          </a>
+          <div className="flex items-center gap-2">
+            <AddToCartButton
+              item={{
+                id: perfume.id,
+                nombre: perfume.nombre,
+                marca: perfume.marca,
+                slug: perfume.slug,
+                precio_venta: perfume.precio_venta,
+                imagen_url: perfume.imagen_url,
+              }}
+              inStock={perfume.stock > 0}
+              variant="card"
+            />
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-umami-event="whatsapp-consulta"
+              data-umami-event-perfume={perfume.nombre}
+              className="flex flex-1 items-center justify-center gap-1.5 bg-[#1A1A1A] border border-[#2D2D2D] hover:border-[#D4AF37]/50 hover:bg-[#D4AF37]/10 text-white hover:text-[#D4AF37] text-xs px-2 py-2 transition-all duration-200 whitespace-nowrap"
+              aria-label={`Consultar ${perfume.nombre} por WhatsApp`}
+            >
+              <MessageCircle size={13} />
+              <span className="hidden sm:inline">Consultar</span>
+            </a>
+          </div>
         </div>
       </div>
     </article>
