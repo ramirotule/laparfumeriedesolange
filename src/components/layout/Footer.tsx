@@ -12,10 +12,10 @@ export default function Footer() {
           <div className="md:col-span-1">
             <Link href="/" className="block mb-4">
               <Image
-                src="/logo.png"
+                src="/logo2.png"
                 alt="La Parfumerie de Solange"
-                width={140}
-                height={140}
+                width={192}
+                height={192}
                 className="w-48 h-auto object-contain"
               />
             </Link>
@@ -33,8 +33,14 @@ export default function Footer() {
             <ul className="space-y-2">
               {[
                 { label: "Todos los Perfumes", href: "/perfumes" },
-                { label: "Perfumes Femeninos", href: "/perfumes?genero=Femenino" },
-                { label: "Perfumes Masculinos", href: "/perfumes?genero=Masculino" },
+                {
+                  label: "Perfumes Femeninos",
+                  href: "/perfumes?genero=Femenino",
+                },
+                {
+                  label: "Perfumes Masculinos",
+                  href: "/perfumes?genero=Masculino",
+                },
                 { label: "Unisex", href: "/perfumes?genero=Unisex" },
                 { label: "Árabes & Oud", href: "/arabes" },
                 { label: "Novedades", href: "/perfumes?nuevo=true" },
@@ -116,30 +122,21 @@ export default function Footer() {
         </div>
 
         {/* Divider */}
-        <div className="border-t border-[#1A1A1A] mt-12 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-[#555555] text-xs tracking-wider">
-            © {new Date().getFullYear()} La Parfumerie de Solange. Todos los derechos reservados.
+        <div className="border-t border-[#1A1A1A] mt-12 pt-8 flex flex-col items-center gap-3 text-center">
+          <p className="text-white text-xs font-bold tracking-wider uppercase">
+            © {new Date().getFullYear()} La Parfumerie de Solange — Todos los derechos reservados.
           </p>
-          <div className="flex items-center gap-4">
+          <p className="text-[#444444] text-xs">
+            Página web desarrollada por{" "}
             <a
-              href="https://www.instagram.com/laparfumerie.desolange/"
+              href="https://www.rtsoftwarefactory.com.ar"
               target="_blank"
               rel="noopener noreferrer"
               className="text-[#555555] hover:text-[#D4AF37] transition-colors"
-              aria-label="Instagram"
             >
-              <InstagramIcon size={18} />
+              RT Software Factory
             </a>
-            <a
-              href="https://wa.me/2954808202"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[#555555] hover:text-[#D4AF37] transition-colors"
-              aria-label="WhatsApp"
-            >
-              <Phone size={18} />
-            </a>
-          </div>
+          </p>
         </div>
       </div>
     </footer>
