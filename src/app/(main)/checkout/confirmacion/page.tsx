@@ -170,7 +170,7 @@ export default async function ConfirmacionPage({ searchParams }: Props) {
         rel="noopener noreferrer"
         className="flex items-center justify-center gap-2 w-full bg-[#D4AF37] text-black font-bold py-4 text-sm tracking-wider uppercase hover:bg-[#E8CC6B] transition-colors mb-4"
       >
-        <img src="/whatsapp.png" alt="WhatsApp" className="w-5 h-5 rounded-full object-cover" />
+        <img src="/what.png" alt="WhatsApp" className="w-5 h-5 rounded-full object-cover" />
         Confirmar por WhatsApp
       </a>
 

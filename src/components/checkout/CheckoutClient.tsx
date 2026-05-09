@@ -196,24 +196,24 @@ export default function CheckoutPage() {
               <label className="block text-gray-500 text-xs uppercase tracking-wider mb-1.5">
                 Dirección / Barrio (para envío en Santa Rosa)
               </label>
-              <input
-                value={direccion}
-                onChange={(e) => setDireccion(e.target.value)}
-                className="w-full bg-white border border-gray-200 text-black px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
-                placeholder="Calle 123, Barrio Norte — o 'Retiro en tienda'"
-              />
+                <input
+                  value={direccion}
+                  onChange={(e) => setDireccion(e.target.value)}
+                  className="w-full bg-black border border-[#1A1A1A] text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
+                  placeholder="Calle 123, Barrio Norte — o 'Retiro en tienda'"
+                />
             </div>
             <div className="mt-4">
               <label className="block text-gray-500 text-xs uppercase tracking-wider mb-1.5">
                 Notas del pedido
               </label>
-              <textarea
-                value={notas}
-                onChange={(e) => setNotas(e.target.value)}
-                rows={2}
-                className="w-full bg-white border border-gray-200 text-black px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors resize-none"
-                placeholder="Indicaciones especiales, horario preferido, etc."
-              />
+                <textarea
+                  value={notas}
+                  onChange={(e) => setNotas(e.target.value)}
+                  rows={2}
+                  className="w-full bg-black border border-[#1A1A1A] text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors resize-none"
+                  placeholder="Indicaciones especiales, horario preferido, etc."
+                />
             </div>
           </section>
 
@@ -245,7 +245,7 @@ export default function CheckoutPage() {
                     />
                     <div
                       className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
-                        selected ? "border-[#D4AF37]" : "border-gray-300"
+                        ? "border-[#D4AF37]" : "border-[#333333]"
                       }`}
                     >
                       {selected && (
@@ -336,7 +336,7 @@ export default function CheckoutPage() {
               ))}
             </ul>
 
-            <div className="border-t border-gray-100 pt-5 space-y-3">
+            <div className="border-t border-[#1A1A1A] pt-5 space-y-3">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">Subtotal</span>
                 <span className="text-white">{formatPrice(finalTotal)}</span>
@@ -356,7 +356,7 @@ export default function CheckoutPage() {
                 </div>
               )}
 
-              <div className="flex justify-between items-end pt-4 border-t border-gray-100">
+              <div className="flex justify-between items-end pt-4 border-t border-[#1A1A1A]">
                 <div className="flex flex-col">
                   <span className="text-white font-bold text-sm uppercase tracking-wider">Total</span>
                   <span className="text-gray-400 text-[10px]">

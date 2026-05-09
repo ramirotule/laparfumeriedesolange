@@ -36,11 +36,6 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // Redirigir de /login si ya está autenticado
-  if (request.nextUrl.pathname === "/login" && user) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
-  }
-
   return supabaseResponse;
 }
 

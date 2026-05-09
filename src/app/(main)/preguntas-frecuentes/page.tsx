@@ -189,7 +189,7 @@ export default function FAQPage() {
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 bg-[#D4AF37] text-black font-bold px-8 py-3.5 text-sm tracking-wider uppercase hover:bg-[#E8CC6B] transition-colors"
         >
-          <img src="/whatsapp.png" alt="WhatsApp" className="w-5 h-5 rounded-full object-cover" />
+          <img src="/what.png" alt="WhatsApp" className="w-5 h-5 rounded-full object-cover" />
           Consultar por WhatsApp
         </a>
       </div>

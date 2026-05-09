@@ -6,7 +6,8 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { Search, Menu, X, ChevronDown, ShoppingBag } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import { ThemeToggle } from "@/components/theme/ThemeToggle";
+
+import { aromatizantes, bienestar } from "@/constants/navigation";
 
 const familias = [
   { nombre: "Floral", href: "/perfumes?familia=Floral" },
@@ -23,40 +24,7 @@ const generos = [
   { nombre: "Unisex", href: "/perfumes?genero=Unisex" },
 ];
 
-const aromatizantes = [
-  {
-    nombre: "Aromatizantes Ambientales",
-    sub: [
-      { nombre: "Hogar", href: "/perfumes?categoria=aromatizantes-hogar" },
-      { nombre: "Textil", href: "/perfumes?categoria=aromatizantes-textil" },
-      { nombre: "Auto", href: "/perfumes?categoria=aromatizantes-auto" },
-    ],
-  },
-  { nombre: "Difusores", href: "/perfumes?categoria=difusores" },
-  { nombre: "Ropa", href: "/perfumes?categoria=ropa" },
-  { nombre: "Esenciales", href: "/perfumes?categoria=esenciales" },
-];
-
-const bienestar = [
-  { nombre: "Ver Todo", href: "/perfumes?seccion=bienestar" },
-  {
-    nombre: "ACEITES ESENCIALES",
-    sub: [
-      {
-        nombre: "Aceites Puros Esenciales",
-        href: "/perfumes?categoria=aceites-puros",
-      },
-      {
-        nombre: "Aceites Cosmetológicos",
-        href: "/perfumes?categoria=aceites-cosmetologicos",
-      },
-      { nombre: "Blend", href: "/perfumes?categoria=aceites-blend" },
-    ],
-  },
-  { nombre: "BRUMAS DE ALMOHADAS", href: "/perfumes?categoria=brumas" },
-  { nombre: "TRATAMIENTOS", href: "/perfumes?categoria=tratamientos" },
-  { nombre: "BÁLSAMOS", href: "/perfumes?categoria=balsamos" },
-];
+// Constantes movidas a @/constants/navigation.ts
 
 const WhatsAppIcon = ({ className }: { className?: string }) => (
   <svg
@@ -96,7 +64,7 @@ export default function Header() {
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col">
           {/* Fila Superior: Links de Utilidad (Muy compacta) */}
-          <div className="hidden md:flex items-center justify-end gap-8 py-2 px-4 border-b border-[#1A1A1A]/50">
+          <div className="hidden md:flex items-center justify-end gap-8 py-2 px-4 border-b border-[#1A1A1A]/50 max-w-[80%] ml-auto">
             <Link
               href="https://wa.me/542954808202?text=Me%20interesa%20emprender%20con%20Bagu%C3%A9s"
               target="_blank"
@@ -135,15 +103,15 @@ export default function Header() {
           </div>
 
           {/* Fila Principal: Logo + Navegación + Acciones */}
-          <div className="flex items-center justify-between py-2 md:py-4 px-4 gap-8">
+          <div className="flex items-center justify-between py-2 md:py-3 px-4 gap-8">
             {/* Logo */}
             <Link href="/" className="shrink-0">
               <Image
                 src="/logo2.png"
                 alt="La Parfumerie de Solange"
-                width={180}
-                height={180}
-                className="h-12 md:h-14 w-auto object-contain transition-transform hover:scale-105"
+                width={200}
+                height={200}
+                className="h-14 md:h-20 w-auto object-contain transition-transform hover:scale-105"
                 priority
               />
             </Link>
@@ -181,11 +149,22 @@ export default function Header() {
                 {megaMenuOpen && (
                   <div className="absolute top-full left-1/2 -translate-x-1/2 w-[240px] pt-4 z-50">
                     <div className="bg-[#0D0D0D] border border-[#1A1A1A] shadow-2xl shadow-black/80 p-6 flex flex-col gap-6">
+                      {/* Ver Todo */}
+                      <Link
+                        href="/perfumes"
+                        className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
+                      >
+                        VER TODO
+                      </Link>
+
                       {/* Unlock */}
                       <div>
-                        <h3 className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1">
+                        <Link
+                          href="/perfumes/unlock"
+                          className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
+                        >
                           Unlock
-                        </h3>
+                        </Link>
                         <div className="flex flex-col gap-1.5">
                           <Link
                             href="/perfumes?marca=Unlock&genero=Femenino"
@@ -210,9 +189,12 @@ export default function Header() {
 
                       {/* Árabes */}
                       <div>
-                        <h3 className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1">
-                          ✦ Árabes
-                        </h3>
+                        <Link
+                          href="/arabes"
+                          className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
+                        >
+                          Árabes
+                        </Link>
                         <div className="flex flex-col gap-1.5">
                           <Link
                             href="/perfumes?categoria=arabes&genero=Femenino"
@@ -237,9 +219,12 @@ export default function Header() {
 
                       {/* Internacionales */}
                       <div>
-                        <h3 className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1">
+                        <Link
+                          href="/perfumes/internacionales"
+                          className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
+                        >
                           Internacionales
-                        </h3>
+                        </Link>
                         <div className="flex flex-col gap-1.5">
                           <Link
                             href="/perfumes?tipo=internacional&genero=Femenino"
@@ -260,16 +245,6 @@ export default function Header() {
                             Unisex
                           </Link>
                         </div>
-                      </div>
-
-                      {/* Ver Todo */}
-                      <div className="pt-2 border-t border-[#2D2D2D]">
-                        <Link
-                          href="/perfumes"
-                          className="text-[#D4AF37] text-[11px] font-bold tracking-[0.2em] hover:text-white transition-colors uppercase block text-center"
-                        >
-                          Ver Todo el Catálogo
-                        </Link>
                       </div>
                     </div>
                   </div>
@@ -346,28 +321,39 @@ export default function Header() {
 
                 {bienestarOpen && (
                   <div className="absolute top-full left-1/2 -translate-x-1/2 w-[240px] pt-4 z-50">
-                    <div className="bg-[#0D0D0D] border border-[#2D2D2D] shadow-2xl shadow-black/80 p-5">
+                    <div className="bg-[#0D0D0D] border border-[#2D2D2D] shadow-2xl shadow-black/80 p-6 flex flex-col gap-6">
                       {bienestar.map((item) => (
-                        <div key={item.nombre} className="mb-2 last:mb-0">
+                        <div key={item.nombre}>
                           {item.sub ? (
                             <>
-                              <p className="text-[#D4AF37] text-xs tracking-widest mb-1 uppercase font-bold">
-                                {item.nombre}
-                              </p>
-                              {item.sub.map((s) => (
+                              {item.href ? (
                                 <Link
-                                  key={s.nombre}
-                                  href={s.href}
-                                  className="block text-xs text-[#cccccc] hover:text-[#D4AF37] py-1 transition-colors pl-2"
+                                  href={item.href}
+                                  className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
                                 >
-                                  {s.nombre}
+                                  {item.nombre}
                                 </Link>
-                              ))}
+                              ) : (
+                                <h3 className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1">
+                                  {item.nombre}
+                                </h3>
+                              )}
+                              <div className="flex flex-col gap-1.5">
+                                {item.sub.map((s) => (
+                                  <Link
+                                    key={s.nombre}
+                                    href={s.href}
+                                    className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
+                                  >
+                                    {s.nombre}
+                                  </Link>
+                                ))}
+                              </div>
                             </>
                           ) : (
                             <Link
                               href={item.href}
-                              className="block text-xs text-[#cccccc] hover:text-[#D4AF37] py-1 transition-colors font-medium"
+                              className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
                             >
                               {item.nombre}
                             </Link>
@@ -398,28 +384,39 @@ export default function Header() {
 
                 {aromatizantesOpen && (
                   <div className="absolute top-full left-1/2 -translate-x-1/2 w-[240px] pt-4 z-50">
-                    <div className="bg-[#0D0D0D] border border-[#2D2D2D] shadow-2xl shadow-black/80 p-5">
+                    <div className="bg-[#0D0D0D] border border-[#2D2D2D] shadow-2xl shadow-black/80 p-6 flex flex-col gap-6">
                       {aromatizantes.map((item) => (
-                        <div key={item.nombre} className="mb-2 last:mb-0">
+                        <div key={item.nombre}>
                           {item.sub ? (
                             <>
-                              <p className="text-[#D4AF37] text-xs tracking-widest mb-1 uppercase font-bold">
-                                {item.nombre}
-                              </p>
-                              {item.sub.map((s) => (
+                              {item.href ? (
                                 <Link
-                                  key={s.nombre}
-                                  href={s.href}
-                                  className="block text-xs text-[#cccccc] hover:text-[#D4AF37] py-1 transition-colors pl-2"
+                                  href={item.href}
+                                  className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
                                 >
-                                  {s.nombre}
+                                  {item.nombre}
                                 </Link>
-                              ))}
+                              ) : (
+                                <h3 className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1">
+                                  {item.nombre}
+                                </h3>
+                              )}
+                              <div className="flex flex-col gap-1.5">
+                                {item.sub.map((s) => (
+                                  <Link
+                                    key={s.nombre}
+                                    href={s.href}
+                                    className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
+                                  >
+                                    {s.nombre}
+                                  </Link>
+                                ))}
+                              </div>
                             </>
                           ) : (
                             <Link
                               href={item.href}
-                              className="block text-xs text-[#cccccc] hover:text-[#D4AF37] py-1 transition-colors font-medium"
+                              className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
                             >
                               {item.nombre}
                             </Link>
@@ -476,11 +473,8 @@ export default function Header() {
                   Carrito
                 </span>
               </button>
-
-              {/* <ThemeToggle /> */}
             </div>
           </div>
-
 
           {/* Mobile: buscador + carrito + hamburguesa */}
           <div className="flex md:hidden items-center gap-2 flex-1 justify-end">
@@ -522,7 +516,6 @@ export default function Header() {
             >
               {menuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
-            {/* <ThemeToggle /> */}
           </div>
         </div>
       </div>
@@ -530,43 +523,62 @@ export default function Header() {
       {/* Mobile Menu */}
       {menuOpen && (
         <div className="md:hidden bg-[#0D0D0D] border-t border-[#1A1A1A] px-4 py-6">
-              <nav className="flex flex-col gap-4">
-                <Link
-                  href="/"
-                  onClick={() => setMenuOpen(false)}
-                  className="text-sm tracking-wider text-white hover:text-[#D4AF37] transition-colors"
-                >
-                  INICIO
-                </Link>
+          <nav className="flex flex-col gap-4">
+            <Link
+              href="/"
+              onClick={() => setMenuOpen(false)}
+              className="text-sm tracking-wider text-white hover:text-[#D4AF37] transition-colors"
+            >
+              INICIO
+            </Link>
+            <Link
+              href="/perfumes"
+              onClick={() => setMenuOpen(false)}
+              className="text-sm tracking-wider text-white hover:text-[#D4AF37] transition-colors"
+            >
+              FRAGANCIAS
+            </Link>
 
             {/* Bienestar Mobile */}
             <div className="border-t border-[#2D2D2D] pt-4">
-              <p className="text-[#D4AF37] text-xs tracking-widest mb-3 uppercase font-bold">
+              <p className="text-[#D4AF37] text-xs tracking-widest mb-4 uppercase font-bold">
                 BIENESTAR
               </p>
               {bienestar.map((item) => (
-                <div key={item.nombre} className="pl-2 mb-2">
+                <div key={item.nombre} className="pl-2 mb-4 last:mb-0">
                   {item.sub ? (
                     <>
-                      <p className="text-[#888888] text-xs tracking-widest mb-1 uppercase font-semibold">
-                        {item.nombre}
-                      </p>
-                      {item.sub.map((s) => (
+                      {item.href ? (
                         <Link
-                          key={s.nombre}
-                          href={s.href}
+                          href={item.href}
                           onClick={() => setMenuOpen(false)}
-                          className="block text-xs text-[#cccccc] hover:text-[#D4AF37] py-1.5 transition-colors pl-2"
+                          className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
                         >
-                          {s.nombre}
+                          {item.nombre}
                         </Link>
-                      ))}
+                      ) : (
+                        <h3 className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-2 uppercase opacity-50 border-b border-[#2D2D2D] pb-1">
+                          {item.nombre}
+                        </h3>
+                      )}
+                      <div className="flex flex-col gap-1">
+                        {item.sub.map((s) => (
+                          <Link
+                            key={s.nombre}
+                            href={s.href}
+                            onClick={() => setMenuOpen(false)}
+                            className="block text-xs text-[#cccccc] hover:text-[#D4AF37] py-1 transition-colors pl-2"
+                          >
+                            {s.nombre}
+                          </Link>
+                        ))}
+                      </div>
                     </>
                   ) : (
                     <Link
                       href={item.href}
                       onClick={() => setMenuOpen(false)}
-                      className="block text-xs text-[#cccccc] hover:text-[#D4AF37] py-1.5 transition-colors"
+                      className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
                     >
                       {item.nombre}
                     </Link>
@@ -577,32 +589,44 @@ export default function Header() {
 
             {/* Aromatizantes Mobile */}
             <div className="border-t border-[#2D2D2D] pt-4">
-              <p className="text-[#D4AF37] text-xs tracking-widest mb-3 uppercase font-bold">
+              <p className="text-[#D4AF37] text-xs tracking-widest mb-4 uppercase font-bold">
                 AROMATIZANTES
               </p>
               {aromatizantes.map((item) => (
-                <div key={item.nombre} className="pl-2 mb-2">
+                <div key={item.nombre} className="pl-2 mb-4 last:mb-0">
                   {item.sub ? (
                     <>
-                      <p className="text-[#888888] text-xs tracking-widest mb-1 uppercase font-semibold">
-                        {item.nombre}
-                      </p>
-                      {item.sub.map((s) => (
+                      {item.href ? (
                         <Link
-                          key={s.nombre}
-                          href={s.href}
+                          href={item.href}
                           onClick={() => setMenuOpen(false)}
-                          className="block text-xs text-[#cccccc] hover:text-[#D4AF37] py-1.5 transition-colors pl-2"
+                          className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
                         >
-                          {s.nombre}
+                          {item.nombre}
                         </Link>
-                      ))}
+                      ) : (
+                        <h3 className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-2 uppercase opacity-50 border-b border-[#2D2D2D] pb-1">
+                          {item.nombre}
+                        </h3>
+                      )}
+                      <div className="flex flex-col gap-1">
+                        {item.sub.map((s) => (
+                          <Link
+                            key={s.nombre}
+                            href={s.href}
+                            onClick={() => setMenuOpen(false)}
+                            className="block text-xs text-[#cccccc] hover:text-[#D4AF37] py-1 transition-colors pl-2"
+                          >
+                            {s.nombre}
+                          </Link>
+                        ))}
+                      </div>
                     </>
                   ) : (
                     <Link
                       href={item.href}
                       onClick={() => setMenuOpen(false)}
-                      className="block text-xs text-[#cccccc] hover:text-[#D4AF37] py-1.5 transition-colors"
+                      className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
                     >
                       {item.nombre}
                     </Link>

@@ -10,10 +10,6 @@ interface Props {
 }
 
 export default function PerfumeCard({ perfume, isCompact = false }: Props) {
-  const whatsappMsg = encodeURIComponent(
-    `Hola! Me interesa el perfume *${perfume.nombre}* de *${perfume.marca}*. ¿Tienen stock disponible?`
-  );
-  const whatsappUrl = `https://wa.me/2954808202?text=${whatsappMsg}`;
 
   if (isCompact) {
     return (
@@ -85,12 +81,12 @@ export default function PerfumeCard({ perfume, isCompact = false }: Props) {
             </span>
           )}
           {perfume.destacado && !perfume.nuevo && (
-            <span className="bg-white/90 border border-[#D4AF37]/50 text-[#D4AF37] text-[9px] font-bold tracking-wider px-2 py-0.5 uppercase">
+            <span className="bg-[#1A1A1A] border border-[#D4AF37]/50 text-[#D4AF37] text-[9px] font-bold tracking-wider px-2 py-0.5 uppercase">
               Destacado
             </span>
           )}
           {perfume.stock === 0 && (
-            <span className="bg-white/90 border border-gray-300 text-gray-500 text-[9px] font-bold tracking-wider px-2 py-0.5 uppercase">
+            <span className="bg-[#1A1A1A] border border-gray-800 text-gray-500 text-[9px] font-bold tracking-wider px-2 py-0.5 uppercase">
               Sin stock
             </span>
           )}
@@ -98,7 +94,7 @@ export default function PerfumeCard({ perfume, isCompact = false }: Props) {
 
         {/* Género badge */}
         <div className="absolute top-2 right-2">
-          <span className="bg-white/80 text-gray-600 text-[9px] tracking-wider px-2 py-0.5 uppercase">
+          <span className="bg-black/60 border border-[#1A1A1A] text-gray-300 text-[9px] tracking-wider px-2 py-0.5 uppercase backdrop-blur-sm">
             {perfume.genero}
           </span>
         </div>
@@ -152,18 +148,6 @@ export default function PerfumeCard({ perfume, isCompact = false }: Props) {
               inStock={perfume.stock > 0}
               variant="card"
             />
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              data-umami-event="whatsapp-consulta"
-              data-umami-event-perfume={perfume.nombre}
-              className="flex flex-1 items-center justify-center gap-1.5 bg-[#141414] border border-[#2D2D2D] hover:border-[#D4AF37]/50 hover:bg-[#D4AF37]/5 text-[#888888] hover:text-[#D4AF37] text-xs px-2 py-2 transition-all duration-200 whitespace-nowrap"
-              aria-label={`Consultar ${perfume.nombre} por WhatsApp`}
-            >
-              <img src="/whatsapp.png" alt="WhatsApp" className="w-3.5 h-3.5 rounded-full object-cover" />
-              <span className="hidden sm:inline">Consultar</span>
-            </a>
           </div>
         </div>
       </div>

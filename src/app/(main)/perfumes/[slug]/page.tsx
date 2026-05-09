@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import Script from "next/script";
 import { createClient } from "@/lib/supabase/server";
 import { Perfume } from "@/types";
 import { ChevronRight, MapPin } from "lucide-react";
@@ -117,7 +118,8 @@ export default async function PerfumePage({ params }: Props) {
 
   return (
     <>
-      <script
+      <Script
+        id={`ld-json-product-${perfume.id}`}
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
       />
@@ -261,7 +263,7 @@ export default async function PerfumePage({ params }: Props) {
                 data-umami-event-perfume={perfume.nombre}
                 className="flex items-center justify-center gap-2 border border-[#D4AF37]/40 text-[#D4AF37] font-semibold px-4 py-3.5 text-sm hover:bg-[#D4AF37]/10 transition-colors flex-1 whitespace-nowrap"
               >
-                <img src="/whatsapp.png" alt="WhatsApp" className="w-5 h-5 rounded-full object-cover" />
+                <img src="/what.png" alt="WhatsApp" className="w-5 h-5 rounded-full object-cover" />
                 Consultar
               </a>
             </div>

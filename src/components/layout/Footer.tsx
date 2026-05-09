@@ -96,7 +96,7 @@ export default function Footer() {
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-gray-500 hover:text-[#D4AF37] transition-colors text-sm"
               >
-                <img src="/whatsapp.png" alt="WhatsApp" className="w-4 h-4 rounded-full object-cover" />
+                <img src="/what.png" alt="WhatsApp" className="w-4 h-4 rounded-full object-cover" />
                 +54 9 2954 808202
               </a>
 

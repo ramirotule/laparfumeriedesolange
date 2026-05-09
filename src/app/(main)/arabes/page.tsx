@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Perfume } from "@/types";
 import PerfumeGrid from "@/components/perfumes/PerfumeGrid";
 import Link from "next/link";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "Perfumería Árabe en Santa Rosa La Pampa | Oud, Bagues y Fragancias Orientales",
@@ -95,7 +96,8 @@ export default async function ArabesPage() {
 
   return (
     <>
-      <script
+      <Script
+        id="ld-json-arabes"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(localSchema) }}
       />
@@ -138,7 +140,7 @@ export default async function ArabesPage() {
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 border border-[#D4AF37]/60 text-[#D4AF37] font-semibold px-8 py-4 text-sm hover:bg-[#D4AF37]/10 transition-colors"
             >
-              <img src="/whatsapp.png" alt="WhatsApp" className="w-4 h-4 rounded-full object-cover" />
+              <img src="/what.png" alt="WhatsApp" className="w-4 h-4 rounded-full object-cover" />
               Consultar por WhatsApp
             </a>
           </div>
@@ -194,7 +196,7 @@ export default async function ArabesPage() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-[#D4AF37] text-black font-bold px-8 py-4 text-sm uppercase tracking-wider hover:bg-[#E8CC6B] transition-colors"
             >
-              <img src="/whatsapp.png" alt="WhatsApp" className="w-4 h-4 rounded-full object-cover" />
+              <img src="/what.png" alt="WhatsApp" className="w-4 h-4 rounded-full object-cover" />
               Consultar disponibilidad
             </a>
           </div>

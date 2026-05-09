@@ -1,0 +1,184 @@
+import { createClient } from "@/lib/supabase/server";
+import { Perfume } from "@/types";
+import PerfumeGrid from "@/components/perfumes/PerfumeGrid";
+import FiltrosCatalogo from "@/components/perfumes/FiltrosCatalogo";
+import CategoriasSidebar from "@/components/perfumes/CategoriasSidebar";
+
+interface SearchParams {
+  genero?: string;
+  familia?: string;
+  ordenar?: string;
+  busqueda?: string;
+  nuevo?: string;
+  destacado?: string;
+  q?: string;
+  acordes?: string;
+  notas?: string;
+  marca?: string;
+  categoria?: string;
+  seccion?: string;
+  tipo?: string;
+}
+
+async function getPerfumes(params: SearchParams): Promise<Perfume[]> {
+  try {
+    const supabase = await createClient();
+    let query = supabase
+      .from("perfumes")
+      .select("*, familia_olfativa:familias_olfativas(*)")
+      .eq("activo", true);
+
+    if (params.genero) {
+      if (params.genero === "Internacional") {
+        query = query.neq("genero", "Árabe");
+      } else {
+        query = query.eq("genero", params.genero);
+      }
+    }
+    
+    if (params.tipo === "internacional") {
+      query = query.neq("genero", "Árabe");
+    }
+
+    if (params.nuevo === "true") query = query.eq("nuevo", true);
+    if (params.destacado === "true") query = query.eq("destacado", true);
+    if (params.categoria) query = query.eq("categoria", params.categoria);
+    if (params.marca) query = query.eq("marca", params.marca);
+    
+    if (params.seccion === "bienestar") {
+      query = query.ilike("categoria", "%bienestar%");
+    }
+
+    if (params.seccion === "aromatizantes") {
+      query = query.ilike("categoria", "%aromatizantes%");
+    }
+
+    if (params.busqueda || params.q) {
+      const term = params.busqueda || params.q || "";
+      query = query.or(
+        `nombre.ilike.%${term}%,marca.ilike.%${term}%,descripcion.ilike.%${term}%`,
+      );
+    }
+
+    if (params.acordes) {
+      const acordesList = params.acordes.split(",").map(a => a.trim());
+      acordesList.forEach(acorde => {
+        query = query.ilike("descripcion", `%${acorde}%`);
+      });
+    }
+
+    if (params.notas) {
+      const notasList = params.notas.split(",").map(n => n.trim());
+      notasList.forEach(nota => {
+        query = query.ilike("descripcion", `%${nota}%`);
+      });
+    }
+
+    if (params.familia) {
+      const { data: familia } = await supabase
+        .from("familias_olfativas")
+        .select("id")
+        .eq("nombre", params.familia)
+        .single();
+      if (familia) query = query.eq("familia_olfativa_id", familia.id);
+    }
+
+    switch (params.ordenar) {
+      case "precio_asc":
+        query = query.order("precio_venta", { ascending: true });
+        break;
+      case "precio_desc":
+        query = query.order("precio_venta", { ascending: false });
+        break;
+      case "nombre":
+        query = query.order("nombre", { ascending: true });
+        break;
+      default:
+        query = query
+          .order("destacado", { ascending: false })
+          .order("created_at", { ascending: false });
+    }
+
+    const { data } = await query.limit(100);
+    return (data as Perfume[]) || [];
+  } catch {
+    return [];
+  }
+}
+
+export default async function CatalogView({
+  searchParams,
+  title,
+}: {
+  searchParams: SearchParams;
+  title?: string;
+}) {
+  const perfumes = await getPerfumes(searchParams);
+
+  const displayTitle = title || (searchParams.genero
+    ? `Perfumes ${searchParams.genero}s`
+    : searchParams.familia
+      ? `Perfumes ${searchParams.familia}s`
+      : searchParams.nuevo === "true"
+        ? "Novedades"
+        : searchParams.destacado === "true"
+          ? "Perfumes Destacados"
+          : searchParams.categoria
+            ? searchParams.categoria.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase())
+            : searchParams.seccion === "bienestar"
+              ? "Línea Bienestar"
+              : "Catálogo de Perfumes");
+
+  return (
+    <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="px-4 sm:px-6 lg:px-8 mb-10">
+        <p className="text-[#D4AF37] text-xs tracking-[0.3em] uppercase mb-2">
+          La Parfumerie de Solange
+        </p>
+        <h1 className="font-serif text-4xl md:text-5xl text-white mb-4">
+          {displayTitle}
+        </h1>
+        <p className="text-[#888888] text-sm">
+          {perfumes.length}{" "}
+          {searchParams.seccion === "bienestar" || searchParams.seccion === "aromatizantes"
+            ? "producto"
+            : "fragancia"}
+          {perfumes.length !== 1 ? "s" : ""} encontrados en{" "}
+          {searchParams.categoria
+            ? searchParams.categoria
+                .replace(/-/g, " ")
+                .replace(/\b\w/g, (l) => l.toUpperCase())
+            : searchParams.seccion === "bienestar"
+              ? "toda la categoría Bienestar"
+              : searchParams.seccion === "aromatizantes"
+                ? "toda la categoría Aromatizantes"
+                : "el catálogo"}
+        </p>
+      </div>
+
+      {/* Filtros Superiores (Horizontales) */}
+      <div className="px-4 sm:px-6 lg:px-8">
+        <FiltrosCatalogo
+          activeParams={searchParams as Record<string, string | undefined>}
+        />
+      </div>
+
+      <div className="flex flex-col lg:flex-row gap-12 px-4 sm:px-6 lg:px-8">
+        {/* Grilla de Productos (Centro) */}
+        <div className="flex-1 min-w-0">
+          <PerfumeGrid
+            perfumes={perfumes}
+            emptyMessage="No encontramos productos con ese filtro. Probá con otras opciones."
+          />
+        </div>
+
+        {/* Sidebar Derecha (Categorías) - Solo mostrar si NO es bienestar o aromatizantes */}
+        {!(searchParams.seccion === "bienestar" || searchParams.seccion === "aromatizantes") && (
+          <aside className="lg:w-72 shrink-0">
+            <CategoriasSidebar />
+          </aside>
+        )}
+      </div>
+    </div>
+  );
+}
