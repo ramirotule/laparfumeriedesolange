@@ -17,6 +17,8 @@ interface SearchParams {
   acordes?: string;
   notas?: string;
   marca?: string;
+  categoria?: string;
+  seccion?: string;
 }
 
 export const metadata: Metadata = {
@@ -39,6 +41,13 @@ async function getPerfumes(params: SearchParams): Promise<Perfume[]> {
     if (params.genero) query = query.eq("genero", params.genero);
     if (params.nuevo === "true") query = query.eq("nuevo", true);
     if (params.destacado === "true") query = query.eq("destacado", true);
+    if (params.categoria) query = query.eq("categoria", params.categoria);
+    if (params.seccion === "bienestar") {
+      // Si es la sección bienestar, mostramos todo lo que NO sea perfume tradicional si no tiene categoría
+      // O simplemente filtramos por un prefijo si lo definimos así.
+      // Por ahora, asumimos que 'bienestar' es una categoría padre o un tag.
+      query = query.ilike("categoria", "%bienestar%");
+    }
 
     if (params.busqueda || params.q) {
       const term = params.busqueda || params.q || "";
@@ -111,7 +120,11 @@ export default async function CatalogPage({
         ? "Novedades"
         : params.destacado === "true"
           ? "Perfumes Destacados"
-          : "Catálogo de Perfumes";
+          : params.categoria
+            ? params.categoria.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase())
+            : params.seccion === "bienestar"
+              ? "Línea Bienestar"
+              : "Catálogo de Perfumes";
 
   return (
     <div className="w-full mx-auto px-15 sm:px-6 lg:px-18 py-12">
@@ -120,7 +133,7 @@ export default async function CatalogPage({
         <p className="text-[#D4AF37] text-xs tracking-[0.3em] uppercase mb-2">
           La Parfumerie de Solange
         </p>
-        <h1 className="font-serif text-4xl md:text-5xl text-white mb-4">
+        <h1 className="font-serif text-4xl md:text-5xl text-black mb-4">
           {titulo}
         </h1>
         <p className="text-[#888888] text-sm">

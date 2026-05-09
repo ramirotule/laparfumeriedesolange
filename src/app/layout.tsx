@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import "./globals.css";
+import WhatsAppButton from "@/components/ui/WhatsAppButton";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -103,6 +104,7 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         {children}
+        <WhatsAppButton />
 
         {umamiId && (
           <Script

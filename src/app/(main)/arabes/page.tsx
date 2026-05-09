@@ -3,7 +3,6 @@ import { createClient } from "@/lib/supabase/server";
 import { Perfume } from "@/types";
 import PerfumeGrid from "@/components/perfumes/PerfumeGrid";
 import Link from "next/link";
-import { MessageCircle } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Perfumería Árabe en Santa Rosa La Pampa | Oud, Bagues y Fragancias Orientales",
@@ -102,7 +101,7 @@ export default async function ArabesPage() {
       />
 
       {/* Hero árabe */}
-      <section className="relative overflow-hidden bg-[#050300] py-24 px-4">
+      <section className="relative overflow-hidden bg-white py-24 px-4 border-b border-gray-100">
         <div
           className="absolute inset-0 opacity-[0.04]"
           style={{
@@ -115,11 +114,11 @@ export default async function ArabesPage() {
           <p className="text-[#D4AF37] text-xs tracking-[0.6em] uppercase mb-6">
             La Parfumerie de Solange
           </p>
-          <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl text-white mb-6 leading-none">
+          <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl text-black mb-6 leading-none">
             Perfumería
             <span className="block text-[#D4AF37]">Árabe</span>
           </h1>
-          <p className="text-[#888888] text-lg md:text-xl max-w-2xl mx-auto mb-3 leading-relaxed">
+          <p className="text-gray-500 text-lg md:text-xl max-w-2xl mx-auto mb-3 leading-relaxed">
             El arte milenario de Oriente Medio llega a Santa Rosa, La Pampa.
             Fragancias de oud, ámbar y rosas árabes que perduran en el tiempo.
           </p>
@@ -139,7 +138,7 @@ export default async function ArabesPage() {
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 border border-[#D4AF37]/60 text-[#D4AF37] font-semibold px-8 py-4 text-sm hover:bg-[#D4AF37]/10 transition-colors"
             >
-              <MessageCircle size={16} />
+              <img src="/whatsapp.png" alt="WhatsApp" className="w-4 h-4 rounded-full object-cover" />
               Consultar por WhatsApp
             </a>
           </div>
@@ -147,17 +146,17 @@ export default async function ArabesPage() {
       </section>
 
       {/* Características */}
-      <section className="bg-[#050505] border-y border-[#1A1A1A] py-16">
+      <section className="bg-gray-50 border-y border-gray-100 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {caracteristicas.map((c) => (
               <div
                 key={c.titulo}
-                className="text-center p-6 border border-[#1A1A1A] bg-[#0A0A0A]"
+                className="text-center p-6 border border-gray-200 bg-white shadow-sm"
               >
                 <div className="text-4xl mb-4">{c.icono}</div>
                 <h3 className="font-serif text-lg text-[#D4AF37] mb-2">{c.titulo}</h3>
-                <p className="text-[#888888] text-sm leading-relaxed">{c.descripcion}</p>
+                <p className="text-gray-500 text-sm leading-relaxed">{c.descripcion}</p>
               </div>
             ))}
           </div>
@@ -173,10 +172,10 @@ export default async function ArabesPage() {
           <p className="text-[#D4AF37] text-xs tracking-[0.3em] uppercase mb-2">
             Colección exclusiva
           </p>
-          <h2 className="font-serif text-3xl md:text-4xl text-white mb-4">
+          <h2 className="font-serif text-3xl md:text-4xl text-black mb-4">
             Nuestros Perfumes Árabes
           </h2>
-          <p className="text-[#888888] max-w-xl mx-auto text-sm">
+          <p className="text-gray-500 max-w-xl mx-auto text-sm">
             Todos los perfumes disponibles en tienda física en Ayala 604, Santa Rosa, La Pampa.
             Consultas por WhatsApp.
           </p>
@@ -195,7 +194,7 @@ export default async function ArabesPage() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-[#D4AF37] text-black font-bold px-8 py-4 text-sm uppercase tracking-wider hover:bg-[#E8CC6B] transition-colors"
             >
-              <MessageCircle size={16} />
+              <img src="/whatsapp.png" alt="WhatsApp" className="w-4 h-4 rounded-full object-cover" />
               Consultar disponibilidad
             </a>
           </div>
@@ -203,12 +202,12 @@ export default async function ArabesPage() {
       </section>
 
       {/* Artículo SEO */}
-      <section className="bg-[#050505] border-t border-[#1A1A1A] py-16">
+      <section className="bg-gray-50 border-t border-gray-100 py-16">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="font-serif text-2xl text-white mb-6">
+          <h2 className="font-serif text-2xl text-black mb-6">
             La Perfumería Árabe en Argentina: Una Experiencia Única
           </h2>
-          <div className="space-y-4 text-[#888888] text-sm leading-relaxed">
+          <div className="space-y-4 text-gray-500 text-sm leading-relaxed">
             <p>
               La perfumería árabe tiene una tradición de más de 5.000 años. El <strong className="text-[#cccccc]">oud</strong>,
               conocido como el &quot;oro negro&quot; de la perfumería, es una de las materias primas más valiosas del mundo.
@@ -224,7 +223,7 @@ export default async function ArabesPage() {
             <p>
               Somos una de las pocas perfumerías en <strong className="text-[#cccccc]">La Pampa</strong>{" "}
               que ofrece una selección curada de fragancias árabes auténticas. Visitanos en{" "}
-              <strong className="text-[#cccccc]">Ayala 604, Santa Rosa</strong>, o consultá por WhatsApp
+              <strong className="text-black">Ayala 604, Santa Rosa</strong>, o consultá por WhatsApp
               para conocer toda la disponibilidad de stock.
             </p>
           </div>

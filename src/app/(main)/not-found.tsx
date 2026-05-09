@@ -5,8 +5,8 @@ export default function NotFound() {
     <div className="min-h-[70vh] flex items-center justify-center px-4">
       <div className="text-center">
         <p className="text-[#D4AF37] text-xs tracking-[0.5em] uppercase mb-4">Error 404</p>
-        <h1 className="font-serif text-5xl text-white mb-4">Página no encontrada</h1>
-        <p className="text-[#888888] mb-8 max-w-md mx-auto">
+        <h1 className="font-serif text-5xl text-black mb-4">Página no encontrada</h1>
+        <p className="text-gray-500 mb-8 max-w-md mx-auto">
           La fragancia que buscás no existe o fue movida. Explorá nuestro catálogo completo.
         </p>
         <div className="flex gap-4 justify-center">

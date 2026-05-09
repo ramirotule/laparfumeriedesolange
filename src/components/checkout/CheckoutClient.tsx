@@ -14,6 +14,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { calculateListPrice, formatPrice } from "@/lib/price-utils";
 
 type MetodoPago = "efectivo" | "transferencia" | "mercadopago";
 
@@ -61,6 +62,15 @@ export default function CheckoutPage() {
     }
   }, [items.length, loading, router]);
 
+  const isMercadoPago = metodo === "mercadopago";
+  
+  const checkoutItems = items.map(item => ({
+    ...item,
+    precio_unidad: isMercadoPago ? calculateListPrice(item.precio_venta) : item.precio_venta
+  }));
+
+  const finalTotal = checkoutItems.reduce((acc, item) => acc + (item.precio_unidad * item.cantidad), 0);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!nombre || !apellido || !telefono) {
@@ -75,7 +85,10 @@ export default function CheckoutPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          items,
+          items: checkoutItems.map(i => ({
+            ...i,
+            precio_venta: i.precio_unidad // Override with the calculated price for the method
+          })),
           nombre,
           apellido,
           telefono,
@@ -83,6 +96,7 @@ export default function CheckoutPage() {
           direccion,
           notas,
           metodo_pago: metodo,
+          total: finalTotal
         }),
       });
 
@@ -106,54 +120,54 @@ export default function CheckoutPage() {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-2 text-xs text-[#555555] mb-8">
+      <nav className="flex items-center gap-2 text-xs text-gray-400 mb-8">
         <Link href="/" className="hover:text-[#D4AF37] transition-colors">Inicio</Link>
         <ChevronRight size={12} />
         <Link href="/perfumes" className="hover:text-[#D4AF37] transition-colors">Catálogo</Link>
         <ChevronRight size={12} />
-        <span className="text-[#888888]">Checkout</span>
+        <span className="text-gray-500">Checkout</span>
       </nav>
 
-      <h1 className="font-serif text-3xl text-white mb-2">Finalizar compra</h1>
-      <p className="text-[#555555] text-sm mb-10">Revisá tu pedido y completá tus datos</p>
+      <h1 className="font-serif text-3xl text-black mb-2">Finalizar compra</h1>
+      <p className="text-gray-400 text-sm mb-10">Revisá tu pedido y completá tus datos</p>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-10">
         {/* Form */}
         <form onSubmit={handleSubmit} className="lg:col-span-3 space-y-8">
           {/* Datos personales */}
           <section>
-            <h2 className="text-white text-xs font-bold tracking-[0.2em] uppercase mb-4 pb-3 border-b border-[#1A1A1A]">
+            <h2 className="text-black text-xs font-bold tracking-[0.2em] uppercase mb-4 pb-3 border-b border-gray-100">
               Tus datos
             </h2>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-[#888888] text-xs uppercase tracking-wider mb-1.5">
+                <label className="block text-gray-500 text-xs uppercase tracking-wider mb-1.5">
                   Nombre *
                 </label>
                 <input
                   value={nombre}
                   onChange={(e) => setNombre(e.target.value)}
                   required
-                  className="w-full bg-[#0D0D0D] border border-[#2D2D2D] text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
+                  className="w-full bg-white border border-gray-200 text-black px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
                   placeholder="María"
                 />
               </div>
               <div>
-                <label className="block text-[#888888] text-xs uppercase tracking-wider mb-1.5">
+                <label className="block text-gray-500 text-xs uppercase tracking-wider mb-1.5">
                   Apellido *
                 </label>
                 <input
                   value={apellido}
                   onChange={(e) => setApellido(e.target.value)}
                   required
-                  className="w-full bg-[#0D0D0D] border border-[#2D2D2D] text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
+                  className="w-full bg-white border border-gray-200 text-black px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
                   placeholder="González"
                 />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4 mt-4">
               <div>
-                <label className="block text-[#888888] text-xs uppercase tracking-wider mb-1.5">
+                <label className="block text-gray-500 text-xs uppercase tracking-wider mb-1.5">
                   Teléfono / WhatsApp *
                 </label>
                 <input
@@ -161,43 +175,43 @@ export default function CheckoutPage() {
                   onChange={(e) => setTelefono(e.target.value)}
                   required
                   type="tel"
-                  className="w-full bg-[#0D0D0D] border border-[#2D2D2D] text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
+                  className="w-full bg-white border border-gray-200 text-black px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
                   placeholder="2954 000000"
                 />
               </div>
               <div>
-                <label className="block text-[#888888] text-xs uppercase tracking-wider mb-1.5">
+                <label className="block text-gray-500 text-xs uppercase tracking-wider mb-1.5">
                   Email
                 </label>
                 <input
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   type="email"
-                  className="w-full bg-[#0D0D0D] border border-[#2D2D2D] text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
+                  className="w-full bg-white border border-gray-200 text-black px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
                   placeholder="opcional"
                 />
               </div>
             </div>
             <div className="mt-4">
-              <label className="block text-[#888888] text-xs uppercase tracking-wider mb-1.5">
+              <label className="block text-gray-500 text-xs uppercase tracking-wider mb-1.5">
                 Dirección / Barrio (para envío en Santa Rosa)
               </label>
               <input
                 value={direccion}
                 onChange={(e) => setDireccion(e.target.value)}
-                className="w-full bg-[#0D0D0D] border border-[#2D2D2D] text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
+                className="w-full bg-white border border-gray-200 text-black px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
                 placeholder="Calle 123, Barrio Norte — o 'Retiro en tienda'"
               />
             </div>
             <div className="mt-4">
-              <label className="block text-[#888888] text-xs uppercase tracking-wider mb-1.5">
+              <label className="block text-gray-500 text-xs uppercase tracking-wider mb-1.5">
                 Notas del pedido
               </label>
               <textarea
                 value={notas}
                 onChange={(e) => setNotas(e.target.value)}
                 rows={2}
-                className="w-full bg-[#0D0D0D] border border-[#2D2D2D] text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors resize-none"
+                className="w-full bg-white border border-gray-200 text-black px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors resize-none"
                 placeholder="Indicaciones especiales, horario preferido, etc."
               />
             </div>
@@ -205,7 +219,7 @@ export default function CheckoutPage() {
 
           {/* Método de pago */}
           <section>
-            <h2 className="text-white text-xs font-bold tracking-[0.2em] uppercase mb-4 pb-3 border-b border-[#1A1A1A]">
+            <h2 className="text-black text-xs font-bold tracking-[0.2em] uppercase mb-4 pb-3 border-b border-gray-100">
               Forma de pago
             </h2>
             <div className="space-y-3">
@@ -218,7 +232,7 @@ export default function CheckoutPage() {
                     className={`flex items-start gap-4 p-4 border cursor-pointer transition-all duration-200 ${
                       selected
                         ? "border-[#D4AF37] bg-[#D4AF37]/5"
-                        : "border-[#2D2D2D] hover:border-[#555555] bg-[#0D0D0D]"
+                        : "border-gray-200 hover:border-gray-400 bg-white"
                     }`}
                   >
                     <input
@@ -231,7 +245,7 @@ export default function CheckoutPage() {
                     />
                     <div
                       className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
-                        selected ? "border-[#D4AF37]" : "border-[#555555]"
+                        selected ? "border-[#D4AF37]" : "border-gray-300"
                       }`}
                     >
                       {selected && (
@@ -240,13 +254,13 @@ export default function CheckoutPage() {
                     </div>
                     <Icon
                       size={18}
-                      className={selected ? "text-[#D4AF37] shrink-0 mt-0.5" : "text-[#555555] shrink-0 mt-0.5"}
+                      className={selected ? "text-[#D4AF37] shrink-0 mt-0.5" : "text-gray-400 shrink-0 mt-0.5"}
                     />
                     <div>
-                      <p className={`text-sm font-semibold ${selected ? "text-[#D4AF37]" : "text-white"}`}>
+                      <p className={`text-sm font-semibold ${selected ? "text-[#D4AF37]" : "text-black"}`}>
                         {m.label}
                       </p>
-                      <p className="text-[#555555] text-xs mt-0.5">{m.desc}</p>
+                      <p className="text-gray-400 text-xs mt-0.5">{m.desc}</p>
                     </div>
                   </label>
                 );
@@ -285,54 +299,73 @@ export default function CheckoutPage() {
           </button>
         </form>
 
-        {/* Resumen */}
         <aside className="lg:col-span-2">
-          <div className="bg-[#0D0D0D] border border-[#1A1A1A] p-5 sticky top-32">
-            <h2 className="text-white text-xs font-bold tracking-[0.2em] uppercase mb-4">
+          <div className="bg-white border border-gray-100 p-6 sticky top-32 shadow-sm">
+            <h2 className="text-black text-xs font-bold tracking-[0.2em] uppercase mb-6 pb-3 border-b border-gray-50">
               Tu pedido
             </h2>
-            <ul className="space-y-3 mb-5">
-              {items.map((item) => (
+            <ul className="space-y-4 mb-6">
+              {checkoutItems.map((item) => (
                 <li key={item.id} className="flex gap-3">
-                  <div className="w-12 h-12 bg-[#111111] border border-[#1A1A1A] shrink-0 overflow-hidden">
+                  <div className="w-14 h-14 bg-gray-50 border border-gray-100 shrink-0 overflow-hidden">
                     {item.imagen_url ? (
                       <Image
                         src={item.imagen_url}
                         alt={item.nombre}
-                        width={48}
-                        height={48}
+                        width={56}
+                        height={56}
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-[#333333] text-sm">
+                      <div className="w-full h-full flex items-center justify-center text-gray-200 text-sm">
                         ✦
                       </div>
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-white text-xs font-medium truncate">{item.nombre}</p>
-                    <p className="text-[#555555] text-[10px]">{item.marca}</p>
-                    <p className="text-[#888888] text-[10px]">x{item.cantidad}</p>
+                    <p className="text-black text-xs font-medium leading-snug">{item.nombre}</p>
+                    <p className="text-gray-400 text-[10px] mt-0.5">{item.marca}</p>
+                    <p className="text-gray-500 text-[10px] mt-1">
+                      {item.cantidad} x {formatPrice(item.precio_unidad)}
+                    </p>
                   </div>
                   <p className="text-[#D4AF37] text-sm font-semibold shrink-0">
-                    ${(item.precio_venta * item.cantidad).toLocaleString("es-AR")}
+                    {formatPrice(item.precio_unidad * item.cantidad)}
                   </p>
                 </li>
               ))}
             </ul>
 
-            <div className="border-t border-[#1A1A1A] pt-4 space-y-2">
+            <div className="border-t border-gray-100 pt-5 space-y-3">
               <div className="flex justify-between text-sm">
-                <span className="text-[#888888]">Subtotal</span>
-                <span className="text-white">${total.toLocaleString("es-AR")}</span>
+                <span className="text-gray-500">Subtotal</span>
+                <span className="text-black">{formatPrice(finalTotal)}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-[#888888]">Envío</span>
-                <span className="text-[#D4AF37] text-xs font-semibold">Gratis en Santa Rosa</span>
+                <div className="flex flex-col">
+                  <span className="text-gray-500">Envío</span>
+                  <span className="text-[#D4AF37] text-[10px] font-semibold">Santa Rosa, La Pampa</span>
+                </div>
+                <span className="text-green-600 text-xs font-bold uppercase tracking-wider">Gratis</span>
               </div>
-              <div className="flex justify-between text-base font-bold pt-2 border-t border-[#1A1A1A]">
-                <span className="text-white">Total</span>
-                <span className="text-[#D4AF37]">${total.toLocaleString("es-AR")}</span>
+              
+              {!isMercadoPago && (
+                <div className="bg-green-50 p-2 text-green-700 text-[10px] font-medium flex justify-between items-center border border-green-100">
+                  <span>DESCUENTO POR CONTADO APLICADO</span>
+                  <span className="font-bold">-22.36%</span>
+                </div>
+              )}
+
+              <div className="flex justify-between items-end pt-4 border-t border-gray-100">
+                <div className="flex flex-col">
+                  <span className="text-black font-bold text-sm uppercase tracking-wider">Total</span>
+                  <span className="text-gray-400 text-[10px]">
+                    {isMercadoPago ? "Precio de lista" : "Precio efectivo / transf."}
+                  </span>
+                </div>
+                <span className="text-[#D4AF37] text-3xl font-bold leading-none">
+                  {formatPrice(finalTotal)}
+                </span>
               </div>
             </div>
           </div>

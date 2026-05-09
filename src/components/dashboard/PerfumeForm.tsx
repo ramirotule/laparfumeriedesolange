@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Perfume } from "@/types";
+import { Perfume, FamiliaOlfativa } from "@/types";
+import CustomSelect from "@/components/ui/CustomSelect";
 
 interface Props {
   perfume?: Partial<Perfume>;
@@ -13,12 +14,15 @@ interface Props {
 const generos = ["Femenino", "Masculino", "Unisex", "Árabe"];
 const concentraciones = ["EDP", "EDT", "Extrait de Parfum", "Parfum", "EDC", "Aceite puro"];
 
+const supabase = createClient();
+
 export default function PerfumeForm({ perfume = {}, isEdit = false }: Props) {
   const router = useRouter();
-  const supabase = createClient();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [familias, setFamilias] = useState<FamiliaOlfativa[]>([]);
+  const [loadingFamilias, setLoadingFamilias] = useState(true);
 
   const [form, setForm] = useState({
     nombre: perfume.nombre || "",
@@ -29,6 +33,7 @@ export default function PerfumeForm({ perfume = {}, isEdit = false }: Props) {
     precio_venta: perfume.precio_venta?.toString() || "",
     stock: perfume.stock?.toString() || "0",
     imagen_url: perfume.imagen_url || "",
+    familia_olfativa_id: perfume.familia_olfativa_id?.toString() || "",
     genero: perfume.genero || "Unisex",
     concentracion: perfume.concentracion || "EDP",
     volumen_ml: perfume.volumen_ml?.toString() || "",
@@ -38,6 +43,24 @@ export default function PerfumeForm({ perfume = {}, isEdit = false }: Props) {
     meta_titulo: perfume.meta_titulo || "",
     meta_descripcion: perfume.meta_descripcion || "",
   });
+
+  useEffect(() => {
+    async function fetchFamilias() {
+      setLoadingFamilias(true);
+      const { data, error } = await supabase
+        .from("familias_olfativas")
+        .select("*")
+        .order("nombre");
+      
+      if (error) {
+        console.error("Error cargando familias:", error);
+      } else {
+        setFamilias(data || []);
+      }
+      setLoadingFamilias(false);
+    }
+    fetchFamilias();
+  }, []);
 
   function update(key: string, value: string | boolean) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -57,6 +80,7 @@ export default function PerfumeForm({ perfume = {}, isEdit = false }: Props) {
       precio_venta: parseFloat(form.precio_venta),
       stock: parseInt(form.stock) || 0,
       imagen_url: form.imagen_url.trim() || null,
+      familia_olfativa_id: form.familia_olfativa_id ? parseInt(form.familia_olfativa_id) : null,
       genero: form.genero,
       concentracion: form.concentracion || null,
       volumen_ml: form.volumen_ml ? parseInt(form.volumen_ml) : null,
@@ -162,34 +186,18 @@ export default function PerfumeForm({ perfume = {}, isEdit = false }: Props) {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            <div>
-              <label className="text-[#888888] text-xs uppercase tracking-widest block mb-1.5">
-                Género *
-              </label>
-              <select
-                value={form.genero}
-                onChange={(e) => update("genero", e.target.value)}
-                className="w-full bg-[#1A1A1A] border border-[#2D2D2D] text-white px-4 py-3 focus:outline-none focus:border-[#D4AF37] text-sm transition-colors"
-              >
-                {generos.map((g) => (
-                  <option key={g} value={g}>{g}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="text-[#888888] text-xs uppercase tracking-widest block mb-1.5">
-                Concentración
-              </label>
-              <select
-                value={form.concentracion}
-                onChange={(e) => update("concentracion", e.target.value)}
-                className="w-full bg-[#1A1A1A] border border-[#2D2D2D] text-white px-4 py-3 focus:outline-none focus:border-[#D4AF37] text-sm transition-colors"
-              >
-                {concentraciones.map((c) => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
-              </select>
-            </div>
+            <CustomSelect
+              label="Género *"
+              value={form.genero}
+              onChange={(val) => update("genero", val)}
+              options={generos.map((g) => ({ value: g, label: g }))}
+            />
+            <CustomSelect
+              label="Concentración"
+              value={form.concentracion}
+              onChange={(val) => update("concentracion", val)}
+              options={concentraciones.map((c) => ({ value: c, label: c }))}
+            />
             <div>
               <label className="text-[#888888] text-xs uppercase tracking-widest block mb-1.5">
                 Volumen (ml)
@@ -204,17 +212,27 @@ export default function PerfumeForm({ perfume = {}, isEdit = false }: Props) {
             </div>
           </div>
 
-          <div>
-            <label className="text-[#888888] text-xs uppercase tracking-widest block mb-1.5">
-              URL de Imagen
-            </label>
-            <input
-              type="url"
-              value={form.imagen_url}
-              onChange={(e) => update("imagen_url", e.target.value)}
-              className="w-full bg-[#1A1A1A] border border-[#2D2D2D] text-white px-4 py-3 focus:outline-none focus:border-[#D4AF37] text-sm transition-colors"
-              placeholder="https://..."
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <CustomSelect
+              label="Familia Olfativa"
+              value={form.familia_olfativa_id}
+              loading={loadingFamilias}
+              placeholder="Seleccionar familia..."
+              onChange={(val) => update("familia_olfativa_id", val)}
+              options={familias.map((f) => ({ value: f.id.toString(), label: f.nombre }))}
             />
+            <div>
+              <label className="text-[#888888] text-xs uppercase tracking-widest block mb-1.5">
+                URL de Imagen
+              </label>
+              <input
+                type="url"
+                value={form.imagen_url}
+                onChange={(e) => update("imagen_url", e.target.value)}
+                className="w-full bg-[#1A1A1A] border border-[#2D2D2D] text-white px-4 py-3 focus:outline-none focus:border-[#D4AF37] text-sm transition-colors"
+                placeholder="https://..."
+              />
+            </div>
           </div>
         </div>
 

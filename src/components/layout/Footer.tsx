@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin, MessageCircle } from "lucide-react";
+import { MapPin } from "lucide-react";
 import InstagramIcon from "@/components/ui/InstagramIcon";
 
 const TikTokIcon = ({ size = 16 }: { size?: number }) => (
@@ -11,7 +11,7 @@ const TikTokIcon = ({ size = 16 }: { size?: number }) => (
 
 export default function Footer() {
   return (
-    <footer className="bg-[#0A0A0A] border-t border-[#1A1A1A] mt-20">
+    <footer className="bg-white border-t border-gray-100 mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           {/* Brand */}
@@ -25,7 +25,7 @@ export default function Footer() {
                 className="w-48 h-auto object-contain"
               />
             </Link>
-            <p className="text-[#888888] text-sm leading-relaxed">
+            <p className="text-gray-500 text-sm leading-relaxed">
               Perfumería de lujo en Santa Rosa, La Pampa. Fragancias exclusivas
               para quienes buscan lo mejor.
             </p>
@@ -33,7 +33,7 @@ export default function Footer() {
 
           {/* Catálogo */}
           <div>
-            <h4 className="text-white text-xs font-bold tracking-[0.2em] uppercase mb-4">
+            <h4 className="text-black text-xs font-bold tracking-[0.2em] uppercase mb-4">
               Catálogo
             </h4>
             <ul className="space-y-2">
@@ -55,7 +55,7 @@ export default function Footer() {
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="text-[#888888] text-sm hover:text-[#D4AF37] transition-colors"
+                    className="text-gray-500 text-sm hover:text-[#D4AF37] transition-colors"
                   >
                     {item.label}
                   </Link>
@@ -66,16 +66,16 @@ export default function Footer() {
 
           {/* Horarios */}
           <div>
-            <h4 className="text-white text-xs font-bold tracking-[0.2em] uppercase mb-4">
+            <h4 className="text-black text-xs font-bold tracking-[0.2em] uppercase mb-4">
               🕒 Horarios de Atención
             </h4>
             <div className="space-y-2">
               <div className="flex items-start gap-2">
-                <span className="text-[#888888] text-xs">🗓</span>
+                <span className="text-gray-400 text-xs">🗓</span>
                 <div>
-                  <p className="text-[#cccccc] text-sm font-medium">Lunes a Viernes</p>
-                  <p className="text-[#888888] text-sm">9:30 a 12 hs</p>
-                  <p className="text-[#888888] text-sm">14 a 18 hs</p>
+                  <p className="text-gray-700 text-sm font-medium">Lunes a Viernes</p>
+                  <p className="text-gray-500 text-sm">9:30 a 12 hs</p>
+                  <p className="text-gray-500 text-sm">14 a 18 hs</p>
                 </div>
               </div>
             </div>
@@ -83,16 +83,16 @@ export default function Footer() {
 
           {/* Contacto */}
           <div>
-            <h4 className="text-white text-xs font-bold tracking-[0.2em] uppercase mb-4">
+            <h4 className="text-black text-xs font-bold tracking-[0.2em] uppercase mb-4">
               Contacto & Ubicación
             </h4>
             <div className="space-y-3">
               <div className="flex items-start gap-2">
                 <MapPin size={16} className="text-[#D4AF37] mt-0.5 shrink-0" />
                 <div>
-                  <p className="text-[#cccccc] text-sm">Ayala 604</p>
-                  <p className="text-[#888888] text-sm">Santa Rosa, La Pampa</p>
-                  <p className="text-[#888888] text-sm">Argentina</p>
+                  <p className="text-gray-700 text-sm">Ayala 604</p>
+                  <p className="text-gray-500 text-sm">Santa Rosa, La Pampa</p>
+                  <p className="text-gray-500 text-sm">Argentina</p>
                 </div>
               </div>
 
@@ -100,9 +100,9 @@ export default function Footer() {
                 href="https://wa.me/2954808202"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-[#888888] hover:text-[#D4AF37] transition-colors text-sm"
+                className="flex items-center gap-2 text-gray-500 hover:text-[#D4AF37] transition-colors text-sm"
               >
-                <MessageCircle size={16} className="text-[#D4AF37]" />
+                <img src="/whatsapp.png" alt="WhatsApp" className="w-4 h-4 rounded-full object-cover" />
                 +54 9 2954 808202
               </a>
 
@@ -110,7 +110,7 @@ export default function Footer() {
                 href="https://www.instagram.com/laparfumerie.desolange/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-[#888888] hover:text-[#D4AF37] transition-colors text-sm"
+                className="flex items-center gap-2 text-gray-500 hover:text-[#D4AF37] transition-colors text-sm"
               >
                 <InstagramIcon size={16} className="text-[#D4AF37]" />
                 @laparfumerie.desolange
@@ -120,7 +120,7 @@ export default function Footer() {
                 href="https://www.tiktok.com/@bagues.byromisolange"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-[#888888] hover:text-[#D4AF37] transition-colors text-sm"
+                className="flex items-center gap-2 text-gray-500 hover:text-[#D4AF37] transition-colors text-sm"
               >
                 <span className="text-[#D4AF37]"><TikTokIcon size={16} /></span>
                 @bagues.byromisolange
@@ -130,11 +130,11 @@ export default function Footer() {
         </div>
 
         {/* Divider */}
-        <div className="border-t border-[#1A1A1A] mt-12 pt-8 flex flex-col items-center gap-3 text-center">
-          <p className="text-white text-xs font-bold tracking-wider uppercase">
+        <div className="border-t border-gray-100 mt-12 pt-8 flex flex-col items-center gap-3 text-center">
+          <p className="text-black text-xs font-bold tracking-wider uppercase">
             © {new Date().getFullYear()} La Parfumerie de Solange — Todos los derechos reservados.
           </p>
-          <p className="text-[#444444] text-xs">
+          <p className="text-gray-400 text-xs">
             Página web desarrollada por{" "}
             <a
               href="https://www.rtsoftwarefactory.com.ar"

@@ -15,6 +15,7 @@ const EMPTY_FORM = {
   telefono: "",
   email: "",
   notas: "",
+  fecha_nacimiento: "",
 };
 
 export default function VendedorasClient({ vendedoras: initial }: Props) {
@@ -42,6 +43,7 @@ export default function VendedorasClient({ vendedoras: initial }: Props) {
       telefono: v.telefono || "",
       email: v.email || "",
       notas: v.notas || "",
+      fecha_nacimiento: v.fecha_nacimiento || "",
     });
     setFormError("");
     setShowForm(true);
@@ -67,6 +69,7 @@ export default function VendedorasClient({ vendedoras: initial }: Props) {
       telefono: form.telefono.trim() || null,
       email: form.email.trim() || null,
       notas: form.notas.trim() || null,
+      fecha_nacimiento: form.fecha_nacimiento || null,
     };
 
     if (editingId) {
@@ -166,6 +169,7 @@ export default function VendedorasClient({ vendedoras: initial }: Props) {
               <tr className="border-b border-[#1A1A1A] bg-black/30">
                 <th className="text-left text-[#555555] text-xs tracking-widest uppercase px-4 py-3">Nombre</th>
                 <th className="text-left text-[#555555] text-xs tracking-widest uppercase px-4 py-3 hidden sm:table-cell">Contacto</th>
+                <th className="text-left text-[#555555] text-xs tracking-widest uppercase px-4 py-3 hidden md:table-cell">Cumpleaños</th>
                 <th className="text-left text-[#555555] text-xs tracking-widest uppercase px-4 py-3 hidden lg:table-cell">Notas</th>
                 <th className="text-center text-[#555555] text-xs tracking-widest uppercase px-4 py-3">Estado</th>
                 <th className="text-center text-[#555555] text-xs tracking-widest uppercase px-4 py-3">Acciones</th>
@@ -192,6 +196,9 @@ export default function VendedorasClient({ vendedoras: initial }: Props) {
                       )}
                       {!v.telefono && !v.email && <span className="text-[#333333] text-xs">—</span>}
                     </div>
+                  </td>
+                  <td className="px-4 py-3 hidden md:table-cell text-[#888888] text-xs">
+                    {v.fecha_nacimiento ? new Date(v.fecha_nacimiento).toLocaleDateString('es-AR') : "—"}
                   </td>
                   <td className="px-4 py-3 hidden lg:table-cell text-[#555555] text-xs max-w-xs truncate">
                     {v.notas || "—"}
@@ -275,6 +282,11 @@ export default function VendedorasClient({ vendedoras: initial }: Props) {
                 <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
                   className="w-full bg-black border border-[#2D2D2D] text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
                   placeholder="mail@ejemplo.com" />
+              </div>
+              <div>
+                <label className="block text-[#888888] text-xs uppercase tracking-wider mb-1.5">Fecha de Nacimiento</label>
+                <input type="date" value={form.fecha_nacimiento} onChange={(e) => setForm({ ...form, fecha_nacimiento: e.target.value })}
+                  className="w-full bg-black border border-[#2D2D2D] text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors" />
               </div>
               <div>
                 <label className="block text-[#888888] text-xs uppercase tracking-wider mb-1.5">Notas</label>

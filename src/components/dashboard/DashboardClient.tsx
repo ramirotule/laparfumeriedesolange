@@ -14,7 +14,11 @@ import {
   Edit2,
   Trash2,
   Eye,
+  FileSpreadsheet,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import BulkImportModal from "./BulkImportModal";
+import * as XLSX from "xlsx";
 
 interface Stats {
   total: number;
@@ -32,9 +36,31 @@ interface Props {
 export default function DashboardClient({ perfumes: initialPerfumes, stats }: Props) {
   const [perfumes, setPerfumes] = useState<Perfume[]>(initialPerfumes);
   const [loading, setLoading] = useState<string | null>(null);
+  const [bulkLoading, setBulkLoading] = useState(false);
   const [busqueda, setBusqueda] = useState("");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, id: "", nombre: "" });
+  const [bulkDeleteModal, setBulkDeleteModal] = useState(false);
+  
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const router = useRouter();
   const supabase = createClient();
+
+  // Multi-select logic
+  const toggleSelect = (id: string) => {
+    const newSelected = new Set(selectedIds);
+    if (newSelected.has(id)) newSelected.delete(id);
+    else newSelected.add(id);
+    setSelectedIds(newSelected);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === perfumesFiltrados.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(perfumesFiltrados.map((p) => p.id)));
+    }
+  };
 
   async function toggleActivo(id: string, activo: boolean) {
     setLoading(id);
@@ -44,6 +70,54 @@ export default function DashboardClient({ perfumes: initialPerfumes, stats }: Pr
     );
     setLoading(null);
   }
+
+  async function bulkToggleActivo(activo: boolean) {
+    setBulkLoading(true);
+    const ids = Array.from(selectedIds);
+    await supabase.from("perfumes").update({ activo }).in("id", ids);
+    setPerfumes((prev) =>
+      prev.map((p) => (selectedIds.has(p.id) ? { ...p, activo } : p))
+    );
+    setSelectedIds(new Set());
+    setBulkLoading(false);
+  }
+
+  async function ejecutarEliminarBulk() {
+    setBulkLoading(true);
+    const ids = Array.from(selectedIds);
+    await supabase.from("perfumes").delete().in("id", ids);
+    setPerfumes((prev) => prev.filter((p) => !selectedIds.has(p.id)));
+    setSelectedIds(new Set());
+    setBulkLoading(false);
+    setBulkDeleteModal(false);
+  }
+
+  const downloadExcel = () => {
+    const selectedPerfumes = perfumes.filter((p) => selectedIds.has(p.id));
+    const exportData = selectedPerfumes.map((p) => ({
+      nombre: p.nombre,
+      marca: p.marca,
+      descripcion: p.descripcion || "",
+      descripcion_corta: p.descripcion_corta || "",
+      precio_costo: p.precio_costo || 0,
+      precio_venta: p.precio_venta || 0,
+      stock: p.stock || 0,
+      genero: p.genero || "Unisex",
+      concentracion: p.concentracion || "EDP",
+      volumen_ml: p.volumen_ml || 0,
+      familia: p.familia_olfativa?.nombre || "",
+      inspired_in: p.inspired_in || "",
+      imagen_url: p.imagen_url || "",
+      activo: p.activo,
+      destacado: p.destacado,
+      nuevo: p.nuevo,
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Productos");
+    XLSX.writeFile(wb, `export_perfumes_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
 
   function confirmarEliminar(id: string, nombre: string) {
     setDeleteModal({ isOpen: true, id, nombre });
@@ -117,21 +191,38 @@ export default function DashboardClient({ perfumes: initialPerfumes, stats }: Pr
           placeholder="Buscar por nombre o marca..."
           className="bg-[#0D0D0D] border border-[#2D2D2D] text-white placeholder-[#555555] px-4 py-2.5 focus:outline-none focus:border-[#D4AF37] transition-colors text-sm w-full sm:w-80"
         />
-        <Link
-          href="/dashboard/nuevo"
-          className="flex items-center gap-2 bg-[#D4AF37] text-black font-bold px-5 py-2.5 text-sm tracking-wider hover:bg-[#E8CC6B] transition-colors whitespace-nowrap"
-        >
-          <Plus size={16} />
-          Nuevo Perfume
-        </Link>
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <button
+            onClick={() => setIsImportModalOpen(true)}
+            className="flex items-center gap-2 bg-[#1A1A1A] text-white border border-[#2D2D2D] font-bold px-4 py-2.5 text-sm tracking-wider hover:bg-[#252525] transition-colors whitespace-nowrap"
+          >
+            <FileSpreadsheet size={16} className="text-[#D4AF37]" />
+            Importar Excel
+          </button>
+          <Link
+            href="/dashboard/nuevo"
+            className="flex items-center gap-2 bg-[#D4AF37] text-black font-bold px-5 py-2.5 text-sm tracking-wider hover:bg-[#E8CC6B] transition-colors whitespace-nowrap"
+          >
+            <Plus size={16} />
+            Nuevo Perfume
+          </Link>
+        </div>
       </div>
 
       {/* Tabla */}
-      <div className="bg-[#0D0D0D] border border-[#1A1A1A] overflow-hidden">
+      <div className="bg-[#0D0D0D] border border-[#1A1A1A] overflow-hidden relative">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[#1A1A1A] bg-black/30">
+                <th className="px-4 py-3 text-left w-10">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.size === perfumesFiltrados.length && perfumesFiltrados.length > 0}
+                    onChange={toggleSelectAll}
+                    className="w-4 h-4 rounded border-[#2D2D2D] bg-black text-[#D4AF37] focus:ring-[#D4AF37]"
+                  />
+                </th>
                 <th className="text-left text-[#555555] text-xs tracking-widest uppercase px-4 py-3">Producto</th>
                 <th className="text-left text-[#555555] text-xs tracking-widest uppercase px-4 py-3 hidden sm:table-cell">Género</th>
                 <th className="text-right text-[#555555] text-xs tracking-widest uppercase px-4 py-3">Costo</th>
@@ -154,8 +245,16 @@ export default function DashboardClient({ perfumes: initialPerfumes, stats }: Pr
                 return (
                   <tr
                     key={perfume.id}
-                    className={`hover:bg-[#111111] transition-colors ${!perfume.activo ? "opacity-50" : ""}`}
+                    className={`hover:bg-[#111111] transition-colors ${!perfume.activo ? "opacity-50" : ""} ${selectedIds.has(perfume.id) ? "bg-[#D4AF37]/5" : ""}`}
                   >
+                    <td className="px-4 py-3">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(perfume.id)}
+                        onChange={() => toggleSelect(perfume.id)}
+                        className="w-4 h-4 rounded border-[#2D2D2D] bg-black text-[#D4AF37] focus:ring-[#D4AF37]"
+                      />
+                    </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         {perfume.imagen_url && (
@@ -244,7 +343,54 @@ export default function DashboardClient({ perfumes: initialPerfumes, stats }: Pr
         {perfumesFiltrados.length} de {perfumes.length} perfumes
       </p>
 
-      {/* Modal eliminación */}
+      {/* Bulk Actions Bar */}
+      {selectedIds.size > 0 && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[90] bg-[#1A1A1A] border border-[#D4AF37]/30 shadow-2xl px-6 py-4 flex items-center gap-6 animate-fade-in-up">
+          <div className="flex flex-col">
+            <span className="text-white font-bold text-sm">{selectedIds.size} seleccionados</span>
+            <button onClick={() => setSelectedIds(new Set())} className="text-[#D4AF37] text-[10px] uppercase tracking-wider hover:underline text-left">Desmarcar todos</button>
+          </div>
+          <div className="h-8 w-px bg-[#2D2D2D]" />
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={downloadExcel}
+              className="px-3 py-1.5 text-xs font-bold text-[#D4AF37] border border-[#D4AF37]/20 hover:bg-[#D4AF37]/10 transition-colors flex items-center gap-2"
+            >
+              <FileSpreadsheet size={12} />
+              Exportar
+            </button>
+            <button 
+              onClick={() => bulkToggleActivo(true)}
+              disabled={bulkLoading}
+              className="px-3 py-1.5 text-xs font-bold text-green-400 border border-green-400/20 hover:bg-green-400/10 transition-colors"
+            >
+              Mostrar
+            </button>
+            <button 
+              onClick={() => bulkToggleActivo(false)}
+              disabled={bulkLoading}
+              className="px-3 py-1.5 text-xs font-bold text-gray-400 border border-gray-400/20 hover:bg-gray-400/10 transition-colors"
+            >
+              Ocultar
+            </button>
+            <button 
+              onClick={() => setBulkDeleteModal(true)}
+              disabled={bulkLoading}
+              className="px-3 py-1.5 text-xs font-bold text-red-400 border border-red-400/20 hover:bg-red-400/10 transition-colors flex items-center gap-2"
+            >
+              <Trash2 size={12} />
+              Eliminar
+            </button>
+          </div>
+          {bulkLoading && (
+            <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-[1px]">
+              <div className="w-5 h-5 border-2 border-[#D4AF37]/20 border-t-[#D4AF37] rounded-full animate-spin" />
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Modal eliminación unitaria */}
       {deleteModal.isOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
           <div className="bg-[#0A0A0A] border border-[#2D2D2D] w-full max-w-md p-6 md:p-8">
@@ -280,6 +426,48 @@ export default function DashboardClient({ perfumes: initialPerfumes, stats }: Pr
           </div>
         </div>
       )}
+
+      {/* Modal eliminación masiva */}
+      {bulkDeleteModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#0A0A0A] border border-[#2D2D2D] w-full max-w-md p-6 md:p-8">
+            <div className="flex items-center gap-3 text-red-500 mb-4">
+              <AlertTriangle size={24} />
+              <h2 className="font-serif text-xl text-white">Eliminación Masiva</h2>
+            </div>
+            <p className="text-[#888888] text-sm mb-6 leading-relaxed">
+              ¿Estás seguro que deseas eliminar <strong className="text-white">{selectedIds.size} productos</strong> seleccionados? Esta acción es permanente y afectará a todo el catálogo.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setBulkDeleteModal(false)}
+                className="flex-1 px-4 py-2.5 text-sm text-[#888888] hover:text-white border border-[#2D2D2D] hover:bg-[#1A1A1A] transition-colors"
+                disabled={bulkLoading}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={ejecutarEliminarBulk}
+                disabled={bulkLoading}
+                className="flex-1 px-4 py-2.5 text-sm text-white bg-red-600/90 hover:bg-red-500 transition-colors flex items-center justify-center gap-2"
+              >
+                {bulkLoading ? (
+                  <span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <Trash2 size={14} />
+                )}
+                Eliminar {selectedIds.size} productos
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Modal Importación Excel */}
+      <BulkImportModal 
+        isOpen={isImportModalOpen} 
+        onClose={() => setIsImportModalOpen(false)} 
+        onSuccess={() => router.refresh()} 
+      />
     </>
   );
 }

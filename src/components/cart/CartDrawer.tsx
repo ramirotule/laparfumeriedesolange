@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { X, ShoppingBag, Plus, Minus, Trash2, ArrowRight } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { calculateInstallment, formatPrice } from "@/lib/price-utils";
 
 export default function CartDrawer() {
   const { items, count, total, drawerOpen, closeDrawer, removeItem, updateCantidad } =
@@ -105,7 +106,11 @@ export default function CartDrawer() {
                       {item.nombre}
                     </p>
                     <p className="text-[#D4AF37] text-sm font-bold mt-0.5">
-                      ${item.precio_venta.toLocaleString("es-AR")}
+                      {formatPrice(item.precio_venta)}
+                      <span className="text-[10px] ml-1 font-normal text-gray-500 italic">contado/transf.</span>
+                    </p>
+                    <p className="text-gray-500 text-[10px]">
+                      o 3 cuotas de {formatPrice(calculateInstallment(item.precio_venta))}
                     </p>
 
                     {/* Quantity controls */}
@@ -144,12 +149,18 @@ export default function CartDrawer() {
         {/* Footer */}
         {items.length > 0 && (
           <div className="border-t border-[#1A1A1A] px-5 py-5 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-[#888888] text-sm">Total</span>
-              <span className="text-[#D4AF37] font-bold text-xl">
-                ${total.toLocaleString("es-AR")}
+            <div className="flex items-end justify-between">
+              <div className="flex flex-col">
+                <span className="text-[#888888] text-xs uppercase tracking-wider">Total</span>
+                <span className="text-[#555555] text-[10px] italic">Efectivo / Transferencia</span>
+              </div>
+              <span className="text-[#D4AF37] font-bold text-2xl">
+                {formatPrice(total)}
               </span>
             </div>
+            <p className="text-center text-[#555555] text-[10px]">
+              O 3 cuotas sin interés de {formatPrice(calculateInstallment(total))}
+            </p>
             <Link
               href="/checkout"
               onClick={closeDrawer}

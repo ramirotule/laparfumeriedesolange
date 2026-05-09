@@ -22,6 +22,41 @@ const generos = [
   { nombre: "Unisex", href: "/perfumes?genero=Unisex" },
 ];
 
+const aromatizantes = [
+  {
+    nombre: "Aromatizantes Ambientales",
+    sub: [
+      { nombre: "Hogar", href: "/perfumes?categoria=aromatizantes-hogar" },
+      { nombre: "Textil", href: "/perfumes?categoria=aromatizantes-textil" },
+      { nombre: "Auto", href: "/perfumes?categoria=aromatizantes-auto" },
+    ],
+  },
+  { nombre: "Difusores", href: "/perfumes?categoria=difusores" },
+  { nombre: "Ropa", href: "/perfumes?categoria=ropa" },
+  { nombre: "Esenciales", href: "/perfumes?categoria=esenciales" },
+];
+
+const bienestar = [
+  { nombre: "Ver Todo", href: "/perfumes?seccion=bienestar" },
+  {
+    nombre: "ACEITES ESENCIALES",
+    sub: [
+      {
+        nombre: "Aceites Puros Esenciales",
+        href: "/perfumes?categoria=aceites-puros",
+      },
+      {
+        nombre: "Aceites Cosmetológicos",
+        href: "/perfumes?categoria=aceites-cosmetologicos",
+      },
+      { nombre: "Blend", href: "/perfumes?categoria=aceites-blend" },
+    ],
+  },
+  { nombre: "BRUMAS DE ALMOHADAS", href: "/perfumes?categoria=brumas" },
+  { nombre: "TRATAMIENTOS", href: "/perfumes?categoria=tratamientos" },
+  { nombre: "BÁLSAMOS", href: "/perfumes?categoria=balsamos" },
+];
+
 const WhatsAppIcon = ({ className }: { className?: string }) => (
   <svg
     viewBox="0 0 24 24"
@@ -37,6 +72,8 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [megaMenuOpen, setMegaMenuOpen] = useState(false);
+  const [bienestarOpen, setBienestarOpen] = useState(false);
+  const [aromatizantesOpen, setAromatizantesOpen] = useState(false);
   const [busquedaOpen, setBusquedaOpen] = useState(false);
   const [busqueda, setBusqueda] = useState("");
   const [, startTransition] = useTransition();
@@ -56,26 +93,65 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 bg-black border-b border-[#1A1A1A]">
       <div className="w-full px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between py-1.5 md:py-2">
-          {/* Logo */}
-          <Link href="/" className="shrink-0">
-            <Image
-              src="/logo2.png"
-              alt="La Parfumerie de Solange"
-              width={180}
-              height={180}
-              className="h-16 md:h-28 w-auto object-contain transition-transform hover:scale-105"
-              priority
-            />
-          </Link>
+        <div className="flex flex-col">
+          {/* Fila Superior: Links de Utilidad (Muy compacta) */}
+          <div className="hidden md:flex items-center justify-end gap-8 py-2 px-4 border-b border-[#1A1A1A]/50">
+            <Link
+              href="https://wa.me/542954808202?text=Me%20interesa%20emprender%20con%20Bagu%C3%A9s"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[9px] tracking-[0.2em] text-[#D4AF37] hover:text-white transition-colors font-bold uppercase flex items-center gap-2 group"
+            >
+              <WhatsAppIcon className="w-3 h-3 transition-transform group-hover:scale-110" />
+              Emprendé con Bagués
+            </Link>
+            <Link
+              href="/quienes-somos"
+              className={`text-[9px] tracking-[0.2em] transition-colors font-bold uppercase ${
+                pathname === "/quienes-somos"
+                  ? "text-[#D4AF37]"
+                  : "text-[#888888] hover:text-white"
+              }`}
+            >
+              Nosotros
+            </Link>
+            <Link
+              href="/preguntas-frecuentes"
+              className={`text-[9px] tracking-[0.2em] transition-colors font-bold uppercase ${
+                pathname === "/preguntas-frecuentes"
+                  ? "text-[#D4AF37]"
+                  : "text-[#888888] hover:text-white"
+              }`}
+            >
+              Preguntas Frecuentes
+            </Link>
+            <Link
+              href="/login"
+              className="text-[9px] tracking-[0.2em] text-[#D4AF37] border border-[#D4AF37]/50 px-3 py-1 rounded hover:bg-[#D4AF37] hover:text-black transition-all font-bold uppercase"
+            >
+              Acceso Emprendedores
+            </Link>
+          </div>
 
-          {/* Desktop: nav (centrado) + bagués/buscador (derecha) */}
-          <div className="hidden md:flex items-center justify-between flex-1 ml-10">
-            {/* Nav links centrado */}
-            <nav className="flex items-center gap-8 mx-auto">
+          {/* Fila Principal: Logo + Navegación + Acciones */}
+          <div className="flex items-center justify-between py-2 md:py-4 px-4 gap-8">
+            {/* Logo */}
+            <Link href="/" className="shrink-0">
+              <Image
+                src="/logo2.png"
+                alt="La Parfumerie de Solange"
+                width={180}
+                height={180}
+                className="h-12 md:h-14 w-auto object-contain transition-transform hover:scale-105"
+                priority
+              />
+            </Link>
+
+            {/* Navegación Principal (Desktop) */}
+            <nav className="hidden lg:flex items-center gap-x-8 xl:gap-x-12">
               <Link
                 href="/"
-                className={`text-xs tracking-[0.2em] transition-colors font-medium ${
+                className={`text-[10px] tracking-[0.2em] transition-colors font-bold uppercase ${
                   pathname === "/"
                     ? "text-[#D4AF37]"
                     : "text-white hover:text-[#D4AF37]"
@@ -84,6 +160,7 @@ export default function Header() {
                 INICIO
               </Link>
 
+              {/* Fragancias */}
               <div
                 className="relative"
                 onMouseEnter={() => setMegaMenuOpen(true)}
@@ -91,69 +168,114 @@ export default function Header() {
               >
                 <button
                   onClick={() => setMegaMenuOpen(!megaMenuOpen)}
-                  className="flex items-center gap-1.5 text-xs tracking-[0.2em] text-white hover:text-[#D4AF37] transition-colors font-medium uppercase"
+                  className="flex items-center gap-1.5 text-[10px] tracking-[0.2em] text-white hover:text-[#D4AF37] transition-colors font-bold uppercase"
                 >
                   Fragancias
                   <ChevronDown
-                    size={14}
+                    size={12}
                     className={`transition-transform ${megaMenuOpen ? "rotate-180" : ""}`}
                   />
                 </button>
 
                 {megaMenuOpen && (
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 w-[360px] pt-4 z-50">
-                    <div className="bg-[#0D0D0D] border border-[#2D2D2D] shadow-2xl shadow-black/80 p-6">
-                      <div className="grid grid-cols-2 gap-6">
-                        <div>
-                          <h3 className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase">
-                            Por Género
-                          </h3>
-                          {generos.map((g) => (
-                            <Link
-                              key={g.nombre}
-                              href={g.href}
-                              className="block text-sm text-[#cccccc] hover:text-[#D4AF37] py-1 transition-colors"
-                            >
-                              {g.nombre}
-                            </Link>
-                          ))}
-                        </div>
-                        <div>
-                          <h3 className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase">
-                            Colecciones
-                          </h3>
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 w-[240px] pt-4 z-50">
+                    <div className="bg-[#0D0D0D] border border-[#2D2D2D] shadow-2xl shadow-black/80 p-6 flex flex-col gap-6">
+                      {/* Unlock */}
+                      <div>
+                        <h3 className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1">
+                          Unlock
+                        </h3>
+                        <div className="flex flex-col gap-1.5">
                           <Link
-                            href="/perfumes?destacado=true"
-                            className="block text-sm text-[#cccccc] hover:text-[#D4AF37] py-1 transition-colors"
+                            href="/perfumes?marca=Unlock&genero=Femenino"
+                            className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
                           >
-                            Destacados
+                            Femeninas
                           </Link>
                           <Link
-                            href="/perfumes?nuevo=true"
-                            className="block text-sm text-[#cccccc] hover:text-[#D4AF37] py-1 transition-colors"
+                            href="/perfumes?marca=Unlock&genero=Masculino"
+                            className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
                           >
-                            Novedades
+                            Masculinas
                           </Link>
                           <Link
-                            href="/arabes"
-                            className="block text-sm text-[#D4AF37] hover:text-[#E8CC6B] py-1 transition-colors font-semibold"
+                            href="/perfumes?marca=Unlock&genero=Unisex"
+                            className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
                           >
-                            ✦ Árabes
-                          </Link>
-                          <Link
-                            href="/perfumes?marca=Unlock"
-                            className="block text-sm text-[#D4AF37] hover:text-[#E8CC6B] py-1 transition-colors font-semibold"
-                          >
-                            ✱ Unlock
+                            Unisex
                           </Link>
                         </div>
+                      </div>
+
+                      {/* Árabes */}
+                      <div>
+                        <h3 className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1">
+                          ✦ Árabes
+                        </h3>
+                        <div className="flex flex-col gap-1.5">
+                          <Link
+                            href="/perfumes?categoria=arabes&genero=Femenino"
+                            className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
+                          >
+                            Femeninos
+                          </Link>
+                          <Link
+                            href="/perfumes?categoria=arabes&genero=Masculino"
+                            className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
+                          >
+                            Masculinos
+                          </Link>
+                          <Link
+                            href="/perfumes?categoria=arabes&genero=Unisex"
+                            className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
+                          >
+                            Unisex
+                          </Link>
+                        </div>
+                      </div>
+
+                      {/* Internacionales */}
+                      <div>
+                        <h3 className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1">
+                          Internacionales
+                        </h3>
+                        <div className="flex flex-col gap-1.5">
+                          <Link
+                            href="/perfumes?tipo=internacional&genero=Femenino"
+                            className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
+                          >
+                            Femeninos
+                          </Link>
+                          <Link
+                            href="/perfumes?tipo=internacional&genero=Masculino"
+                            className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
+                          >
+                            Masculinos
+                          </Link>
+                          <Link
+                            href="/perfumes?tipo=internacional&genero=Unisex"
+                            className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
+                          >
+                            Unisex
+                          </Link>
+                        </div>
+                      </div>
+
+                      {/* Ver Todo */}
+                      <div className="pt-2 border-t border-[#2D2D2D]">
+                        <Link
+                          href="/perfumes"
+                          className="text-[#D4AF37] text-[11px] font-bold tracking-[0.2em] hover:text-white transition-colors uppercase block text-center"
+                        >
+                          Ver Todo el Catálogo
+                        </Link>
                       </div>
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* Búsqueda dropdown */}
+              {/* Filtrar por */}
               <div
                 className="relative"
                 onMouseEnter={() => setBusquedaOpen(true)}
@@ -161,11 +283,11 @@ export default function Header() {
               >
                 <button
                   onClick={() => setBusquedaOpen(!busquedaOpen)}
-                  className="flex items-center gap-1.5 text-xs tracking-[0.2em] text-white hover:text-[#D4AF37] transition-colors font-medium uppercase"
+                  className="flex items-center gap-1.5 text-[10px] tracking-[0.2em] text-white hover:text-[#D4AF37] transition-colors font-bold uppercase"
                 >
-                  Búsqueda
+                  Filtrar por
                   <ChevronDown
-                    size={14}
+                    size={12}
                     className={`transition-transform ${busquedaOpen ? "rotate-180" : ""}`}
                   />
                 </button>
@@ -175,13 +297,13 @@ export default function Header() {
                     <div className="bg-[#0D0D0D] border border-[#2D2D2D] shadow-2xl shadow-black/80 p-5">
                       <Link
                         href="/perfumes?open=notas"
-                        className="block text-sm text-[#cccccc] hover:text-[#D4AF37] py-1.5 transition-colors"
+                        className="block text-xs text-[#cccccc] hover:text-[#D4AF37] py-1.5 transition-colors"
                       >
                         Buscar por Notas
                       </Link>
                       <Link
                         href="/perfumes?open=acordes"
-                        className="block text-sm text-[#cccccc] hover:text-[#D4AF37] py-1.5 transition-colors"
+                        className="block text-xs text-[#cccccc] hover:text-[#D4AF37] py-1.5 transition-colors"
                       >
                         Buscar por Acordes
                       </Link>
@@ -193,7 +315,7 @@ export default function Header() {
                           <Link
                             key={f.nombre}
                             href={f.href}
-                            className="block text-sm text-[#cccccc] hover:text-[#D4AF37] py-1 transition-colors"
+                            className="block text-xs text-[#cccccc] hover:text-[#D4AF37] py-1 transition-colors"
                           >
                             {f.nombre}
                           </Link>
@@ -204,62 +326,124 @@ export default function Header() {
                 )}
               </div>
 
-              <Link
-                href="/arabes"
-                className={`text-xs tracking-[0.2em] transition-colors font-medium ${
-                  pathname === "/arabes"
-                    ? "text-[#D4AF37]"
-                    : "text-white hover:text-[#D4AF37]"
-                }`}
+              {/* Bienestar */}
+              <div
+                className="relative"
+                onMouseEnter={() => setBienestarOpen(true)}
+                onMouseLeave={() => setBienestarOpen(false)}
               >
-                ÁRABES
-              </Link>
+                <button
+                  onClick={() => setBienestarOpen(!bienestarOpen)}
+                  className="flex items-center gap-1.5 text-[10px] tracking-[0.2em] text-white hover:text-[#D4AF37] transition-colors font-bold uppercase"
+                >
+                  Bienestar
+                  <ChevronDown
+                    size={12}
+                    className={`transition-transform ${bienestarOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
 
-              <Link
-                href="/perfumes"
-                className={`text-xs tracking-[0.2em] transition-colors font-medium ${
-                  pathname === "/perfumes"
-                    ? "text-[#D4AF37]"
-                    : "text-white hover:text-[#D4AF37]"
-                }`}
-              >
-                CATÁLOGO
-              </Link>
+                {bienestarOpen && (
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 w-[240px] pt-4 z-50">
+                    <div className="bg-[#0D0D0D] border border-[#2D2D2D] shadow-2xl shadow-black/80 p-5">
+                      {bienestar.map((item) => (
+                        <div key={item.nombre} className="mb-2 last:mb-0">
+                          {item.sub ? (
+                            <>
+                              <p className="text-[#D4AF37] text-xs tracking-widest mb-1 uppercase font-bold">
+                                {item.nombre}
+                              </p>
+                              {item.sub.map((s) => (
+                                <Link
+                                  key={s.nombre}
+                                  href={s.href}
+                                  className="block text-xs text-[#cccccc] hover:text-[#D4AF37] py-1 transition-colors pl-2"
+                                >
+                                  {s.nombre}
+                                </Link>
+                              ))}
+                            </>
+                          ) : (
+                            <Link
+                              href={item.href}
+                              className="block text-xs text-[#cccccc] hover:text-[#D4AF37] py-1 transition-colors font-medium"
+                            >
+                              {item.nombre}
+                            </Link>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
 
-              <Link
-                href="/quienes-somos"
-                className={`text-xs tracking-[0.2em] transition-colors font-medium ${
-                  pathname === "/quienes-somos"
-                    ? "text-[#D4AF37]"
-                    : "text-white hover:text-[#D4AF37]"
-                }`}
+              {/* Aromatizantes */}
+              <div
+                className="relative"
+                onMouseEnter={() => setAromatizantesOpen(true)}
+                onMouseLeave={() => setAromatizantesOpen(false)}
               >
-                QUIÉNES SOMOS
-              </Link>
+                <button
+                  onClick={() => setAromatizantesOpen(!aromatizantesOpen)}
+                  className="flex items-center gap-1.5 text-[10px] tracking-[0.2em] text-white hover:text-[#D4AF37] transition-colors font-bold uppercase"
+                >
+                  Aromatizantes
+                  <ChevronDown
+                    size={12}
+                    className={`transition-transform ${aromatizantesOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
+
+                {aromatizantesOpen && (
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 w-[240px] pt-4 z-50">
+                    <div className="bg-[#0D0D0D] border border-[#2D2D2D] shadow-2xl shadow-black/80 p-5">
+                      {aromatizantes.map((item) => (
+                        <div key={item.nombre} className="mb-2 last:mb-0">
+                          {item.sub ? (
+                            <>
+                              <p className="text-[#D4AF37] text-xs tracking-widest mb-1 uppercase font-bold">
+                                {item.nombre}
+                              </p>
+                              {item.sub.map((s) => (
+                                <Link
+                                  key={s.nombre}
+                                  href={s.href}
+                                  className="block text-xs text-[#cccccc] hover:text-[#D4AF37] py-1 transition-colors pl-2"
+                                >
+                                  {s.nombre}
+                                </Link>
+                              ))}
+                            </>
+                          ) : (
+                            <Link
+                              href={item.href}
+                              className="block text-xs text-[#cccccc] hover:text-[#D4AF37] py-1 transition-colors font-medium"
+                            >
+                              {item.nombre}
+                            </Link>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </nav>
 
-            <div className="flex items-center gap-6 shrink-0">
-              {/* Bagués Link */}
-              <Link
-                href="https://wa.me/5492954808202?text=Me%20interesa%20que%20me%20cuentes%20qu%C3%A9%20hacer%20para%20vender%20Bagu%C3%A9s"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 group"
+            {/* Acciones: Buscador + Carrito */}
+            <div className="hidden md:flex items-center gap-4 xl:gap-8">
+              {/* Buscador (Más compacto) */}
+              <form
+                onSubmit={handleSearch}
+                className="flex w-[180px] xl:w-[240px] shadow-sm"
               >
-                <WhatsAppIcon className="text-[#D4AF37] transition-transform group-hover:scale-110" />
-                <span className="text-white text-[10px] tracking-[0.2em] font-light group-hover:text-[#D4AF37] transition-colors uppercase whitespace-nowrap">
-                  Quiero vender <span className="font-bold">Bagués</span>
-                </span>
-              </Link>
-
-              {/* Buscador */}
-              <form onSubmit={handleSearch} className="flex w-[240px]">
                 <input
                   type="search"
                   value={busqueda}
                   onChange={(e) => setBusqueda(e.target.value)}
-                  placeholder="Buscar..."
-                  className="flex-1 bg-[#0D0D0D] border border-[#2D2D2D] border-r-0 text-white placeholder-[#555555] px-3 py-1.5 text-xs focus:outline-none focus:border-[#D4AF37] transition-colors"
+                  placeholder="¿Qué buscás?"
+                  className="flex-1 bg-[#0D0D0D] border border-[#2D2D2D] border-r-0 text-white placeholder-[#555555] px-3 py-1.5 text-[11px] focus:outline-none focus:border-[#D4AF37] transition-colors"
                 />
                 <button
                   type="submit"
@@ -274,17 +458,26 @@ export default function Header() {
               <button
                 onClick={openDrawer}
                 aria-label="Ver carrito"
-                className="relative text-white hover:text-[#D4AF37] transition-colors shrink-0"
+                className="relative text-white hover:text-[#D4AF37] transition-all flex items-center gap-2 group"
               >
-                <ShoppingBag size={20} />
-                {count > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 bg-[#D4AF37] text-black text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center leading-none">
-                    {count > 9 ? "9+" : count}
-                  </span>
-                )}
+                <div className="relative">
+                  <ShoppingBag
+                    size={20}
+                    className="group-hover:scale-110 transition-transform"
+                  />
+                  {count > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 bg-[#D4AF37] text-black text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center leading-none border-2 border-black">
+                      {count > 9 ? "9+" : count}
+                    </span>
+                  )}
+                </div>
+                <span className="text-[9px] tracking-widest font-medium uppercase hidden xl:inline">
+                  Carrito
+                </span>
               </button>
             </div>
           </div>
+
 
           {/* Mobile: buscador + carrito + hamburguesa */}
           <div className="flex md:hidden items-center gap-2 flex-1 justify-end">
@@ -341,33 +534,99 @@ export default function Header() {
             >
               INICIO
             </Link>
-            <Link
-              href="/perfumes"
-              onClick={() => setMenuOpen(false)}
-              className="text-sm tracking-wider text-white hover:text-[#D4AF37] transition-colors"
-            >
-              CATÁLOGO
-            </Link>
-            <Link
-              href="/arabes"
-              onClick={() => setMenuOpen(false)}
-              className="text-sm tracking-wider text-[#D4AF37]"
-            >
-              ✦ PERFUMES ÁRABES
-            </Link>
-            <Link
-              href="/perfumes?marca=Unlock"
-              onClick={() => setMenuOpen(false)}
-              className="text-sm tracking-wider text-[#D4AF37]"
-            >
-              ✱ UNLOCK
-            </Link>
+
+            {/* Bienestar Mobile */}
+            <div className="border-t border-[#2D2D2D] pt-4">
+              <p className="text-[#D4AF37] text-xs tracking-widest mb-3 uppercase font-bold">
+                BIENESTAR
+              </p>
+              {bienestar.map((item) => (
+                <div key={item.nombre} className="pl-2 mb-2">
+                  {item.sub ? (
+                    <>
+                      <p className="text-[#888888] text-xs tracking-widest mb-1 uppercase font-semibold">
+                        {item.nombre}
+                      </p>
+                      {item.sub.map((s) => (
+                        <Link
+                          key={s.nombre}
+                          href={s.href}
+                          onClick={() => setMenuOpen(false)}
+                          className="block text-xs text-[#cccccc] hover:text-[#D4AF37] py-1.5 transition-colors pl-2"
+                        >
+                          {s.nombre}
+                        </Link>
+                      ))}
+                    </>
+                  ) : (
+                    <Link
+                      href={item.href}
+                      onClick={() => setMenuOpen(false)}
+                      className="block text-xs text-[#cccccc] hover:text-[#D4AF37] py-1.5 transition-colors"
+                    >
+                      {item.nombre}
+                    </Link>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Aromatizantes Mobile */}
+            <div className="border-t border-[#2D2D2D] pt-4">
+              <p className="text-[#D4AF37] text-xs tracking-widest mb-3 uppercase font-bold">
+                AROMATIZANTES
+              </p>
+              {aromatizantes.map((item) => (
+                <div key={item.nombre} className="pl-2 mb-2">
+                  {item.sub ? (
+                    <>
+                      <p className="text-[#888888] text-xs tracking-widest mb-1 uppercase font-semibold">
+                        {item.nombre}
+                      </p>
+                      {item.sub.map((s) => (
+                        <Link
+                          key={s.nombre}
+                          href={s.href}
+                          onClick={() => setMenuOpen(false)}
+                          className="block text-xs text-[#cccccc] hover:text-[#D4AF37] py-1.5 transition-colors pl-2"
+                        >
+                          {s.nombre}
+                        </Link>
+                      ))}
+                    </>
+                  ) : (
+                    <Link
+                      href={item.href}
+                      onClick={() => setMenuOpen(false)}
+                      className="block text-xs text-[#cccccc] hover:text-[#D4AF37] py-1.5 transition-colors"
+                    >
+                      {item.nombre}
+                    </Link>
+                  )}
+                </div>
+              ))}
+            </div>
+
             <Link
               href="/quienes-somos"
               onClick={() => setMenuOpen(false)}
               className={`text-sm tracking-wider transition-colors ${pathname === "/quienes-somos" ? "text-[#D4AF37]" : "text-white hover:text-[#D4AF37]"}`}
             >
-              QUIÉNES SOMOS
+              NOSOTROS
+            </Link>
+            <Link
+              href="/preguntas-frecuentes"
+              onClick={() => setMenuOpen(false)}
+              className={`text-sm tracking-wider transition-colors ${pathname === "/preguntas-frecuentes" ? "text-[#D4AF37]" : "text-white hover:text-[#D4AF37]"}`}
+            >
+              FAQ
+            </Link>
+            <Link
+              href="/login"
+              onClick={() => setMenuOpen(false)}
+              className="text-sm tracking-wider text-[#D4AF37] font-bold transition-colors"
+            >
+              INGRESAR (EMPRENDEDORES)
             </Link>
             <div className="border-t border-[#2D2D2D] pt-4">
               <p className="text-[#888888] text-xs tracking-widest mb-3">
@@ -378,7 +637,7 @@ export default function Header() {
                   key={g.nombre}
                   href={g.href}
                   onClick={() => setMenuOpen(false)}
-                  className="block text-sm text-[#cccccc] hover:text-[#D4AF37] py-1.5 transition-colors"
+                  className="block text-xs text-[#cccccc] hover:text-[#D4AF37] py-1.5 transition-colors"
                 >
                   {g.nombre}
                 </Link>
@@ -391,14 +650,14 @@ export default function Header() {
               <Link
                 href="/perfumes?open=notas"
                 onClick={() => setMenuOpen(false)}
-                className="block text-sm text-[#cccccc] hover:text-[#D4AF37] py-1.5 transition-colors"
+                className="block text-xs text-[#cccccc] hover:text-[#D4AF37] py-1.5 transition-colors"
               >
                 Buscar por Notas
               </Link>
               <Link
                 href="/perfumes?open=acordes"
                 onClick={() => setMenuOpen(false)}
-                className="block text-sm text-[#cccccc] hover:text-[#D4AF37] py-1.5 transition-colors"
+                className="block text-xs text-[#cccccc] hover:text-[#D4AF37] py-1.5 transition-colors"
               >
                 Buscar por Acordes
               </Link>

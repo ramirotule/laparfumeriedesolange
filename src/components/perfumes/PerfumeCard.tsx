@@ -1,23 +1,63 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Perfume } from "@/types";
-import { MessageCircle } from "lucide-react";
 import AddToCartButton from "@/components/cart/AddToCartButton";
+import { calculateListPrice, calculateInstallment, formatPrice } from "@/lib/price-utils";
 
 interface Props {
   perfume: Perfume;
+  isCompact?: boolean;
 }
 
-export default function PerfumeCard({ perfume }: Props) {
+export default function PerfumeCard({ perfume, isCompact = false }: Props) {
   const whatsappMsg = encodeURIComponent(
     `Hola! Me interesa el perfume *${perfume.nombre}* de *${perfume.marca}*. ¿Tienen stock disponible?`
   );
   const whatsappUrl = `https://wa.me/2954808202?text=${whatsappMsg}`;
 
+  if (isCompact) {
+    return (
+      <article className="group relative bg-white border border-gray-100 hover:border-[#D4AF37]/40 transition-all duration-300 hover:shadow-lg flex flex-col overflow-hidden">
+        <Link href={`/perfumes/${perfume.slug}`} className="block relative aspect-square bg-gray-50">
+          {perfume.imagen_url ? (
+            <Image
+              src={perfume.imagen_url}
+              alt={`Perfume ${perfume.nombre} ${perfume.marca}`}
+              fill
+              sizes="(max-width: 640px) 33vw, (max-width: 1024px) 20vw, 15vw"
+              className="object-cover group-hover:scale-110 transition-transform duration-500"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <span className="text-[#D4AF37] text-2xl font-serif">✦</span>
+            </div>
+          )}
+          
+          {/* Minimal Badges for Compact View */}
+          <div className="absolute top-1 left-1 flex flex-col gap-0.5">
+            {perfume.nuevo && (
+              <div className="w-2 h-2 rounded-full bg-[#D4AF37]" title="Nuevo" />
+            )}
+            {perfume.stock === 0 && (
+              <div className="w-2 h-2 rounded-full bg-gray-300" title="Sin stock" />
+            )}
+          </div>
+
+          {/* Hover Name Overlay */}
+          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2 text-center">
+            <p className="text-white text-[10px] font-medium leading-tight line-clamp-2">
+              {perfume.nombre}
+            </p>
+          </div>
+        </Link>
+      </article>
+    );
+  }
+
   return (
-    <article className="group bg-[#0D0D0D] border border-[#1A1A1A] hover:border-[#D4AF37]/40 transition-all duration-300 hover:shadow-xl hover:shadow-[#D4AF37]/5 flex flex-col">
+    <article className="group bg-white border border-gray-100 hover:border-[#D4AF37]/40 transition-all duration-300 hover:shadow-xl hover:shadow-[#D4AF37]/10 flex flex-col h-full">
       {/* Image */}
-      <Link href={`/perfumes/${perfume.slug}`} className="block relative overflow-hidden aspect-square bg-[#111111]">
+      <Link href={`/perfumes/${perfume.slug}`} className="block relative overflow-hidden aspect-square bg-gray-50">
         {perfume.imagen_url ? (
           <Image
             src={perfume.imagen_url}
@@ -29,8 +69,8 @@ export default function PerfumeCard({ perfume }: Props) {
         ) : (
           <div className="w-full h-full flex items-center justify-center">
             <div className="text-center">
-              <div className="text-4xl mb-2">✦</div>
-              <p className="text-[#555555] text-xs tracking-wider">
+              <div className="text-4xl mb-2 text-[#D4AF37]">✦</div>
+              <p className="text-gray-400 text-xs tracking-wider">
                 {perfume.marca}
               </p>
             </div>
@@ -45,12 +85,12 @@ export default function PerfumeCard({ perfume }: Props) {
             </span>
           )}
           {perfume.destacado && !perfume.nuevo && (
-            <span className="bg-black/80 border border-[#D4AF37]/50 text-[#D4AF37] text-[9px] font-bold tracking-wider px-2 py-0.5 uppercase">
+            <span className="bg-white/90 border border-[#D4AF37]/50 text-[#D4AF37] text-[9px] font-bold tracking-wider px-2 py-0.5 uppercase">
               Destacado
             </span>
           )}
           {perfume.stock === 0 && (
-            <span className="bg-black/80 border border-[#888888]/50 text-[#888888] text-[9px] font-bold tracking-wider px-2 py-0.5 uppercase">
+            <span className="bg-white/90 border border-gray-300 text-gray-500 text-[9px] font-bold tracking-wider px-2 py-0.5 uppercase">
               Sin stock
             </span>
           )}
@@ -58,7 +98,7 @@ export default function PerfumeCard({ perfume }: Props) {
 
         {/* Género badge */}
         <div className="absolute top-2 right-2">
-          <span className="bg-black/70 text-[#888888] text-[9px] tracking-wider px-2 py-0.5 uppercase">
+          <span className="bg-white/80 text-gray-600 text-[9px] tracking-wider px-2 py-0.5 uppercase">
             {perfume.genero}
           </span>
         </div>
@@ -67,25 +107,36 @@ export default function PerfumeCard({ perfume }: Props) {
       {/* Content */}
       <div className="p-4 flex flex-col flex-1">
         <Link href={`/perfumes/${perfume.slug}`}>
-          <p className="text-[#888888] text-xs tracking-[0.2em] uppercase mb-1">
+          <p className="text-gray-500 text-xs tracking-[0.2em] uppercase mb-1">
             {perfume.marca}
           </p>
-          <h3 className="text-white font-serif text-base leading-snug group-hover:text-[#D4AF37] transition-colors line-clamp-2">
+          <h3 className="text-black font-serif text-base leading-snug group-hover:text-[#D4AF37] transition-colors line-clamp-2">
             {perfume.nombre}
           </h3>
         </Link>
 
         {perfume.volumen_ml && perfume.concentracion && (
-          <p className="text-[#555555] text-xs mt-1">
+          <p className="text-gray-400 text-xs mt-1">
             {perfume.volumen_ml}ml · {perfume.concentracion}
           </p>
         )}
 
         <div className="mt-auto pt-4">
-          <div className="mb-3">
-            <span className="text-[#D4AF37] font-bold text-lg">
-              ${perfume.precio_venta.toLocaleString("es-AR")}
+          <div className="mb-3 flex flex-col">
+            <span className="text-gray-400 text-[10px] uppercase tracking-wider">
+              Precio de lista: {formatPrice(calculateListPrice(perfume.precio_venta))}
             </span>
+            <span className="text-gray-600 text-xs font-medium">
+              3 cuotas sin interés de {formatPrice(calculateInstallment(perfume.precio_venta))}
+            </span>
+            <div className="mt-1">
+              <span className="text-[#D4AF37] font-bold text-xl">
+                {formatPrice(perfume.precio_venta)}
+              </span>
+              <span className="text-[#D4AF37] text-[10px] font-bold ml-1 uppercase tracking-tight">
+                Contado / Transferencia
+              </span>
+            </div>
           </div>
 
           <div className="flex items-center gap-2">
@@ -107,10 +158,10 @@ export default function PerfumeCard({ perfume }: Props) {
               rel="noopener noreferrer"
               data-umami-event="whatsapp-consulta"
               data-umami-event-perfume={perfume.nombre}
-              className="flex flex-1 items-center justify-center gap-1.5 bg-[#1A1A1A] border border-[#2D2D2D] hover:border-[#D4AF37]/50 hover:bg-[#D4AF37]/10 text-white hover:text-[#D4AF37] text-xs px-2 py-2 transition-all duration-200 whitespace-nowrap"
+              className="flex flex-1 items-center justify-center gap-1.5 bg-gray-50 border border-gray-200 hover:border-[#D4AF37]/50 hover:bg-[#D4AF37]/5 text-gray-700 hover:text-[#D4AF37] text-xs px-2 py-2 transition-all duration-200 whitespace-nowrap"
               aria-label={`Consultar ${perfume.nombre} por WhatsApp`}
             >
-              <MessageCircle size={13} />
+              <img src="/whatsapp.png" alt="WhatsApp" className="w-3.5 h-3.5 rounded-full object-cover" />
               <span className="hidden sm:inline">Consultar</span>
             </a>
           </div>

@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { CheckCircle, Clock, Banknote, Building2, CreditCard, MessageCircle, ArrowRight } from "lucide-react";
+import { CheckCircle, Clock, Banknote, Building2, CreditCard, ArrowRight } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
 
 export const dynamic = "force-dynamic";
@@ -170,7 +170,7 @@ export default async function ConfirmacionPage({ searchParams }: Props) {
         rel="noopener noreferrer"
         className="flex items-center justify-center gap-2 w-full bg-[#D4AF37] text-black font-bold py-4 text-sm tracking-wider uppercase hover:bg-[#E8CC6B] transition-colors mb-4"
       >
-        <MessageCircle size={18} />
+        <img src="/whatsapp.png" alt="WhatsApp" className="w-5 h-5 rounded-full object-cover" />
         Confirmar por WhatsApp
       </a>
 
