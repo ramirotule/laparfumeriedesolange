@@ -85,14 +85,14 @@ export default function Header() {
                   href="https://wa.me/542954808202?text=Me%20interesa%20emprender%20con%20Bagu%C3%A9s"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[9px] tracking-[0.2em] text-[#D4AF37] hover:text-white transition-colors font-bold uppercase flex items-center gap-2 group"
+                  className="text-[11px] tracking-[0.2em] text-[#D4AF37] hover:text-white transition-colors font-bold uppercase flex items-center gap-2 group"
                 >
                   <WhatsAppIcon className="w-3 h-3 transition-transform group-hover:scale-110" />
                   Emprendé con Bagués
                 </Link>
                 <Link
                   href="/quienes-somos"
-                  className={`text-[9px] tracking-[0.2em] transition-colors font-bold uppercase ${
+                  className={`text-[11px] tracking-[0.2em] transition-colors font-bold uppercase ${
                     pathname === "/quienes-somos"
                       ? "text-[#D4AF37]"
                       : "text-[#888888] hover:text-white"
@@ -102,7 +102,7 @@ export default function Header() {
                 </Link>
                 <Link
                   href="/preguntas-frecuentes"
-                  className={`text-[9px] tracking-[0.2em] transition-colors font-bold uppercase ${
+                  className={`text-[11px] tracking-[0.2em] transition-colors font-bold uppercase ${
                     pathname === "/preguntas-frecuentes"
                       ? "text-[#D4AF37]"
                       : "text-[#888888] hover:text-white"
@@ -112,7 +112,7 @@ export default function Header() {
                 </Link>
                 <Link
                   href="/login"
-                  className="text-[9px] tracking-[0.2em] text-[#D4AF37] border border-[#D4AF37]/50 px-3 py-1 rounded hover:bg-[#D4AF37] hover:text-black transition-all font-bold uppercase"
+                  className="text-[11px] tracking-[0.2em] text-[#D4AF37] border border-[#D4AF37]/50 px-3 py-1 rounded hover:bg-[#D4AF37] hover:text-black transition-all font-bold uppercase"
                 >
                   Acceso Emprendedores
                 </Link>
@@ -124,7 +124,7 @@ export default function Header() {
                 <nav className="hidden lg:flex items-center gap-x-6 xl:gap-x-10">
                   <Link
                     href="/"
-                    className={`text-[10px] tracking-[0.2em] transition-colors font-bold uppercase ${
+                    className={`text-xs tracking-[0.2em] transition-colors font-bold uppercase ${
                       pathname === "/"
                         ? "text-[#D4AF37]"
                         : "text-white hover:text-[#D4AF37]"
@@ -141,7 +141,7 @@ export default function Header() {
                   >
                     <button
                       onClick={() => setMegaMenuOpen(!megaMenuOpen)}
-                      className="flex items-center gap-1.5 text-[10px] tracking-[0.2em] text-white hover:text-[#D4AF37] transition-colors font-bold uppercase"
+                      className="flex items-center gap-1.5 text-xs tracking-[0.2em] text-white hover:text-[#D4AF37] transition-colors font-bold uppercase"
                     >
                       Fragancias
                       <ChevronDown
@@ -155,7 +155,7 @@ export default function Header() {
                         <div className="bg-[#0D0D0D] border border-[#1A1A1A] shadow-2xl shadow-black/80 p-6 flex flex-col gap-6">
                           <Link
                             href="/perfumes"
-                            className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
+                            className="text-[#D4AF37] text-xs font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
                           >
                             VER TODO
                           </Link>
@@ -164,7 +164,7 @@ export default function Header() {
                           <div>
                             <Link
                               href="/perfumes/unlock"
-                              className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
+                              className="text-[#D4AF37] text-xs font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
                             >
                               Unlock
                             </Link>
@@ -194,7 +194,7 @@ export default function Header() {
                           <div>
                             <Link
                               href="/arabes"
-                              className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
+                              className="text-[#D4AF37] text-xs font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
                             >
                               Árabes
                             </Link>
@@ -224,7 +224,7 @@ export default function Header() {
                           <div>
                             <Link
                               href="/perfumes/internacionales"
-                              className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
+                              className="text-[#D4AF37] text-xs font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
                             >
                               Internacionales
                             </Link>
@@ -262,7 +262,7 @@ export default function Header() {
                   >
                     <button
                       onClick={() => setBusquedaOpen(!busquedaOpen)}
-                      className="flex items-center gap-1.5 text-[10px] tracking-[0.2em] text-white hover:text-[#D4AF37] transition-colors font-bold uppercase"
+                      className="flex items-center gap-1.5 text-xs tracking-[0.2em] text-white hover:text-[#D4AF37] transition-colors font-bold uppercase"
                     >
                       Filtrar por
                       <ChevronDown
@@ -287,7 +287,7 @@ export default function Header() {
                             Buscar por Acordes
                           </Link>
                           <div className="border-t border-[#2D2D2D] mt-2 pt-2">
-                            <p className="text-[#555555] text-[10px] tracking-widest mb-1.5 uppercase">
+                            <p className="text-[#555555] text-xs tracking-widest mb-1.5 uppercase">
                               Familia Olfativa
                         </p>
                             {familias.map((f) => (
@@ -313,7 +313,7 @@ export default function Header() {
                   >
                     <button
                       onClick={() => setBienestarOpen(!bienestarOpen)}
-                      className="flex items-center gap-1.5 text-[10px] tracking-[0.2em] text-white hover:text-[#D4AF37] transition-colors font-bold uppercase"
+                      className="flex items-center gap-1.5 text-xs tracking-[0.2em] text-white hover:text-[#D4AF37] transition-colors font-bold uppercase"
                     >
                       Bienestar
                       <ChevronDown
@@ -332,12 +332,12 @@ export default function Header() {
                                   {item.href ? (
                                     <Link
                                       href={item.href}
-                                      className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
+                                      className="text-[#D4AF37] text-xs font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
                                     >
                                       {item.nombre}
                                     </Link>
                                   ) : (
-                                    <h3 className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1">
+                                    <h3 className="text-[#D4AF37] text-xs font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1">
                                       {item.nombre}
                                     </h3>
                                   )}
@@ -356,7 +356,7 @@ export default function Header() {
                               ) : (
                                 <Link
                                   href={item.href}
-                                  className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
+                                  className="text-[#D4AF37] text-xs font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
                                 >
                                   {item.nombre}
                                 </Link>
@@ -376,7 +376,7 @@ export default function Header() {
                   >
                     <button
                       onClick={() => setAromatizantesOpen(!aromatizantesOpen)}
-                      className="flex items-center gap-1.5 text-[10px] tracking-[0.2em] text-white hover:text-[#D4AF37] transition-colors font-bold uppercase"
+                      className="flex items-center gap-1.5 text-xs tracking-[0.2em] text-white hover:text-[#D4AF37] transition-colors font-bold uppercase"
                     >
                       Aromatizantes
                       <ChevronDown
@@ -395,12 +395,12 @@ export default function Header() {
                                   {item.href ? (
                                     <Link
                                       href={item.href}
-                                      className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
+                                      className="text-[#D4AF37] text-xs font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
                                     >
                                       {item.nombre}
                                     </Link>
                                   ) : (
-                                    <h3 className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1">
+                                    <h3 className="text-[#D4AF37] text-xs font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1">
                                       {item.nombre}
                                     </h3>
                                   )}
@@ -419,7 +419,7 @@ export default function Header() {
                               ) : (
                                 <Link
                                   href={item.href}
-                                  className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
+                                  className="text-[#D4AF37] text-xs font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
                                 >
                                   {item.nombre}
                                 </Link>

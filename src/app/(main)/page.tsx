@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Perfume } from "@/types";
 import PerfumeGrid from "@/components/perfumes/PerfumeGrid";
 import InstagramIcon from "@/components/ui/InstagramIcon";
-import { MapPin, ChevronRight } from "lucide-react";
+import { MapPin, ChevronRight, Award } from "lucide-react";
 import { Great_Vibes, Cinzel } from "next/font/google";
 
 const greatVibes = Great_Vibes({
@@ -103,12 +103,14 @@ export default async function HomePage() {
             </span>
           </h1>
           <p className="text-gray-500 text-lg md:text-xl max-w-2xl mx-auto mb-4 leading-relaxed">
-            Fragancias exclusivas que narran historias únicas. Perfumería de
-            lujo en el corazón de Santa Rosa.
+            Fragancias exclusivas que narran historias únicas. <br />
+            Perfumería de lujo en el corazón de Santa Rosa.
           </p>
-          <p className="text-[#D4AF37] text-sm font-semibold mb-10 tracking-wider">
-            ✦ MAS DE 20 AÑOS EN EL RUBRO ✦
-          </p>
+          <div className="flex items-center justify-center gap-2 text-[#D4AF37] text-sm font-semibold mb-10 tracking-wider uppercase">
+            <Award size={16} strokeWidth={2.5} />
+            <span>Más de 20 años en el rubro</span>
+            <Award size={16} strokeWidth={2.5} />
+          </div>
         </div>
       </section>
 
@@ -191,7 +193,6 @@ export default async function HomePage() {
           <PerfumeGrid perfumes={destacados} />
         </section>
       )}
-
     </>
   );
 }
