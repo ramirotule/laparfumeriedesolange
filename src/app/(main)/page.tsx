@@ -94,8 +94,15 @@ export default async function HomePage() {
           <p className="text-[#D4AF37] text-xs tracking-[0.5em] uppercase mb-6 animate-fade-in">
             Santa Rosa · La Pampa · Argentina
           </p>
-          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-9xl text-[#D4AF37] leading-tight mb-4 tracking-normal">
-            <span className={greatVibes.className}>La Parfumerie</span>
+          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-9xl leading-tight mb-4 tracking-normal">
+            <span
+              className={`${greatVibes.className} bg-gradient-to-b from-[#B8860B] via-[#D4AF37] to-[#8B6508] bg-clip-text text-transparent drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]`}
+              style={{
+                filter: "drop-shadow(0px 2px 1px rgba(255,255,255,0.1))",
+              }}
+            >
+              La Parfumerie
+            </span>
             <span
               className={`block text-white text-base sm:text-xl md:text-2xl tracking-[0.8em] mt-1 md:mt-2 uppercase ${cinzel.className}`}
             >
@@ -104,12 +111,11 @@ export default async function HomePage() {
           </h1>
           <p className="text-gray-500 text-lg md:text-xl max-w-2xl mx-auto mb-4 leading-relaxed">
             Fragancias exclusivas que narran historias únicas. <br />
-            Perfumería de lujo en el corazón de Santa Rosa.
+            Perfumería que vino a desbloquear el lujo en el corazón de Santa
+            Rosa.
           </p>
           <div className="flex items-center justify-center gap-2 text-[#D4AF37] text-sm font-semibold mb-10 tracking-wider uppercase">
-            <Award size={16} strokeWidth={2.5} />
-            <span>Más de 20 años en el rubro</span>
-            <Award size={16} strokeWidth={2.5} />
+            <span>✦ Más de 20 años en el rubro ✦</span>
           </div>
         </div>
       </section>
