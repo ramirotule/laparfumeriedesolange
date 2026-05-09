@@ -13,43 +13,23 @@ export default function Footer() {
   return (
     <footer className="bg-black border-t border-[#1A1A1A] mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
-          {/* Logo y descripción */}
-          <div className="col-span-1 md:col-span-2">
-            <Link href="/" className="inline-block mb-6">
-              <Image src="/logo2.png" alt="Logo" width={180} height={180} className="h-12 w-auto" />
-            </Link>
-            <p className="text-gray-400 text-sm max-w-sm leading-relaxed">
-              La Parfumerie de Solange: Tu destino de lujo para fragancias exclusivas en Santa Rosa.
-              Seleccionamos las mejores esencias para acompañar cada momento de tu vida.
-            </p>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
 
           {/* Catálogo */}
           <div>
-            <h4 className="text-white text-xs font-bold tracking-[0.2em] uppercase mb-4">
+            <h4 className="text-[#D4AF37] text-xs font-bold tracking-[0.2em] uppercase mb-4">
               Catálogo
             </h4>
             <ul className="space-y-2">
               {[
-                { label: "Todos los Perfumes", href: "/perfumes" },
-                {
-                  label: "Perfumes Femeninos",
-                  href: "/perfumes?genero=Femenino",
-                },
-                {
-                  label: "Perfumes Masculinos",
-                  href: "/perfumes?genero=Masculino",
-                },
-                { label: "Unisex", href: "/perfumes?genero=Unisex" },
-                { label: "Árabes & Oud", href: "/arabes" },
-                { label: "✱ Unlock", href: "/perfumes?marca=Unlock" },
-                { label: "Novedades", href: "/perfumes?nuevo=true" },
+                { label: "Fragancias", href: "/perfumes" },
+                { label: "Bienestar", href: "/bienestar" },
+                { label: "Aromatizantes", href: "/aromatizantes" },
               ].map((item) => (
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="text-gray-500 text-sm hover:text-[#D4AF37] transition-colors"
+                    className="text-gray-400 text-sm hover:text-[#D4AF37] transition-colors"
                   >
                     {item.label}
                   </Link>
@@ -60,14 +40,14 @@ export default function Footer() {
 
           {/* Horarios */}
           <div>
-            <h4 className="text-black text-xs font-bold tracking-[0.2em] uppercase mb-4">
+            <h4 className="text-[#D4AF37] text-xs font-bold tracking-[0.2em] uppercase mb-4">
               🕒 Horarios de Atención
             </h4>
             <div className="space-y-2">
               <div className="flex items-start gap-2">
                 <span className="text-gray-400 text-xs">🗓</span>
                 <div>
-                  <p className="text-gray-700 text-sm font-medium">Lunes a Viernes</p>
+                  <p className="text-[#cccccc] text-sm font-medium">Lunes a Viernes</p>
                   <p className="text-gray-500 text-sm">9:30 a 12 hs</p>
                   <p className="text-gray-500 text-sm">14 a 18 hs</p>
                 </div>
@@ -77,14 +57,14 @@ export default function Footer() {
 
           {/* Contacto */}
           <div>
-            <h4 className="text-black text-xs font-bold tracking-[0.2em] uppercase mb-4">
+            <h4 className="text-[#D4AF37] text-xs font-bold tracking-[0.2em] uppercase mb-4">
               Contacto & Ubicación
             </h4>
             <div className="space-y-3">
               <div className="flex items-start gap-2">
                 <MapPin size={16} className="text-[#D4AF37] mt-0.5 shrink-0" />
                 <div>
-                  <p className="text-gray-700 text-sm">Ayala 604</p>
+                  <p className="text-[#cccccc] text-sm">Ayala 604</p>
                   <p className="text-gray-500 text-sm">Santa Rosa, La Pampa</p>
                   <p className="text-gray-500 text-sm">Argentina</p>
                 </div>
@@ -125,7 +105,7 @@ export default function Footer() {
 
         {/* Divider */}
         <div className="border-t border-gray-100 mt-12 pt-8 flex flex-col items-center gap-3 text-center">
-          <p className="text-black text-xs font-bold tracking-wider uppercase">
+          <p className="text-[#888888] text-xs font-bold tracking-wider uppercase">
             © {new Date().getFullYear()} La Parfumerie de Solange — Todos los derechos reservados.
           </p>
           <p className="text-gray-400 text-xs">

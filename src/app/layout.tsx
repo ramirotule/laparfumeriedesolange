@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import { Suspense } from "react";
 import "./globals.css";
 import WhatsAppButton from "@/components/ui/WhatsAppButton";
+import ScrollToTop from "@/components/ui/ScrollToTop";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -106,6 +108,9 @@ export default function RootLayout({
         className="min-h-full flex flex-col bg-black text-white antialiased transition-colors duration-300"
       >
 
+          <Suspense>
+            <ScrollToTop />
+          </Suspense>
           {children}
           <WhatsAppButton />
 

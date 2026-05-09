@@ -245,7 +245,7 @@ export default function CheckoutPage() {
                     />
                     <div
                       className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
-                        ? "border-[#D4AF37]" : "border-[#333333]"
+                        selected ? "border-[#D4AF37]" : "border-[#333333]"
                       }`}
                     >
                       {selected && (

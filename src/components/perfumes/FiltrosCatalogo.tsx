@@ -181,35 +181,35 @@ export default function FiltrosCatalogo({ activeParams }: Props) {
             VER TODO
           </Link>
           {(activeParams.seccion === "bienestar" ? bienestar : aromatizantes)
-            .filter(item => item.nombre !== "Ver Todo")
+            .filter(item => item.nombre !== "VER TODO")
             .map((item) => (
               <div key={item.nombre} className="flex gap-2">
-                {item.sub ? (
-                  item.sub.map(s => (
-                    <Link
-                      key={s.nombre}
-                      href={s.href}
-                      className={`px-4 py-2 text-[9px] uppercase tracking-widest border transition-all rounded-sm ${
-                        activeParams.categoria === s.href.split("/").pop()
-                          ? "bg-[#D4AF37] border-[#D4AF37] text-black font-bold"
-                          : "bg-black/40 border-[#2D2D2D] text-gray-500 hover:border-[#D4AF37] hover:text-white"
-                      }`}
-                    >
-                      {s.nombre}
-                    </Link>
-                  ))
-                ) : (
+                {/* Categoría Principal */}
+                <Link
+                  href={item.href || "#"}
+                  className={`px-4 py-2 text-[9px] uppercase tracking-widest border transition-all rounded-sm ${
+                    activeParams.categoria === item.href?.split("/").pop()
+                      ? "bg-[#D4AF37] border-[#D4AF37] text-black font-bold"
+                      : "bg-black/40 border-[#2D2D2D] text-gray-500 hover:border-[#D4AF37] hover:text-white"
+                  }`}
+                >
+                  {item.nombre}
+                </Link>
+
+                {/* Subcategorías si existen */}
+                {item.sub && item.sub.map(s => (
                   <Link
-                    href={item.href || "#"}
+                    key={s.nombre}
+                    href={s.href}
                     className={`px-4 py-2 text-[9px] uppercase tracking-widest border transition-all rounded-sm ${
-                      activeParams.categoria === item.href?.split("/").pop()
+                      activeParams.categoria === s.href.split("/").pop()
                         ? "bg-[#D4AF37] border-[#D4AF37] text-black font-bold"
                         : "bg-black/40 border-[#2D2D2D] text-gray-500 hover:border-[#D4AF37] hover:text-white"
                     }`}
                   >
-                    {item.nombre}
+                    {s.nombre}
                   </Link>
-                )}
+                ))}
               </div>
             ))}
         </div>

@@ -62,463 +62,434 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 bg-black border-b border-[#1A1A1A]">
       <div className="w-full px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col">
-          {/* Fila Superior: Links de Utilidad (Muy compacta) */}
-          <div className="hidden md:flex items-center justify-end gap-8 py-2 px-4 border-b border-[#1A1A1A]/50 max-w-[80%] ml-auto">
-            <Link
-              href="https://wa.me/542954808202?text=Me%20interesa%20emprender%20con%20Bagu%C3%A9s"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[9px] tracking-[0.2em] text-[#D4AF37] hover:text-white transition-colors font-bold uppercase flex items-center gap-2 group"
-            >
-              <WhatsAppIcon className="w-3 h-3 transition-transform group-hover:scale-110" />
-              Emprendé con Bagués
-            </Link>
-            <Link
-              href="/quienes-somos"
-              className={`text-[9px] tracking-[0.2em] transition-colors font-bold uppercase ${
-                pathname === "/quienes-somos"
-                  ? "text-[#D4AF37]"
-                  : "text-[#888888] hover:text-white"
-              }`}
-            >
-              Nosotros
-            </Link>
-            <Link
-              href="/preguntas-frecuentes"
-              className={`text-[9px] tracking-[0.2em] transition-colors font-bold uppercase ${
-                pathname === "/preguntas-frecuentes"
-                  ? "text-[#D4AF37]"
-                  : "text-[#888888] hover:text-white"
-              }`}
-            >
-              Preguntas Frecuentes
-            </Link>
-            <Link
-              href="/login"
-              className="text-[9px] tracking-[0.2em] text-[#D4AF37] border border-[#D4AF37]/50 px-3 py-1 rounded hover:bg-[#D4AF37] hover:text-black transition-all font-bold uppercase"
-            >
-              Acceso Emprendedores
-            </Link>
-          </div>
-
-          {/* Fila Principal: Logo + Navegación + Acciones */}
-          <div className="flex items-center justify-between py-2 md:py-3 px-4 gap-8">
-            {/* Logo */}
-            <Link href="/" className="shrink-0">
-              <Image
-                src="/logo2.png"
-                alt="La Parfumerie de Solange"
-                width={200}
-                height={200}
-                className="h-14 md:h-20 w-auto object-contain transition-transform hover:scale-105"
-                priority
-              />
-            </Link>
-
-            {/* Navegación Principal (Desktop) */}
-            <nav className="hidden lg:flex items-center gap-x-8 xl:gap-x-12">
-              <Link
-                href="/"
-                className={`text-[10px] tracking-[0.2em] transition-colors font-bold uppercase ${
-                  pathname === "/"
-                    ? "text-[#D4AF37]"
-                    : "text-white hover:text-[#D4AF37]"
-                }`}
-              >
-                INICIO
-              </Link>
-
-              {/* Fragancias */}
-              <div
-                className="relative"
-                onMouseEnter={() => setMegaMenuOpen(true)}
-                onMouseLeave={() => setMegaMenuOpen(false)}
-              >
-                <button
-                  onClick={() => setMegaMenuOpen(!megaMenuOpen)}
-                  className="flex items-center gap-1.5 text-[10px] tracking-[0.2em] text-white hover:text-[#D4AF37] transition-colors font-bold uppercase"
-                >
-                  Fragancias
-                  <ChevronDown
-                    size={12}
-                    className={`transition-transform ${megaMenuOpen ? "rotate-180" : ""}`}
-                  />
-                </button>
-
-                {megaMenuOpen && (
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 w-[240px] pt-4 z-50">
-                    <div className="bg-[#0D0D0D] border border-[#1A1A1A] shadow-2xl shadow-black/80 p-6 flex flex-col gap-6">
-                      {/* Ver Todo */}
-                      <Link
-                        href="/perfumes"
-                        className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
-                      >
-                        VER TODO
-                      </Link>
-
-                      {/* Unlock */}
-                      <div>
-                        <Link
-                          href="/perfumes/unlock"
-                          className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
-                        >
-                          Unlock
-                        </Link>
-                        <div className="flex flex-col gap-1.5">
-                          <Link
-                            href="/perfumes?marca=Unlock&genero=Femenino"
-                            className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
-                          >
-                            Femeninas
-                          </Link>
-                          <Link
-                            href="/perfumes?marca=Unlock&genero=Masculino"
-                            className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
-                          >
-                            Masculinas
-                          </Link>
-                          <Link
-                            href="/perfumes?marca=Unlock&genero=Unisex"
-                            className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
-                          >
-                            Unisex
-                          </Link>
-                        </div>
-                      </div>
-
-                      {/* Árabes */}
-                      <div>
-                        <Link
-                          href="/arabes"
-                          className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
-                        >
-                          Árabes
-                        </Link>
-                        <div className="flex flex-col gap-1.5">
-                          <Link
-                            href="/perfumes?categoria=arabes&genero=Femenino"
-                            className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
-                          >
-                            Femeninos
-                          </Link>
-                          <Link
-                            href="/perfumes?categoria=arabes&genero=Masculino"
-                            className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
-                          >
-                            Masculinos
-                          </Link>
-                          <Link
-                            href="/perfumes?categoria=arabes&genero=Unisex"
-                            className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
-                          >
-                            Unisex
-                          </Link>
-                        </div>
-                      </div>
-
-                      {/* Internacionales */}
-                      <div>
-                        <Link
-                          href="/perfumes/internacionales"
-                          className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
-                        >
-                          Internacionales
-                        </Link>
-                        <div className="flex flex-col gap-1.5">
-                          <Link
-                            href="/perfumes?tipo=internacional&genero=Femenino"
-                            className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
-                          >
-                            Femeninos
-                          </Link>
-                          <Link
-                            href="/perfumes?tipo=internacional&genero=Masculino"
-                            className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
-                          >
-                            Masculinos
-                          </Link>
-                          <Link
-                            href="/perfumes?tipo=internacional&genero=Unisex"
-                            className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
-                          >
-                            Unisex
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Filtrar por */}
-              <div
-                className="relative"
-                onMouseEnter={() => setBusquedaOpen(true)}
-                onMouseLeave={() => setBusquedaOpen(false)}
-              >
-                <button
-                  onClick={() => setBusquedaOpen(!busquedaOpen)}
-                  className="flex items-center gap-1.5 text-[10px] tracking-[0.2em] text-white hover:text-[#D4AF37] transition-colors font-bold uppercase"
-                >
-                  Filtrar por
-                  <ChevronDown
-                    size={12}
-                    className={`transition-transform ${busquedaOpen ? "rotate-180" : ""}`}
-                  />
-                </button>
-
-                {busquedaOpen && (
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 w-[220px] pt-4 z-50">
-                    <div className="bg-[#0D0D0D] border border-[#2D2D2D] shadow-2xl shadow-black/80 p-5">
-                      <Link
-                        href="/perfumes?open=notas"
-                        className="block text-xs text-[#cccccc] hover:text-[#D4AF37] py-1.5 transition-colors"
-                      >
-                        Buscar por Notas
-                      </Link>
-                      <Link
-                        href="/perfumes?open=acordes"
-                        className="block text-xs text-[#cccccc] hover:text-[#D4AF37] py-1.5 transition-colors"
-                      >
-                        Buscar por Acordes
-                      </Link>
-                      <div className="border-t border-[#2D2D2D] mt-2 pt-2">
-                        <p className="text-[#555555] text-[10px] tracking-widest mb-1.5 uppercase">
-                          Familia Olfativa
-                        </p>
-                        {familias.map((f) => (
-                          <Link
-                            key={f.nombre}
-                            href={f.href}
-                            className="block text-xs text-[#cccccc] hover:text-[#D4AF37] py-1 transition-colors"
-                          >
-                            {f.nombre}
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Bienestar */}
-              <div
-                className="relative"
-                onMouseEnter={() => setBienestarOpen(true)}
-                onMouseLeave={() => setBienestarOpen(false)}
-              >
-                <button
-                  onClick={() => setBienestarOpen(!bienestarOpen)}
-                  className="flex items-center gap-1.5 text-[10px] tracking-[0.2em] text-white hover:text-[#D4AF37] transition-colors font-bold uppercase"
-                >
-                  Bienestar
-                  <ChevronDown
-                    size={12}
-                    className={`transition-transform ${bienestarOpen ? "rotate-180" : ""}`}
-                  />
-                </button>
-
-                {bienestarOpen && (
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 w-[240px] pt-4 z-50">
-                    <div className="bg-[#0D0D0D] border border-[#2D2D2D] shadow-2xl shadow-black/80 p-6 flex flex-col gap-6">
-                      {bienestar.map((item) => (
-                        <div key={item.nombre}>
-                          {item.sub ? (
-                            <>
-                              {item.href ? (
-                                <Link
-                                  href={item.href}
-                                  className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
-                                >
-                                  {item.nombre}
-                                </Link>
-                              ) : (
-                                <h3 className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1">
-                                  {item.nombre}
-                                </h3>
-                              )}
-                              <div className="flex flex-col gap-1.5">
-                                {item.sub.map((s) => (
-                                  <Link
-                                    key={s.nombre}
-                                    href={s.href}
-                                    className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
-                                  >
-                                    {s.nombre}
-                                  </Link>
-                                ))}
-                              </div>
-                            </>
-                          ) : (
-                            <Link
-                              href={item.href}
-                              className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
-                            >
-                              {item.nombre}
-                            </Link>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Aromatizantes */}
-              <div
-                className="relative"
-                onMouseEnter={() => setAromatizantesOpen(true)}
-                onMouseLeave={() => setAromatizantesOpen(false)}
-              >
-                <button
-                  onClick={() => setAromatizantesOpen(!aromatizantesOpen)}
-                  className="flex items-center gap-1.5 text-[10px] tracking-[0.2em] text-white hover:text-[#D4AF37] transition-colors font-bold uppercase"
-                >
-                  Aromatizantes
-                  <ChevronDown
-                    size={12}
-                    className={`transition-transform ${aromatizantesOpen ? "rotate-180" : ""}`}
-                  />
-                </button>
-
-                {aromatizantesOpen && (
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 w-[240px] pt-4 z-50">
-                    <div className="bg-[#0D0D0D] border border-[#2D2D2D] shadow-2xl shadow-black/80 p-6 flex flex-col gap-6">
-                      {aromatizantes.map((item) => (
-                        <div key={item.nombre}>
-                          {item.sub ? (
-                            <>
-                              {item.href ? (
-                                <Link
-                                  href={item.href}
-                                  className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
-                                >
-                                  {item.nombre}
-                                </Link>
-                              ) : (
-                                <h3 className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1">
-                                  {item.nombre}
-                                </h3>
-                              )}
-                              <div className="flex flex-col gap-1.5">
-                                {item.sub.map((s) => (
-                                  <Link
-                                    key={s.nombre}
-                                    href={s.href}
-                                    className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
-                                  >
-                                    {s.nombre}
-                                  </Link>
-                                ))}
-                              </div>
-                            </>
-                          ) : (
-                            <Link
-                              href={item.href}
-                              className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
-                            >
-                              {item.nombre}
-                            </Link>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </nav>
-
-            {/* Acciones: Buscador + Carrito */}
-            <div className="hidden md:flex items-center gap-4 xl:gap-8">
-              {/* Buscador (Más compacto) */}
-              <form
-                onSubmit={handleSearch}
-                className="flex w-[180px] xl:w-[240px] shadow-sm"
-              >
-                <input
-                  type="search"
-                  value={busqueda}
-                  onChange={(e) => setBusqueda(e.target.value)}
-                  placeholder="¿Qué buscás?"
-                  className="flex-1 bg-[#0D0D0D] border border-[#1A1A1A] border-r-0 text-white placeholder-[#555555] px-3 py-1.5 text-[11px] focus:outline-none focus:border-[#D4AF37] transition-colors"
+        <div className="flex items-center gap-8 pt-1 pb-6 md:pt-2 md:pb-8">
+            {/* Columna Izquierda: Logo */}
+            <div className="shrink-0 py-2">
+              <Link href="/">
+                <Image
+                  src="/logo2.png"
+                  alt="La Parfumerie de Solange"
+                  width={300}
+                  height={300}
+                  className="h-20 md:h-32 lg:h-44 w-auto object-contain transition-transform hover:scale-105"
+                  priority
                 />
-                <button
-                  type="submit"
-                  className="bg-[#D4AF37] hover:bg-[#E8CC6B] text-black px-3 py-1.5 transition-colors"
-                  aria-label="Buscar"
-                >
-                  <Search size={14} />
-                </button>
-              </form>
+              </Link>
+            </div>
 
-              {/* Cart */}
-              <button
-                onClick={openDrawer}
-                aria-label="Ver carrito"
-                className="relative text-white hover:text-[#D4AF37] transition-all flex items-center gap-2 group"
-              >
-                <div className="relative">
-                  <ShoppingBag
-                    size={20}
-                    className="group-hover:scale-110 transition-transform"
-                  />
-                  {count > 0 && (
-                    <span className="absolute -top-1.5 -right-1.5 bg-[#D4AF37] text-black text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center leading-none border-2 border-black">
-                      {count > 9 ? "9+" : count}
+            {/* Columna Derecha: Menús */}
+            <div className="flex-1 flex flex-col gap-6 xl:gap-8">
+              {/* Fila 1: Menú Superior (Utilidades) */}
+              <div className="hidden md:flex items-center justify-end gap-6 border-b border-[#1A1A1A]/50 pb-4">
+                <Link
+                  href="https://wa.me/542954808202?text=Me%20interesa%20emprender%20con%20Bagu%C3%A9s"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[9px] tracking-[0.2em] text-[#D4AF37] hover:text-white transition-colors font-bold uppercase flex items-center gap-2 group"
+                >
+                  <WhatsAppIcon className="w-3 h-3 transition-transform group-hover:scale-110" />
+                  Emprendé con Bagués
+                </Link>
+                <Link
+                  href="/quienes-somos"
+                  className={`text-[9px] tracking-[0.2em] transition-colors font-bold uppercase ${
+                    pathname === "/quienes-somos"
+                      ? "text-[#D4AF37]"
+                      : "text-[#888888] hover:text-white"
+                  }`}
+                >
+                  Nosotros
+                </Link>
+                <Link
+                  href="/preguntas-frecuentes"
+                  className={`text-[9px] tracking-[0.2em] transition-colors font-bold uppercase ${
+                    pathname === "/preguntas-frecuentes"
+                      ? "text-[#D4AF37]"
+                      : "text-[#888888] hover:text-white"
+                  }`}
+                >
+                  Preguntas Frecuentes
+                </Link>
+                <Link
+                  href="/login"
+                  className="text-[9px] tracking-[0.2em] text-[#D4AF37] border border-[#D4AF37]/50 px-3 py-1 rounded hover:bg-[#D4AF37] hover:text-black transition-all font-bold uppercase"
+                >
+                  Acceso Emprendedores
+                </Link>
+              </div>
+
+              {/* Fila 2: Menú Inferior (Navegación + Acciones) */}
+              <div className="flex items-center justify-between">
+                {/* Navegación Principal (Desktop) */}
+                <nav className="hidden lg:flex items-center gap-x-6 xl:gap-x-10">
+                  <Link
+                    href="/"
+                    className={`text-[10px] tracking-[0.2em] transition-colors font-bold uppercase ${
+                      pathname === "/"
+                        ? "text-[#D4AF37]"
+                        : "text-white hover:text-[#D4AF37]"
+                    }`}
+                  >
+                    INICIO
+                  </Link>
+
+                  {/* Fragancias */}
+                  <div
+                    className="relative"
+                    onMouseEnter={() => setMegaMenuOpen(true)}
+                    onMouseLeave={() => setMegaMenuOpen(false)}
+                  >
+                    <button
+                      onClick={() => setMegaMenuOpen(!megaMenuOpen)}
+                      className="flex items-center gap-1.5 text-[10px] tracking-[0.2em] text-white hover:text-[#D4AF37] transition-colors font-bold uppercase"
+                    >
+                      Fragancias
+                      <ChevronDown
+                        size={12}
+                        className={`transition-transform ${megaMenuOpen ? "rotate-180" : ""}`}
+                      />
+                    </button>
+
+                    {megaMenuOpen && (
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 w-[240px] pt-4 z-50">
+                        <div className="bg-[#0D0D0D] border border-[#1A1A1A] shadow-2xl shadow-black/80 p-6 flex flex-col gap-6">
+                          <Link
+                            href="/perfumes"
+                            className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
+                          >
+                            VER TODO
+                          </Link>
+
+                          {/* Unlock */}
+                          <div>
+                            <Link
+                              href="/perfumes/unlock"
+                              className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
+                            >
+                              Unlock
+                            </Link>
+                            <div className="flex flex-col gap-1.5">
+                              <Link
+                                href="/perfumes?marca=Unlock&genero=Femenino"
+                                className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
+                              >
+                                Femeninas
+                              </Link>
+                              <Link
+                                href="/perfumes?marca=Unlock&genero=Masculino"
+                                className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
+                              >
+                                Masculinas
+                              </Link>
+                              <Link
+                                href="/perfumes?marca=Unlock&genero=Unisex"
+                                className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
+                              >
+                                Unisex
+                              </Link>
+                            </div>
+                          </div>
+
+                          {/* Árabes */}
+                          <div>
+                            <Link
+                              href="/arabes"
+                              className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
+                            >
+                              Árabes
+                            </Link>
+                            <div className="flex flex-col gap-1.5">
+                              <Link
+                                href="/perfumes?categoria=arabes&genero=Femenino"
+                                className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
+                              >
+                                Femeninos
+                              </Link>
+                              <Link
+                                href="/perfumes?categoria=arabes&genero=Masculino"
+                                className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
+                              >
+                                Masculinos
+                              </Link>
+                              <Link
+                                href="/perfumes?categoria=arabes&genero=Unisex"
+                                className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
+                              >
+                                Unisex
+                              </Link>
+                            </div>
+                          </div>
+
+                          {/* Internacionales */}
+                          <div>
+                            <Link
+                              href="/perfumes/internacionales"
+                              className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
+                            >
+                              Internacionales
+                            </Link>
+                            <div className="flex flex-col gap-1.5">
+                              <Link
+                                href="/perfumes?tipo=internacional&genero=Femenino"
+                                className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
+                              >
+                                Femeninos
+                              </Link>
+                              <Link
+                                href="/perfumes?tipo=internacional&genero=Masculino"
+                                className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
+                              >
+                                Masculinos
+                              </Link>
+                              <Link
+                                href="/perfumes?tipo=internacional&genero=Unisex"
+                                className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
+                              >
+                                Unisex
+                              </Link>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Filtrar por */}
+                  <div
+                    className="relative"
+                    onMouseEnter={() => setBusquedaOpen(true)}
+                    onMouseLeave={() => setBusquedaOpen(false)}
+                  >
+                    <button
+                      onClick={() => setBusquedaOpen(!busquedaOpen)}
+                      className="flex items-center gap-1.5 text-[10px] tracking-[0.2em] text-white hover:text-[#D4AF37] transition-colors font-bold uppercase"
+                    >
+                      Filtrar por
+                      <ChevronDown
+                        size={12}
+                        className={`transition-transform ${busquedaOpen ? "rotate-180" : ""}`}
+                      />
+                    </button>
+
+                    {busquedaOpen && (
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 w-[220px] pt-4 z-50">
+                        <div className="bg-[#0D0D0D] border border-[#2D2D2D] shadow-2xl shadow-black/80 p-5">
+                          <Link
+                            href="/perfumes?open=notas"
+                            className="block text-xs text-[#cccccc] hover:text-[#D4AF37] py-1.5 transition-colors"
+                          >
+                            Buscar por Notas
+                          </Link>
+                          <Link
+                            href="/perfumes?open=acordes"
+                            className="block text-xs text-[#cccccc] hover:text-[#D4AF37] py-1.5 transition-colors"
+                          >
+                            Buscar por Acordes
+                          </Link>
+                          <div className="border-t border-[#2D2D2D] mt-2 pt-2">
+                            <p className="text-[#555555] text-[10px] tracking-widest mb-1.5 uppercase">
+                              Familia Olfativa
+                        </p>
+                            {familias.map((f) => (
+                              <Link
+                                key={f.nombre}
+                                href={f.href}
+                                className="block text-xs text-[#cccccc] hover:text-[#D4AF37] py-1 transition-colors"
+                              >
+                                {f.nombre}
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Bienestar */}
+                  <div
+                    className="relative"
+                    onMouseEnter={() => setBienestarOpen(true)}
+                    onMouseLeave={() => setBienestarOpen(false)}
+                  >
+                    <button
+                      onClick={() => setBienestarOpen(!bienestarOpen)}
+                      className="flex items-center gap-1.5 text-[10px] tracking-[0.2em] text-white hover:text-[#D4AF37] transition-colors font-bold uppercase"
+                    >
+                      Bienestar
+                      <ChevronDown
+                        size={12}
+                        className={`transition-transform ${bienestarOpen ? "rotate-180" : ""}`}
+                      />
+                    </button>
+
+                    {bienestarOpen && (
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 w-[240px] pt-4 z-50">
+                        <div className="bg-[#0D0D0D] border border-[#2D2D2D] shadow-2xl shadow-black/80 p-6 flex flex-col gap-6">
+                          {bienestar.map((item) => (
+                            <div key={item.nombre}>
+                              {item.sub ? (
+                                <>
+                                  {item.href ? (
+                                    <Link
+                                      href={item.href}
+                                      className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
+                                    >
+                                      {item.nombre}
+                                    </Link>
+                                  ) : (
+                                    <h3 className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1">
+                                      {item.nombre}
+                                    </h3>
+                                  )}
+                                  <div className="flex flex-col gap-1.5">
+                                    {item.sub.map((s) => (
+                                      <Link
+                                        key={s.nombre}
+                                        href={s.href}
+                                        className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
+                                      >
+                                        {s.nombre}
+                                      </Link>
+                                    ))}
+                                  </div>
+                                </>
+                              ) : (
+                                <Link
+                                  href={item.href}
+                                  className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
+                                >
+                                  {item.nombre}
+                                </Link>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Aromatizantes */}
+                  <div
+                    className="relative"
+                    onMouseEnter={() => setAromatizantesOpen(true)}
+                    onMouseLeave={() => setAromatizantesOpen(false)}
+                  >
+                    <button
+                      onClick={() => setAromatizantesOpen(!aromatizantesOpen)}
+                      className="flex items-center gap-1.5 text-[10px] tracking-[0.2em] text-white hover:text-[#D4AF37] transition-colors font-bold uppercase"
+                    >
+                      Aromatizantes
+                      <ChevronDown
+                        size={12}
+                        className={`transition-transform ${aromatizantesOpen ? "rotate-180" : ""}`}
+                      />
+                    </button>
+
+                    {aromatizantesOpen && (
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 w-[240px] pt-4 z-50">
+                        <div className="bg-[#0D0D0D] border border-[#2D2D2D] shadow-2xl shadow-black/80 p-6 flex flex-col gap-6">
+                          {aromatizantes.map((item) => (
+                            <div key={item.nombre}>
+                              {item.sub ? (
+                                <>
+                                  {item.href ? (
+                                    <Link
+                                      href={item.href}
+                                      className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
+                                    >
+                                      {item.nombre}
+                                    </Link>
+                                  ) : (
+                                    <h3 className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1">
+                                      {item.nombre}
+                                    </h3>
+                                  )}
+                                  <div className="flex flex-col gap-1.5">
+                                    {item.sub.map((s) => (
+                                      <Link
+                                        key={s.nombre}
+                                        href={s.href}
+                                        className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
+                                      >
+                                        {s.nombre}
+                                      </Link>
+                                    ))}
+                                  </div>
+                                </>
+                              ) : (
+                                <Link
+                                  href={item.href}
+                                  className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
+                                >
+                                  {item.nombre}
+                                </Link>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </nav>
+
+                {/* Acciones: Buscador + Carrito */}
+                <div className="flex flex-1 justify-end items-center gap-4 xl:gap-6">
+                  {/* Buscador (Desktop) */}
+                  <form
+                    onSubmit={handleSearch}
+                    className="hidden md:flex w-[160px] xl:w-[220px]"
+                  >
+                    <input
+                      type="search"
+                      value={busqueda}
+                      onChange={(e) => setBusqueda(e.target.value)}
+                      placeholder="¿Qué buscás?"
+                      className="flex-1 bg-[#0D0D0D] border border-[#1A1A1A] border-r-0 text-white placeholder-[#555555] px-3 py-1.5 text-[11px] focus:outline-none focus:border-[#D4AF37] transition-colors"
+                    />
+                    <button
+                      type="submit"
+                      className="bg-[#D4AF37] hover:bg-[#E8CC6B] text-black px-3 py-1.5 transition-colors"
+                      aria-label="Buscar"
+                    >
+                      <Search size={14} />
+                    </button>
+                  </form>
+
+                  {/* Cart Button */}
+                  <button
+                    onClick={openDrawer}
+                    aria-label="Ver carrito"
+                    className="relative text-white hover:text-[#D4AF37] transition-all flex items-center gap-2 group p-1"
+                  >
+                    <div className="relative">
+                      <ShoppingBag
+                        size={20}
+                        className="group-hover:scale-110 transition-transform"
+                      />
+                      {count > 0 && (
+                        <span className="absolute -top-1.5 -right-1.5 bg-[#D4AF37] text-black text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center leading-none border-2 border-black">
+                          {count > 9 ? "9+" : count}
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-[9px] tracking-widest font-medium uppercase hidden xl:inline">
+                      Carrito
                     </span>
-                  )}
+                  </button>
+
+                  {/* Mobile Menu Icon */}
+                  <button
+                    className="lg:hidden text-white hover:text-[#D4AF37] transition-colors shrink-0"
+                    onClick={() => setMenuOpen(!menuOpen)}
+                    aria-label="Menú"
+                  >
+                    {menuOpen ? <X size={24} /> : <Menu size={24} />}
+                  </button>
                 </div>
-                <span className="text-[9px] tracking-widest font-medium uppercase hidden xl:inline">
-                  Carrito
-                </span>
-              </button>
+              </div>
             </div>
           </div>
-
-          {/* Mobile: buscador + carrito + hamburguesa */}
-          <div className="flex md:hidden items-center gap-2 flex-1 justify-end">
-            <form onSubmit={handleSearch} className="flex flex-1 max-w-[180px]">
-              <input
-                type="search"
-                value={busqueda}
-                onChange={(e) => setBusqueda(e.target.value)}
-                placeholder="Buscar fragancia..."
-                className="flex-1 bg-[#0D0D0D] border border-[#1A1A1A] border-r-0 text-white placeholder-[#555555] px-3 py-2 text-xs focus:outline-none focus:border-[#D4AF37] transition-colors"
-              />
-              <button
-                type="submit"
-                className="bg-[#D4AF37] text-black px-3 py-2"
-                aria-label="Buscar"
-              >
-                <Search size={14} />
-              </button>
-            </form>
-
-            {/* Cart mobile */}
-            <button
-              onClick={openDrawer}
-              aria-label="Ver carrito"
-              className="relative text-white hover:text-[#D4AF37] transition-colors shrink-0 p-1"
-            >
-              <ShoppingBag size={20} />
-              {count > 0 && (
-                <span className="absolute top-0 right-0 bg-[#D4AF37] text-black text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center leading-none">
-                  {count > 9 ? "9+" : count}
-                </span>
-              )}
-            </button>
-
-            <button
-              className="text-white hover:text-[#D4AF37] transition-colors shrink-0"
-              onClick={() => setMenuOpen(!menuOpen)}
-              aria-label="Menú"
-            >
-              {menuOpen ? <X size={22} /> : <Menu size={22} />}
-            </button>
-          </div>
         </div>
-      </div>
 
       {/* Mobile Menu */}
       {menuOpen && (

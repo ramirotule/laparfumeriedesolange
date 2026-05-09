@@ -1,5 +1,5 @@
 export const aromatizantes = [
-  { nombre: "Ver Todo", href: "/aromatizantes" },
+  { nombre: "VER TODO", href: "/aromatizantes" },
   {
     nombre: "Aromatizantes Ambientales",
     href: "/aromatizantes/aromatizantes-ambientales",
@@ -15,7 +15,7 @@ export const aromatizantes = [
 ];
 
 export const bienestar = [
-  { nombre: "Ver Todo", href: "/bienestar" },
+  { nombre: "VER TODO", href: "/bienestar" },
   {
     nombre: "ACEITES ESENCIALES",
     href: "/bienestar/aceites-esenciales",
