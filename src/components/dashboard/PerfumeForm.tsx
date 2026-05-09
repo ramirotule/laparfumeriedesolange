@@ -42,6 +42,7 @@ export default function PerfumeForm({ perfume = {}, isEdit = false }: Props) {
     nuevo: perfume.nuevo || false,
     meta_titulo: perfume.meta_titulo || "",
     meta_descripcion: perfume.meta_descripcion || "",
+    inspired_in: perfume.inspired_in || "",
   });
 
   useEffect(() => {
@@ -89,6 +90,7 @@ export default function PerfumeForm({ perfume = {}, isEdit = false }: Props) {
       nuevo: form.nuevo,
       meta_titulo: form.meta_titulo.trim() || null,
       meta_descripcion: form.meta_descripcion.trim() || null,
+      inspired_in: form.inspired_in.trim() || null,
     };
 
     let result;
@@ -157,6 +159,19 @@ export default function PerfumeForm({ perfume = {}, isEdit = false }: Props) {
                 className="w-full bg-[#1A1A1A] border border-[#2D2D2D] text-white px-4 py-3 focus:outline-none focus:border-[#D4AF37] text-sm transition-colors"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="text-[#888888] text-xs uppercase tracking-widest block mb-1.5">
+              Inspirado en (opcional)
+            </label>
+            <input
+              type="text"
+              value={form.inspired_in}
+              onChange={(e) => update("inspired_in", e.target.value)}
+              placeholder="Ej: La Vie Est Belle"
+              className="w-full bg-[#1A1A1A] border border-[#2D2D2D] text-white px-4 py-3 focus:outline-none focus:border-[#D4AF37] text-sm transition-colors"
+            />
           </div>
 
           <div>

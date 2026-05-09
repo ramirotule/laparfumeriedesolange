@@ -11,29 +11,23 @@ const TikTokIcon = ({ size = 16 }: { size?: number }) => (
 
 export default function Footer() {
   return (
-    <footer className="bg-white border-t border-gray-100 mt-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
-          {/* Brand */}
-          <div className="md:col-span-1">
-            <Link href="/" className="block mb-4">
-              <Image
-                src="/logo2.png"
-                alt="La Parfumerie de Solange"
-                width={192}
-                height={192}
-                className="w-48 h-auto object-contain"
-              />
+    <footer className="bg-black border-t border-[#1A1A1A] mt-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
+          {/* Logo y descripción */}
+          <div className="col-span-1 md:col-span-2">
+            <Link href="/" className="inline-block mb-6">
+              <Image src="/logo2.png" alt="Logo" width={180} height={180} className="h-12 w-auto" />
             </Link>
-            <p className="text-gray-500 text-sm leading-relaxed">
-              Perfumería de lujo en Santa Rosa, La Pampa. Fragancias exclusivas
-              para quienes buscan lo mejor.
+            <p className="text-gray-400 text-sm max-w-sm leading-relaxed">
+              La Parfumerie de Solange: Tu destino de lujo para fragancias exclusivas en Santa Rosa.
+              Seleccionamos las mejores esencias para acompañar cada momento de tu vida.
             </p>
           </div>
 
           {/* Catálogo */}
           <div>
-            <h4 className="text-black text-xs font-bold tracking-[0.2em] uppercase mb-4">
+            <h4 className="text-white text-xs font-bold tracking-[0.2em] uppercase mb-4">
               Catálogo
             </h4>
             <ul className="space-y-2">

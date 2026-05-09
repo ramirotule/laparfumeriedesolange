@@ -36,6 +36,7 @@ export interface Perfume {
   meta_titulo?: string;
   meta_descripcion?: string;
   notas?: NotaAromatica[];
+  inspired_in?: string;
   created_at: string;
   updated_at: string;
 }

@@ -6,6 +6,7 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { Search, Menu, X, ChevronDown, ShoppingBag } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 const familias = [
   { nombre: "Floral", href: "/perfumes?familia=Floral" },
@@ -91,7 +92,7 @@ export default function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-black border-b border-[#1A1A1A]">
+    <header className="sticky top-0 z-50 bg-white dark:bg-black border-b border-gray-100 dark:border-[#1A1A1A]">
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col">
           {/* Fila Superior: Links de Utilidad (Muy compacta) */}
@@ -154,7 +155,7 @@ export default function Header() {
                 className={`text-[10px] tracking-[0.2em] transition-colors font-bold uppercase ${
                   pathname === "/"
                     ? "text-[#D4AF37]"
-                    : "text-white hover:text-[#D4AF37]"
+                    : "text-black dark:text-white hover:text-[#D4AF37]"
                 }`}
               >
                 INICIO
@@ -168,7 +169,7 @@ export default function Header() {
               >
                 <button
                   onClick={() => setMegaMenuOpen(!megaMenuOpen)}
-                  className="flex items-center gap-1.5 text-[10px] tracking-[0.2em] text-white hover:text-[#D4AF37] transition-colors font-bold uppercase"
+                  className="flex items-center gap-1.5 text-[10px] tracking-[0.2em] text-black dark:text-white hover:text-[#D4AF37] transition-colors font-bold uppercase"
                 >
                   Fragancias
                   <ChevronDown
@@ -179,7 +180,7 @@ export default function Header() {
 
                 {megaMenuOpen && (
                   <div className="absolute top-full left-1/2 -translate-x-1/2 w-[240px] pt-4 z-50">
-                    <div className="bg-[#0D0D0D] border border-[#2D2D2D] shadow-2xl shadow-black/80 p-6 flex flex-col gap-6">
+                    <div className="bg-white dark:bg-[#0D0D0D] border border-gray-200 dark:border-[#2D2D2D] shadow-2xl shadow-black/10 dark:shadow-black/80 p-6 flex flex-col gap-6">
                       {/* Unlock */}
                       <div>
                         <h3 className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1">
@@ -283,7 +284,7 @@ export default function Header() {
               >
                 <button
                   onClick={() => setBusquedaOpen(!busquedaOpen)}
-                  className="flex items-center gap-1.5 text-[10px] tracking-[0.2em] text-white hover:text-[#D4AF37] transition-colors font-bold uppercase"
+                  className="flex items-center gap-1.5 text-[10px] tracking-[0.2em] text-black dark:text-white hover:text-[#D4AF37] transition-colors font-bold uppercase"
                 >
                   Filtrar por
                   <ChevronDown
@@ -443,7 +444,7 @@ export default function Header() {
                   value={busqueda}
                   onChange={(e) => setBusqueda(e.target.value)}
                   placeholder="¿Qué buscás?"
-                  className="flex-1 bg-[#0D0D0D] border border-[#2D2D2D] border-r-0 text-white placeholder-[#555555] px-3 py-1.5 text-[11px] focus:outline-none focus:border-[#D4AF37] transition-colors"
+                  className="flex-1 bg-gray-50 dark:bg-[#0D0D0D] border border-gray-200 dark:border-[#2D2D2D] border-r-0 text-black dark:text-white placeholder-gray-400 dark:placeholder-[#555555] px-3 py-1.5 text-[11px] focus:outline-none focus:border-[#D4AF37] transition-colors"
                 />
                 <button
                   type="submit"
@@ -458,7 +459,7 @@ export default function Header() {
               <button
                 onClick={openDrawer}
                 aria-label="Ver carrito"
-                className="relative text-white hover:text-[#D4AF37] transition-all flex items-center gap-2 group"
+                className="relative text-black dark:text-white hover:text-[#D4AF37] transition-all flex items-center gap-2 group"
               >
                 <div className="relative">
                   <ShoppingBag
@@ -475,6 +476,8 @@ export default function Header() {
                   Carrito
                 </span>
               </button>
+
+              <ThemeToggle />
             </div>
           </div>
 
@@ -487,7 +490,7 @@ export default function Header() {
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
                 placeholder="Buscar fragancia..."
-                className="flex-1 bg-[#0D0D0D] border border-[#2D2D2D] border-r-0 text-white placeholder-[#555555] px-3 py-2 text-xs focus:outline-none focus:border-[#D4AF37] transition-colors"
+                className="flex-1 bg-gray-50 dark:bg-[#0D0D0D] border border-gray-200 dark:border-[#2D2D2D] border-r-0 text-black dark:text-white placeholder-gray-400 dark:placeholder-[#555555] px-3 py-2 text-xs focus:outline-none focus:border-[#D4AF37] transition-colors"
               />
               <button
                 type="submit"
@@ -502,7 +505,7 @@ export default function Header() {
             <button
               onClick={openDrawer}
               aria-label="Ver carrito"
-              className="relative text-white hover:text-[#D4AF37] transition-colors shrink-0 p-1"
+              className="relative text-black dark:text-white hover:text-[#D4AF37] transition-colors shrink-0 p-1"
             >
               <ShoppingBag size={20} />
               {count > 0 && (
@@ -513,12 +516,13 @@ export default function Header() {
             </button>
 
             <button
-              className="text-white hover:text-[#D4AF37] transition-colors shrink-0"
+              className="text-black dark:text-white hover:text-[#D4AF37] transition-colors shrink-0"
               onClick={() => setMenuOpen(!menuOpen)}
               aria-label="Menú"
             >
               {menuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
+            <ThemeToggle />
           </div>
         </div>
       </div>

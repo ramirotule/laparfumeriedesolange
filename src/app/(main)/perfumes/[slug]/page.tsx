@@ -134,7 +134,7 @@ export default async function PerfumePage({ params }: Props) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-20">
           {/* Imagen */}
-          <div className="relative aspect-square bg-white border border-gray-100">
+          <div className="relative aspect-square bg-[#0D0D0D] border border-[#1A1A1A]">
             {perfume.imagen_url ? (
               <Image
                 src={perfume.imagen_url}
@@ -173,9 +173,14 @@ export default async function PerfumePage({ params }: Props) {
             <p className="text-[#D4AF37] text-xs tracking-[0.3em] uppercase mb-2">
               {perfume.marca}
             </p>
-            <h1 className="font-serif text-3xl md:text-4xl text-black mb-2 leading-tight">
+            <h1 className="font-serif text-3xl md:text-4xl text-white mb-1 leading-tight">
               {perfume.nombre}
             </h1>
+            {perfume.inspired_in && (
+              <p className="text-gray-400 italic text-sm mb-4">
+                Inspirado en: <span className="font-medium">{perfume.inspired_in}</span>
+              </p>
+            )}
 
             {(perfume.volumen_ml || perfume.concentracion) && (
               <p className="text-gray-500 text-sm mb-4">
@@ -195,25 +200,25 @@ export default async function PerfumePage({ params }: Props) {
               </Link>
             )}
 
-            <div className="mb-8 p-6 bg-gray-50 border-l-4 border-[#D4AF37] flex flex-col gap-1">
+            <div className="mb-8 p-6 bg-[#141414] border-l-4 border-[#D4AF37] flex flex-col gap-1">
               <div className="flex flex-col">
-                <span className="text-gray-500 text-xs uppercase tracking-widest mb-1">
+                <span className="text-[#888888] text-xs uppercase tracking-widest mb-1">
                   Precio de lista
                 </span>
-                <span className="text-gray-800 font-medium text-2xl">
+                <span className="text-[#cccccc] font-medium text-2xl">
                   {formatPrice(calculateListPrice(perfume.precio_venta))}
                 </span>
               </div>
               
-              <div className="flex items-center gap-2 text-gray-600 mt-1">
+              <div className="flex items-center gap-2 text-[#888888] mt-1">
                 <span className="font-semibold text-lg">
                   3 cuotas sin interés de {formatPrice(calculateInstallment(perfume.precio_venta))}
                 </span>
               </div>
 
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <span className="text-gray-500 text-xs uppercase tracking-widest block mb-2">Precio Especial Contado / Transferencia</span>
-                <span className="text-[#D4AF37] font-bold text-5xl block">
+              <div className="mt-6 pt-6 border-t border-[#2D2D2D]">
+                <span className="text-[#888888] text-xs uppercase tracking-widest block mb-2">Precio Especial Contado / Transferencia</span>
+                <span className="text-white font-bold text-5xl block">
                   {formatPrice(perfume.precio_venta)}
                 </span>
               </div>
@@ -276,14 +281,14 @@ export default async function PerfumePage({ params }: Props) {
         {/* Descripción */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
           <div>
-            <h2 className="font-serif text-2xl text-black mb-4">Descripción</h2>
-            <p className="text-gray-600 leading-relaxed">{perfume.descripcion}</p>
+            <h2 className="font-serif text-2xl text-white mb-4">Descripción</h2>
+            <p className="text-[#888888] leading-relaxed">{perfume.descripcion}</p>
           </div>
 
           {/* Pirámide olfativa */}
           {(notasSalida.length > 0 || notasCorazon.length > 0 || notasFondo.length > 0) && (
             <div>
-              <h2 className="font-serif text-2xl text-black mb-4">Pirámide Olfativa</h2>
+              <h2 className="font-serif text-2xl text-white mb-4">Pirámide Olfativa</h2>
               <div className="space-y-4">
                 {notasSalida.length > 0 && (
                   <div>
@@ -292,7 +297,7 @@ export default async function PerfumePage({ params }: Props) {
                       {notasSalida.map((nota) => (
                         <span
                           key={nota.id}
-                          className="bg-gray-50 border border-gray-100 text-gray-600 text-xs px-3 py-1"
+                          className="bg-[#141414] border border-[#1A1A1A] text-[#888888] text-xs px-3 py-1"
                         >
                           {nota.nombre}
                         </span>
@@ -307,7 +312,7 @@ export default async function PerfumePage({ params }: Props) {
                       {notasCorazon.map((nota) => (
                         <span
                           key={nota.id}
-                          className="bg-gray-50 border border-gray-100 text-gray-600 text-xs px-3 py-1"
+                          className="bg-[#141414] border border-[#1A1A1A] text-[#888888] text-xs px-3 py-1"
                         >
                           {nota.nombre}
                         </span>
@@ -322,7 +327,7 @@ export default async function PerfumePage({ params }: Props) {
                       {notasFondo.map((nota) => (
                         <span
                           key={nota.id}
-                          className="bg-gray-50 border border-gray-100 text-gray-600 text-xs px-3 py-1"
+                          className="bg-[#141414] border border-[#1A1A1A] text-[#888888] text-xs px-3 py-1"
                         >
                           {nota.nombre}
                         </span>

@@ -133,7 +133,7 @@ export default async function CatalogPage({
         <p className="text-[#D4AF37] text-xs tracking-[0.3em] uppercase mb-2">
           La Parfumerie de Solange
         </p>
-        <h1 className="font-serif text-4xl md:text-5xl text-black mb-4">
+        <h1 className="font-serif text-4xl md:text-5xl text-white mb-4">
           {titulo}
         </h1>
         <p className="text-[#888888] text-sm">

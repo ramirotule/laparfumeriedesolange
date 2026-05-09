@@ -17,8 +17,8 @@ export default function PerfumeCard({ perfume, isCompact = false }: Props) {
 
   if (isCompact) {
     return (
-      <article className="group relative bg-white border border-gray-100 hover:border-[#D4AF37]/40 transition-all duration-300 hover:shadow-lg flex flex-col overflow-hidden">
-        <Link href={`/perfumes/${perfume.slug}`} className="block relative aspect-square bg-gray-50">
+      <article className="group relative bg-[#0D0D0D] border border-[#1A1A1A] hover:border-[#D4AF37]/40 transition-all duration-300 hover:shadow-lg flex flex-col overflow-hidden">
+        <Link href={`/perfumes/${perfume.slug}`} className="block relative aspect-square bg-black/40">
           {perfume.imagen_url ? (
             <Image
               src={perfume.imagen_url}
@@ -55,9 +55,9 @@ export default function PerfumeCard({ perfume, isCompact = false }: Props) {
   }
 
   return (
-    <article className="group bg-white border border-gray-100 hover:border-[#D4AF37]/40 transition-all duration-300 hover:shadow-xl hover:shadow-[#D4AF37]/10 flex flex-col h-full">
+    <article className="group bg-[#0D0D0D] border border-[#1A1A1A] hover:border-[#D4AF37]/40 transition-all duration-300 hover:shadow-xl hover:shadow-black/50 flex flex-col h-full">
       {/* Image */}
-      <Link href={`/perfumes/${perfume.slug}`} className="block relative overflow-hidden aspect-square bg-gray-50">
+      <Link href={`/perfumes/${perfume.slug}`} className="block relative overflow-hidden aspect-square bg-black/40">
         {perfume.imagen_url ? (
           <Image
             src={perfume.imagen_url}
@@ -107,10 +107,10 @@ export default function PerfumeCard({ perfume, isCompact = false }: Props) {
       {/* Content */}
       <div className="p-4 flex flex-col flex-1">
         <Link href={`/perfumes/${perfume.slug}`}>
-          <p className="text-gray-500 text-xs tracking-[0.2em] uppercase mb-1">
+          <p className="text-[#555555] text-xs tracking-[0.2em] uppercase mb-1">
             {perfume.marca}
           </p>
-          <h3 className="text-black font-serif text-base leading-snug group-hover:text-[#D4AF37] transition-colors line-clamp-2">
+          <h3 className="text-white font-serif text-base leading-snug group-hover:text-[#D4AF37] transition-colors line-clamp-2">
             {perfume.nombre}
           </h3>
         </Link>
@@ -130,7 +130,7 @@ export default function PerfumeCard({ perfume, isCompact = false }: Props) {
               3 cuotas sin interés de {formatPrice(calculateInstallment(perfume.precio_venta))}
             </span>
             <div className="mt-1">
-              <span className="text-[#D4AF37] font-bold text-xl">
+              <span className="text-white font-bold text-xl">
                 {formatPrice(perfume.precio_venta)}
               </span>
               <span className="text-[#D4AF37] text-[10px] font-bold ml-1 uppercase tracking-tight">
@@ -158,7 +158,7 @@ export default function PerfumeCard({ perfume, isCompact = false }: Props) {
               rel="noopener noreferrer"
               data-umami-event="whatsapp-consulta"
               data-umami-event-perfume={perfume.nombre}
-              className="flex flex-1 items-center justify-center gap-1.5 bg-gray-50 border border-gray-200 hover:border-[#D4AF37]/50 hover:bg-[#D4AF37]/5 text-gray-700 hover:text-[#D4AF37] text-xs px-2 py-2 transition-all duration-200 whitespace-nowrap"
+              className="flex flex-1 items-center justify-center gap-1.5 bg-[#141414] border border-[#2D2D2D] hover:border-[#D4AF37]/50 hover:bg-[#D4AF37]/5 text-[#888888] hover:text-[#D4AF37] text-xs px-2 py-2 transition-all duration-200 whitespace-nowrap"
               aria-label={`Consultar ${perfume.nombre} por WhatsApp`}
             >
               <img src="/whatsapp.png" alt="WhatsApp" className="w-3.5 h-3.5 rounded-full object-cover" />

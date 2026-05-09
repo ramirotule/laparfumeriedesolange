@@ -101,9 +101,9 @@ export default async function ArabesPage() {
       />
 
       {/* Hero árabe */}
-      <section className="relative overflow-hidden bg-white py-24 px-4 border-b border-gray-100">
+      <section className="relative overflow-hidden bg-black py-24 px-4 border-b border-[#1A1A1A]">
         <div
-          className="absolute inset-0 opacity-[0.04]"
+          className="absolute inset-0 opacity-[0.08]"
           style={{
             backgroundImage:
               "url(\"data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23D4AF37'%3E%3Cpath d='M40 0 L80 40 L40 80 L0 40 Z' fill-opacity='0.5'/%3E%3C/g%3E%3C/svg%3E\")",
@@ -114,7 +114,7 @@ export default async function ArabesPage() {
           <p className="text-[#D4AF37] text-xs tracking-[0.6em] uppercase mb-6">
             La Parfumerie de Solange
           </p>
-          <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl text-black mb-6 leading-none">
+          <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl text-white mb-6 leading-none">
             Perfumería
             <span className="block text-[#D4AF37]">Árabe</span>
           </h1>
@@ -128,7 +128,7 @@ export default async function ArabesPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
               href="#catalogo-arabes"
-              className="bg-[#D4AF37] text-black font-bold px-8 py-4 tracking-widest text-sm uppercase hover:bg-[#E8CC6B] transition-colors"
+              className="bg-[#D4AF37] text-black font-bold px-8 py-4 tracking-widest text-sm uppercase hover:bg-[#E8CC6B] transition-colors shadow-lg shadow-[#D4AF37]/20"
             >
               Ver Colección
             </a>
@@ -146,13 +146,13 @@ export default async function ArabesPage() {
       </section>
 
       {/* Características */}
-      <section className="bg-gray-50 border-y border-gray-100 py-16">
+      <section className="bg-[#0D0D0D] border-y border-[#1A1A1A] py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {caracteristicas.map((c) => (
               <div
                 key={c.titulo}
-                className="text-center p-6 border border-gray-200 bg-white shadow-sm"
+                className="text-center p-6 border border-[#1A1A1A] bg-black/40 shadow-sm"
               >
                 <div className="text-4xl mb-4">{c.icono}</div>
                 <h3 className="font-serif text-lg text-[#D4AF37] mb-2">{c.titulo}</h3>
@@ -172,7 +172,7 @@ export default async function ArabesPage() {
           <p className="text-[#D4AF37] text-xs tracking-[0.3em] uppercase mb-2">
             Colección exclusiva
           </p>
-          <h2 className="font-serif text-3xl md:text-4xl text-black mb-4">
+          <h2 className="font-serif text-3xl md:text-4xl text-white mb-4">
             Nuestros Perfumes Árabes
           </h2>
           <p className="text-gray-500 max-w-xl mx-auto text-sm">
@@ -202,9 +202,9 @@ export default async function ArabesPage() {
       </section>
 
       {/* Artículo SEO */}
-      <section className="bg-gray-50 border-t border-gray-100 py-16">
+      <section className="bg-[#0D0D0D] border-t border-[#1A1A1A] py-16">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="font-serif text-2xl text-black mb-6">
+          <h2 className="font-serif text-2xl text-white mb-6">
             La Perfumería Árabe en Argentina: Una Experiencia Única
           </h2>
           <div className="space-y-4 text-gray-500 text-sm leading-relaxed">
@@ -223,7 +223,7 @@ export default async function ArabesPage() {
             <p>
               Somos una de las pocas perfumerías en <strong className="text-[#cccccc]">La Pampa</strong>{" "}
               que ofrece una selección curada de fragancias árabes auténticas. Visitanos en{" "}
-              <strong className="text-black">Ayala 604, Santa Rosa</strong>, o consultá por WhatsApp
+              <strong className="text-white">Ayala 604, Santa Rosa</strong>, o consultá por WhatsApp
               para conocer toda la disponibilidad de stock.
             </p>
           </div>

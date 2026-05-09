@@ -62,6 +62,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -73,7 +75,7 @@ export default function RootLayout({
     "https://analytics.umami.is/script.js";
 
   return (
-    <html lang="es-AR" className="h-full">
+    <html lang="es-AR" className="h-full" suppressHydrationWarning>
       <head>
         <script
           type="application/ld+json"
@@ -100,20 +102,26 @@ export default function RootLayout({
         />
       </head>
       <body 
-        className="min-h-full flex flex-col bg-black text-white antialiased"
-        suppressHydrationWarning
+        className="min-h-full flex flex-col bg-white text-black dark:bg-black dark:text-white antialiased transition-colors duration-300"
       >
-        {children}
-        <WhatsAppButton />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem={false}
+          disableTransitionOnChange
+        >
+          {children}
+          <WhatsAppButton />
 
-        {umamiId && (
-          <Script
-            src={umamiUrl}
-            data-website-id={umamiId}
-            strategy="afterInteractive"
-            defer
-          />
-        )}
+          {umamiId && (
+            <Script
+              src={umamiUrl}
+              data-website-id={umamiId}
+              strategy="afterInteractive"
+              defer
+            />
+          )}
+        </ThemeProvider>
       </body>
     </html>
   );
