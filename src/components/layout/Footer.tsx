@@ -1,7 +1,12 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { MapPin } from "lucide-react";
 import InstagramIcon from "@/components/ui/InstagramIcon";
+import { SITE_CONFIG } from "@/constants/site";
+import NewsletterModal from "../ui/NewsletterModal";
 
 const TikTokIcon = ({ size = 16 }: { size?: number }) => (
   <svg viewBox="0 0 24 24" fill="currentColor" width={size} height={size}>
@@ -10,10 +15,12 @@ const TikTokIcon = ({ size = 16 }: { size?: number }) => (
 );
 
 export default function Footer() {
+  const [isNewsletterOpen, setIsNewsletterOpen] = useState(false);
+
   return (
     <footer className="bg-black border-t border-[#1A1A1A] mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Catálogo */}
           <div>
             <h4 className="text-[#D4AF37] text-xs font-bold tracking-[0.2em] uppercase mb-4">
@@ -66,13 +73,12 @@ export default function Footer() {
                 <MapPin size={16} className="text-[#D4AF37] mt-0.5 shrink-0" />
                 <div>
                   <p className="text-[#cccccc] text-sm">Ayala 604</p>
-                  <p className="text-gray-500 text-sm">Santa Rosa, La Pampa</p>
-                  <p className="text-gray-500 text-sm">Argentina</p>
+                  <p className="text-gray-500 text-sm">{SITE_CONFIG.contact.address}</p>
                 </div>
               </div>
 
               <a
-                href="https://wa.me/2954808202"
+                href={`https://wa.me/${SITE_CONFIG.contact.phone}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-gray-500 hover:text-[#D4AF37] transition-colors text-sm"
@@ -82,11 +88,11 @@ export default function Footer() {
                   alt="WhatsApp"
                   className="w-4 h-4 rounded-full object-cover"
                 />
-                +54 9 2954 808202
+                {SITE_CONFIG.contact.phoneDisplay}
               </a>
 
               <a
-                href="https://www.instagram.com/laparfumerie.desolange/"
+                href={SITE_CONFIG.social.instagram}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-gray-500 hover:text-[#D4AF37] transition-colors text-sm"
@@ -96,7 +102,7 @@ export default function Footer() {
               </a>
 
               <a
-                href="https://www.tiktok.com/@bagues.byromisolange"
+                href={SITE_CONFIG.social.tiktok}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-gray-500 hover:text-[#D4AF37] transition-colors text-sm"
@@ -108,10 +114,28 @@ export default function Footer() {
               </a>
             </div>
           </div>
+
+          {/* Novedades / Newsletter */}
+          <div>
+            <h4 className="text-[#D4AF37] text-xs font-bold tracking-[0.2em] uppercase mb-4">
+              Novedades
+            </h4>
+            <div className="space-y-4">
+              <p className="text-gray-500 text-sm leading-relaxed">
+                Suscribite para recibir lanzamientos exclusivos y novedades de nuestra colección.
+              </p>
+              <button
+                onClick={() => setIsNewsletterOpen(true)}
+                className="w-full bg-[#1A1A1A] text-[#D4AF37] border border-[#D4AF37]/20 hover:border-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition-all duration-300 font-bold py-3 text-xs tracking-widest uppercase"
+              >
+                Suscribirme al Newsletter
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Divider */}
-        <div className="border-t border-gray-100 mt-12 pt-8 flex flex-col items-center gap-3 text-center">
+        <div className="border-t border-[#1A1A1A] mt-12 pt-8 flex flex-col items-center gap-3 text-center">
           <p className="text-[#888888] text-xs font-bold tracking-wider uppercase">
             © {new Date().getFullYear()} La Parfumerie de Solange — Todos los
             derechos reservados.
@@ -129,6 +153,11 @@ export default function Footer() {
           </p>
         </div>
       </div>
+
+      <NewsletterModal 
+        isOpen={isNewsletterOpen} 
+        onClose={() => setIsNewsletterOpen(false)} 
+      />
     </footer>
   );
 }

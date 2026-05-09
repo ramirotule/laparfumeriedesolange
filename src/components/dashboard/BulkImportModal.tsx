@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import * as XLSX from "xlsx";
 import { createClient } from "@/lib/supabase/client";
 import { Download, Upload, X, Check, AlertCircle, FileText } from "lucide-react";
+import toast from "react-hot-toast";
 
 interface Props {
   isOpen: boolean;
@@ -27,7 +28,6 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: Props) {
         nombre: "Ejemplo Perfume",
         marca: "Bagués",
         descripcion: "Descripción larga del perfume...",
-        descripcion_corta: "Descripción corta",
         precio_costo: 5000,
         precio_venta: 8500,
         stock: 10,
@@ -35,18 +35,26 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: Props) {
         concentracion: "EDP",
         volumen_ml: 100,
         familia: "Floral",
-        inspired_in: "La Vie Est Belle",
-        imagen_url: "",
-        activo: true,
-        destacado: false,
-        nuevo: true
+        categoria: "Fragancias",
+        activo: "SI"
+      },
+      {
+        nombre: "Ejemplo Crema Facial",
+        marca: "Bioétape",
+        descripcion: "Descripción de la crema...",
+        precio_costo: 3000,
+        precio_venta: 5500,
+        stock: 15,
+        genero: "Unisex",
+        categoria: "Cuidados de la Piel",
+        activo: "SI"
       }
     ];
 
     const ws = XLSX.utils.json_to_sheet(templateData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Productos");
-    XLSX.writeFile(wb, "plantilla_perfumes.xlsx");
+    XLSX.writeFile(wb, "plantilla_productos_laparfumerie.xlsx");
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -93,30 +101,43 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: Props) {
     setError(null);
 
     try {
-      // 1. Obtener familias olfativas para mapeo
-      const { data: familias } = await supabase.from("familias_olfativas").select("id, nombre");
+      // 1. Obtener familias olfativas, categorías y subcategorías para mapeo
+      const [
+        { data: familias },
+        { data: categoriasDb }
+      ] = await Promise.all([
+        supabase.from("familias_olfativas").select("id, nombre"),
+        supabase.from("categorias").select("id, nombre")
+      ]);
+
       const familiaMap = new Map(familias?.map(f => [f.nombre.toLowerCase(), f.id]));
+      const categoriaMap = new Map(categoriasDb?.map(c => [c.nombre.toLowerCase(), c.id]));
 
       // 2. Preparar datos para inserción
-      const productosToInsert = data.map(item => ({
-        nombre: item.nombre,
-        marca: item.marca,
-        slug: generateSlug(item.nombre, item.marca),
-        descripcion: item.descripcion || "",
-        descripcion_corta: item.descripcion_corta || "",
-        precio_costo: Number(item.precio_costo) || 0,
-        precio_venta: Number(item.precio_venta) || 0,
-        stock: Number(item.stock) || 0,
-        genero: item.genero || "Unisex",
-        concentracion: item.concentracion || "EDP",
-        volumen_ml: Number(item.volumen_ml) || 0,
-        familia_olfativa_id: familiaMap.get(String(item.familia || "").toLowerCase()) || null,
-        inspired_in: item.inspired_in || "",
-        imagen_url: item.imagen_url || null,
-        activo: item.activo === true || item.activo === "true" || item.activo === "SI" || true,
-        destacado: item.destacado === true || item.destacado === "true" || item.destacado === "SI" || false,
-        nuevo: item.nuevo === true || item.nuevo === "true" || item.nuevo === "SI" || false,
-      }));
+      const productosToInsert = data.map(item => {
+        const catNombre = String(item.categoria || "Fragancias").toLowerCase();
+        const catId = categoriaMap.get(catNombre) || categoriaMap.get("fragancias");
+
+        return {
+          nombre: item.nombre,
+          marca: item.marca,
+          slug: generateSlug(item.nombre, item.marca),
+          descripcion: item.descripcion || "",
+          precio_costo: Number(item.precio_costo) || 0,
+          precio_venta: Number(item.precio_venta) || 0,
+          stock: Number(item.stock) || 0,
+          genero: item.genero || "Unisex",
+          concentracion: item.concentracion || "EDP",
+          volumen_ml: Number(item.volumen_ml) || 0,
+          familia_olfativa_id: familiaMap.get(String(item.familia || "").toLowerCase()) || null,
+          inspired_in: item.inspired_in || "",
+          imagen_url: item.imagen_url || null,
+          categoria_id: catId,
+          activo: item.activo === "SI" || item.activo === true,
+          destacado: item.destacado === "SI" || item.destacado === true,
+          nuevo: item.nuevo === "SI" || item.nuevo === true,
+        };
+      });
 
       // 3. Insertar en lotes de 20 para seguridad
       const batchSize = 20;
@@ -126,10 +147,13 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: Props) {
         if (insertError) throw insertError;
       }
 
+      toast.success(`Se importaron ${productosToInsert.length} productos correctamente.`);
       onSuccess();
       onClose();
     } catch (err: any) {
+      console.error("Error detallado:", err);
       setError(err.message || "Error al importar productos.");
+      toast.error("Hubo un error al realizar la importación.");
     } finally {
       setLoading(false);
     }
@@ -221,6 +245,7 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: Props) {
                   <thead className="bg-black/50 text-[#555555] uppercase tracking-wider">
                     <tr>
                       <th className="px-3 py-2">Nombre</th>
+                      <th className="px-3 py-2">Categoría</th>
                       <th className="px-3 py-2">Marca</th>
                       <th className="px-3 py-2 text-right">Precio</th>
                       <th className="px-3 py-2">Género</th>
@@ -230,6 +255,7 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: Props) {
                     {data.slice(0, 5).map((item, i) => (
                       <tr key={i} className="text-[#888888]">
                         <td className="px-3 py-2 text-white">{item.nombre}</td>
+                        <td className="px-3 py-2 text-[#D4AF37]">{item.categoria || "Fragancias"}</td>
                         <td className="px-3 py-2">{item.marca}</td>
                         <td className="px-3 py-2 text-right">${item.precio_venta}</td>
                         <td className="px-3 py-2">{item.genero}</td>

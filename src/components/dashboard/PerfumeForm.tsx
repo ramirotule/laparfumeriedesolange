@@ -13,6 +13,7 @@ interface Props {
 
 const generos = ["Femenino", "Masculino", "Unisex", "Árabe"];
 const concentraciones = ["EDP", "EDT", "Extrait de Parfum", "Parfum", "EDC", "Aceite puro"];
+const categorias = ["Fragancias", "Cuidados de la Piel", "Bienestar", "Aromatizantes"];
 
 const supabase = createClient();
 
@@ -37,6 +38,7 @@ export default function PerfumeForm({ perfume = {}, isEdit = false }: Props) {
     genero: perfume.genero || "Unisex",
     concentracion: perfume.concentracion || "EDP",
     volumen_ml: perfume.volumen_ml?.toString() || "",
+    categoria: perfume.categoria || "Fragancias",
     activo: perfume.activo !== undefined ? perfume.activo : true,
     destacado: perfume.destacado || false,
     nuevo: perfume.nuevo || false,
@@ -85,6 +87,7 @@ export default function PerfumeForm({ perfume = {}, isEdit = false }: Props) {
       genero: form.genero,
       concentracion: form.concentracion || null,
       volumen_ml: form.volumen_ml ? parseInt(form.volumen_ml) : null,
+      categoria: form.categoria,
       activo: form.activo,
       destacado: form.destacado,
       nuevo: form.nuevo,
@@ -235,6 +238,12 @@ export default function PerfumeForm({ perfume = {}, isEdit = false }: Props) {
               placeholder="Seleccionar familia..."
               onChange={(val) => update("familia_olfativa_id", val)}
               options={familias.map((f) => ({ value: f.id.toString(), label: f.nombre }))}
+            />
+            <CustomSelect
+              label="Categoría *"
+              value={form.categoria}
+              onChange={(val) => update("categoria", val)}
+              options={categorias.map((c) => ({ value: c, label: c }))}
             />
             <div>
               <label className="text-[#888888] text-xs uppercase tracking-widest block mb-1.5">

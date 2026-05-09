@@ -9,12 +9,13 @@ import {
   Banknote,
   Building2,
   CreditCard,
-  ChevronRight,
   AlertCircle,
   Loader2,
+  ChevronLeft,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { calculateListPrice, formatPrice } from "@/lib/price-utils";
+import { SITE_CONFIG } from "@/constants/site";
 
 type MetodoPago = "efectivo" | "transferencia" | "mercadopago";
 
@@ -40,7 +41,7 @@ const METODOS = [
 ];
 
 export default function CheckoutPage() {
-  const { items, total, clearCart } = useCart();
+  const { items, total, clearCart, openDrawer } = useCart();
   const router = useRouter();
   const searchParams = useSearchParams();
   const errorParam = searchParams.get("error");
@@ -54,6 +55,7 @@ export default function CheckoutPage() {
   const [metodo, setMetodo] = useState<MetodoPago>("efectivo");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(errorParam === "pago_fallido" ? "El pago fue rechazado. Intentá nuevamente." : "");
+  const [submitted, setSubmitted] = useState(false);
 
   // Redirect to catalog if cart is empty
   useEffect(() => {
@@ -73,8 +75,11 @@ export default function CheckoutPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setSubmitted(true);
+
     if (!nombre || !apellido || !telefono) {
-      setError("Completá nombre, apellido y teléfono.");
+      setError("Por favor, completá los campos obligatorios.");
+      window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
     setError("");
@@ -119,14 +124,16 @@ export default function CheckoutPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      {/* Breadcrumb */}
-      <nav className="flex items-center gap-2 text-xs text-gray-400 mb-8">
-        <Link href="/" className="hover:text-[#D4AF37] transition-colors">Inicio</Link>
-        <ChevronRight size={12} />
-        <Link href="/perfumes" className="hover:text-[#D4AF37] transition-colors">Catálogo</Link>
-        <ChevronRight size={12} />
-        <span className="text-gray-500">Checkout</span>
-      </nav>
+      {/* Botón Volver */}
+      <div className="mb-8">
+        <button 
+          onClick={openDrawer}
+          className="group flex items-center gap-2 text-xs text-gray-400 hover:text-[#D4AF37] transition-colors uppercase tracking-widest font-bold"
+        >
+          <ChevronLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
+          Volver al carrito
+        </button>
+      </div>
 
       <h1 className="font-serif text-3xl text-white mb-2">Finalizar compra</h1>
       <p className="text-gray-400 text-sm mb-10">Revisá tu pedido y completá tus datos</p>
@@ -147,10 +154,10 @@ export default function CheckoutPage() {
                 <input
                   value={nombre}
                   onChange={(e) => setNombre(e.target.value)}
-                  required
-                  className="w-full bg-black border border-[#1A1A1A] text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
+                  className={`w-full bg-black border ${submitted && !nombre ? 'border-red-500' : 'border-[#1A1A1A]'} text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors`}
                   placeholder="María"
                 />
+                {submitted && !nombre && <p className="text-red-500 text-[10px] mt-1">Campo requerido</p>}
               </div>
               <div>
                 <label className="block text-gray-500 text-xs uppercase tracking-wider mb-1.5">
@@ -159,10 +166,10 @@ export default function CheckoutPage() {
                 <input
                   value={apellido}
                   onChange={(e) => setApellido(e.target.value)}
-                  required
-                  className="w-full bg-black border border-[#1A1A1A] text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
+                  className={`w-full bg-black border ${submitted && !apellido ? 'border-red-500' : 'border-[#1A1A1A]'} text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors`}
                   placeholder="González"
                 />
+                {submitted && !apellido && <p className="text-red-500 text-[10px] mt-1">Campo requerido</p>}
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4 mt-4">
@@ -173,11 +180,11 @@ export default function CheckoutPage() {
                 <input
                   value={telefono}
                   onChange={(e) => setTelefono(e.target.value)}
-                  required
                   type="tel"
-                  className="w-full bg-black border border-[#1A1A1A] text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
+                  className={`w-full bg-black border ${submitted && !telefono ? 'border-red-500' : 'border-[#1A1A1A]'} text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors`}
                   placeholder="2954 000000"
                 />
+                {submitted && !telefono && <p className="text-red-500 text-[10px] mt-1">Campo requerido</p>}
               </div>
               <div>
                 <label className="block text-gray-500 text-xs uppercase tracking-wider mb-1.5">
@@ -306,14 +313,14 @@ export default function CheckoutPage() {
             </h2>
             <ul className="space-y-4 mb-6">
               {checkoutItems.map((item) => (
-                <li key={item.id} className="flex gap-3">
-                  <div className="w-14 h-14 bg-[#1A1A1A] border border-[#2D2D2D] shrink-0 overflow-hidden">
+                <li key={item.id} className="flex gap-4 items-center">
+                  <div className="w-20 h-20 bg-[#1A1A1A] border border-[#2D2D2D] shrink-0 overflow-hidden">
                     {item.imagen_url ? (
                       <Image
                         src={item.imagen_url}
                         alt={item.nombre}
-                        width={56}
-                        height={56}
+                        width={80}
+                        height={80}
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -323,15 +330,17 @@ export default function CheckoutPage() {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-white text-xs font-medium leading-snug">{item.nombre}</p>
-                    <p className="text-gray-400 text-[10px] mt-0.5">{item.marca}</p>
-                    <p className="text-gray-500 text-[10px] mt-1">
-                      {item.cantidad} x {formatPrice(item.precio_unidad)}
-                    </p>
+                    <p className="text-white text-sm font-medium leading-tight">{item.nombre}</p>
+                    <p className="text-gray-400 text-xs mt-1">{item.marca}</p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="text-[#D4AF37] text-xs font-bold">
+                        {item.cantidad} unidades
+                      </span>
+                      <span className="text-gray-500 text-[10px]">
+                        x {formatPrice(item.precio_unidad)}
+                      </span>
+                    </div>
                   </div>
-                  <p className="text-[#D4AF37] text-sm font-semibold shrink-0">
-                    {formatPrice(item.precio_unidad * item.cantidad)}
-                  </p>
                 </li>
               ))}
             </ul>
@@ -339,31 +348,44 @@ export default function CheckoutPage() {
             <div className="border-t border-[#1A1A1A] pt-5 space-y-3">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">Subtotal</span>
-                <span className="text-white">{formatPrice(finalTotal)}</span>
+                <span className="text-white">
+                  {formatPrice(isMercadoPago ? finalTotal : finalTotal * 1.2236)}
+                </span>
               </div>
+              
               <div className="flex justify-between text-sm">
                 <div className="flex flex-col">
                   <span className="text-gray-500">Envío</span>
                   <span className="text-[#D4AF37] text-[10px] font-semibold">Santa Rosa, La Pampa</span>
                 </div>
-                <span className="text-green-600 text-xs font-bold uppercase tracking-wider">Gratis</span>
+                {finalTotal >= SITE_CONFIG.shipping.freeThreshold ? (
+                  <span className="text-green-500 text-xs font-bold uppercase tracking-wider">Gratis</span>
+                ) : (
+                  <span className="text-white text-xs font-bold">A convenir</span>
+                )}
               </div>
               
               {!isMercadoPago && (
-                <div className="bg-green-500/10 p-2 text-green-400 text-[10px] font-medium flex justify-between items-center border border-green-500/20">
-                  <span>DESCUENTO POR CONTADO APLICADO</span>
-                  <span className="font-bold">-22.36%</span>
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs text-[#555555]">
+                    <span>Precio de lista</span>
+                    <span className="line-through">{formatPrice(finalTotal * 1.2236)}</span>
+                  </div>
+                  <div className="bg-green-500/10 p-2 text-green-400 text-[10px] font-medium flex justify-between items-center border border-green-500/20">
+                    <span>AHORRO POR CONTADO</span>
+                    <span className="font-bold">-{formatPrice(finalTotal * 0.2236)}</span>
+                  </div>
                 </div>
               )}
 
               <div className="flex justify-between items-end pt-4 border-t border-[#1A1A1A]">
                 <div className="flex flex-col">
-                  <span className="text-white font-bold text-sm uppercase tracking-wider">Total</span>
+                  <span className="text-white font-bold text-sm uppercase tracking-wider">Total Final</span>
                   <span className="text-gray-400 text-[10px]">
                     {isMercadoPago ? "Precio de lista" : "Precio efectivo / transf."}
                   </span>
                 </div>
-                <span className="text-[#D4AF37] text-3xl font-bold leading-none">
+                <span className={`text-3xl font-bold leading-none ${!isMercadoPago ? 'text-yellow-400' : 'text-white'}`}>
                   {formatPrice(finalTotal)}
                 </span>
               </div>

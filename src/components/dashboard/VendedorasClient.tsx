@@ -4,6 +4,7 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Vendedora } from "@/types";
 import { Users, Plus, Edit2, Trash2, X, Check, Phone, Mail } from "lucide-react";
+import BirthdayPicker from "@/components/ui/BirthdayPicker";
 
 interface Props {
   vendedoras: Vendedora[];
@@ -284,9 +285,11 @@ export default function VendedorasClient({ vendedoras: initial }: Props) {
                   placeholder="mail@ejemplo.com" />
               </div>
               <div>
-                <label className="block text-[#888888] text-xs uppercase tracking-wider mb-1.5">Fecha de Nacimiento</label>
-                <input type="date" value={form.fecha_nacimiento} onChange={(e) => setForm({ ...form, fecha_nacimiento: e.target.value })}
-                  className="w-full bg-black border border-[#2D2D2D] text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors" />
+                <BirthdayPicker 
+                  label="Fecha de Nacimiento"
+                  value={form.fecha_nacimiento} 
+                  onChange={(val) => setForm({ ...form, fecha_nacimiento: val })} 
+                />
               </div>
               <div>
                 <label className="block text-[#888888] text-xs uppercase tracking-wider mb-1.5">Notas</label>

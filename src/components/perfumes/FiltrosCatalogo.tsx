@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useCallback, useState, useEffect } from "react";
-import { bienestar, aromatizantes } from "@/constants/navigation";
+import { bienestar, aromatizantes, skincare } from "@/constants/navigation";
 import { Search, X } from "lucide-react";
 import CustomSelect from "@/components/ui/CustomSelect";
 
@@ -104,7 +104,9 @@ export default function FiltrosCatalogo({ activeParams }: Props) {
 
         {/* Grupo de Dropdowns Custom */}
         <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-          {!(activeParams.seccion === "bienestar" || activeParams.seccion === "aromatizantes") && (
+          {!(activeParams.seccion === "bienestar" || 
+             activeParams.seccion === "aromatizantes" || 
+             activeParams.seccion === "cuidados-piel") && (
             <>
               <div className="min-w-[140px] flex-1 lg:flex-none">
                 <CustomSelect
@@ -167,8 +169,10 @@ export default function FiltrosCatalogo({ activeParams }: Props) {
         </div>
       </div>
 
-      {/* Subcategorías específicas (Bienestar/Aromatizantes) */}
-      {(activeParams.seccion === "bienestar" || activeParams.seccion === "aromatizantes") && (
+      {/* Subcategorías específicas (Bienestar/Aromatizantes/Skincare) */}
+      {(activeParams.seccion === "bienestar" || 
+        activeParams.seccion === "aromatizantes" || 
+        activeParams.seccion === "cuidados-piel") && (
         <div className="flex flex-wrap gap-2 pt-2">
           <Link
             href={`/${activeParams.seccion}`}
@@ -180,7 +184,11 @@ export default function FiltrosCatalogo({ activeParams }: Props) {
           >
             VER TODO
           </Link>
-          {(activeParams.seccion === "bienestar" ? bienestar : aromatizantes)
+          {(activeParams.seccion === "bienestar" 
+             ? bienestar 
+             : activeParams.seccion === "cuidados-piel" 
+               ? skincare 
+               : aromatizantes)
             .filter(item => item.nombre !== "VER TODO")
             .map((item) => (
               <div key={item.nombre} className="flex gap-2">

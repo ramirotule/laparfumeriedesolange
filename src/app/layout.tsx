@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import "./globals.css";
 import WhatsAppButton from "@/components/ui/WhatsAppButton";
 import ScrollToTop from "@/components/ui/ScrollToTop";
+import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -112,7 +113,20 @@ export default function RootLayout({
             <ScrollToTop />
           </Suspense>
           {children}
-          <WhatsAppButton />
+          <Toaster 
+            position="top-center"
+            toastOptions={{
+              duration: 3000,
+              style: {
+                background: '#0D0D0D',
+                color: '#fff',
+                border: '1px solid #1A1A1A',
+                fontSize: '14px',
+                padding: '12px 24px',
+                borderRadius: '0px'
+              },
+            }}
+          />
 
         {umamiId && (
           <Script

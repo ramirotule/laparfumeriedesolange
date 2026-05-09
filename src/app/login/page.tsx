@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -32,6 +34,14 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-black flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
+        <Link 
+          href="/" 
+          className="inline-flex items-center gap-2 text-[#555555] hover:text-[#D4AF37] transition-colors text-[10px] tracking-[0.2em] uppercase mb-8 group"
+        >
+          <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
+          Volver a la tienda
+        </Link>
+
         <div className="text-center mb-10">
           <span className="text-[#D4AF37] font-serif text-2xl tracking-[0.15em] font-bold">
             LA PARFUMERIE

@@ -35,3 +35,47 @@ export const bienestar = [
   { nombre: "TRATAMIENTOS", href: "/bienestar/tratamientos" },
   { nombre: "BÁLSAMOS", href: "/bienestar/balsamos" },
 ];
+
+export const skincare = [
+  { nombre: "VER TODO", href: "/cuidados-piel" },
+  {
+    nombre: "CUIDADO FACIAL",
+    href: "/cuidados-piel/facial",
+    sub: [
+      { nombre: "Limpieza", href: "/cuidados-piel/facial-limpieza" },
+      { nombre: "Serum", href: "/cuidados-piel/facial-serum" },
+      { nombre: "Crema", href: "/cuidados-piel/facial-crema" },
+      { nombre: "Tratamiento", href: "/cuidados-piel/facial-tratamiento" },
+      { nombre: "Suncare", href: "/cuidados-piel/facial-suncare" },
+      { nombre: "Rutinas", href: "/cuidados-piel/facial-rutinas" },
+    ],
+  },
+  {
+    nombre: "CUIDADO CORPORAL",
+    href: "/cuidados-piel/corporal",
+    sub: [
+      { nombre: "Corporales", href: "/cuidados-piel/corporal-corporales" },
+      { nombre: "Manos", href: "/cuidados-piel/corporal-manos" },
+    ],
+  },
+  {
+    nombre: "TIPOS DE PIEL",
+    href: "/cuidados-piel/tipos-de-piel",
+    sub: [
+      { nombre: "Mixta", href: "/cuidados-piel/piel-mixta" },
+      { nombre: "Grasa", href: "/cuidados-piel/piel-grasa" },
+      { nombre: "Seca", href: "/cuidados-piel/piel-seca" },
+      { nombre: "Normal", href: "/cuidados-piel/piel-normal" },
+      { nombre: "Todo tipo", href: "/cuidados-piel/piel-todo" },
+    ],
+  },
+  {
+    nombre: "LÍNEA",
+    href: "/cuidados-piel/linea",
+    sub: [
+      { nombre: "Bioetape", href: "/cuidados-piel/linea-bioetape" },
+      { nombre: "Semplice", href: "/cuidados-piel/linea-semplice" },
+      { nombre: "Patagonia", href: "/cuidados-piel/linea-patagonia" },
+    ],
+  },
+];

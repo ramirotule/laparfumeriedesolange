@@ -6,6 +6,7 @@ import Image from "next/image";
 import { X, ShoppingBag, Plus, Minus, Trash2, ArrowRight } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { calculateInstallment, formatPrice } from "@/lib/price-utils";
+import { SITE_CONFIG } from "@/constants/site";
 
 export default function CartDrawer() {
   const { items, count, total, drawerOpen, closeDrawer, removeItem, updateCantidad } =
@@ -59,6 +60,28 @@ export default function CartDrawer() {
             <X size={20} />
           </button>
         </div>
+
+        {/* Shipping Progress Bar */}
+        {count > 0 && (
+          <div className="px-5 py-3 bg-[#111111] border-b border-[#1A1A1A]">
+            <div className="flex justify-between items-center mb-1.5">
+              <span className="text-[10px] uppercase tracking-widest text-[#888888]">
+                {total >= SITE_CONFIG.shipping.freeThreshold 
+                  ? "¡Tenés envío gratis!" 
+                  : `Te faltan ${formatPrice(SITE_CONFIG.shipping.freeThreshold - total)} para el envío gratis`}
+              </span>
+              <span className="text-[10px] font-bold text-[#D4AF37]">
+                {Math.min(100, Math.round((total / SITE_CONFIG.shipping.freeThreshold) * 100))}%
+              </span>
+            </div>
+            <div className="h-1 w-full bg-[#1A1A1A] rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-[#D4AF37] transition-all duration-500 ease-out"
+                style={{ width: `${Math.min(100, (total / SITE_CONFIG.shipping.freeThreshold) * 100)}%` }}
+              />
+            </div>
+          </div>
+        )}
 
         {/* Items */}
         <div className="flex-1 overflow-y-auto py-4 px-5">
@@ -148,18 +171,31 @@ export default function CartDrawer() {
 
         {/* Footer */}
         {items.length > 0 && (
-          <div className="border-t border-[#1A1A1A] px-5 py-5 space-y-3">
-            <div className="flex items-end justify-between">
-              <div className="flex flex-col">
-                <span className="text-[#888888] text-xs uppercase tracking-wider">Total</span>
-                <span className="text-[#555555] text-[10px] italic">Efectivo / Transferencia</span>
+          <div className="border-t border-[#1A1A1A] px-5 py-5 space-y-4 bg-black/40">
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-[#555555] text-xs">
+                <span>Precio de lista</span>
+                <span className="line-through">{formatPrice(total * 1.2236)}</span>
               </div>
-              <span className="text-[#D4AF37] font-bold text-2xl">
-                {formatPrice(total)}
-              </span>
+              
+              <div className="flex items-center justify-between text-green-500/90 text-xs font-medium">
+                <span>Ahorro por efectivo/transf.</span>
+                <span>-{formatPrice(total * 1.2236 - total)}</span>
+              </div>
+
+              <div className="flex items-end justify-between pt-2">
+                <div className="flex flex-col">
+                  <span className="text-[#888888] text-xs uppercase tracking-wider font-semibold">Total Especial</span>
+                  <span className="text-[#555555] text-[10px] italic">Efectivo / Transferencia</span>
+                </div>
+                <span className="text-yellow-400 font-black text-3xl tracking-tighter">
+                  {formatPrice(total)}
+                </span>
+              </div>
             </div>
-            <p className="text-center text-[#555555] text-[10px]">
-              O 3 cuotas sin interés de {formatPrice(calculateInstallment(total))}
+
+            <p className="text-center text-[#555555] text-[10px] bg-[#111111] py-2 border border-[#1A1A1A]">
+              O 3 cuotas sin interés de <span className="text-white font-medium">{formatPrice(calculateInstallment(total))}</span>
             </p>
             <Link
               href="/checkout"

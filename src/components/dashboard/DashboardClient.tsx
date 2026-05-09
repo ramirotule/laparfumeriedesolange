@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Perfume } from "@/types";
 import Link from "next/link";
@@ -15,10 +16,13 @@ import {
   Trash2,
   Eye,
   FileSpreadsheet,
+  ArrowDown,
+  ArrowUp,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import BulkImportModal from "./BulkImportModal";
 import * as XLSX from "xlsx";
+import CustomSelect from "@/components/ui/CustomSelect";
+import toast from "react-hot-toast";
 
 interface Stats {
   total: number;
@@ -30,10 +34,9 @@ interface Stats {
 
 interface Props {
   perfumes: Perfume[];
-  stats: Stats;
 }
 
-export default function DashboardClient({ perfumes: initialPerfumes, stats }: Props) {
+export default function DashboardClient({ perfumes: initialPerfumes }: Props) {
   const [perfumes, setPerfumes] = useState<Perfume[]>(initialPerfumes);
   const [loading, setLoading] = useState<string | null>(null);
   const [bulkLoading, setBulkLoading] = useState(false);
@@ -43,8 +46,52 @@ export default function DashboardClient({ perfumes: initialPerfumes, stats }: Pr
   const [bulkDeleteModal, setBulkDeleteModal] = useState(false);
   
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [categoriaFiltrada, setCategoriaFiltrada] = useState<string>("Fragancias");
+  const [listarTodo, setListarTodo] = useState<boolean>(false);
+  const [menuBulkAbierto, setMenuBulkAbierto] = useState<"categoria" | "genero" | null>(null);
+  const [categoriasDb, setCategoriasDb] = useState<{id: string, nombre: string}[]>([]);
   const router = useRouter();
   const supabase = createClient();
+
+  const fetchPerfumes = async () => {
+    setBulkLoading(true);
+    const { data } = await supabase
+      .from("perfumes")
+      .select("*, familia_olfativa:familias_olfativas(*)")
+      .order("created_at", { ascending: false });
+    
+    if (data) {
+      setPerfumes(data as Perfume[]);
+    }
+    setBulkLoading(false);
+  };
+
+  const fetchCategorias = async () => {
+    const { data } = await supabase.from("categorias").select("id, nombre");
+    if (data) setCategoriasDb(data);
+  };
+
+  // Cargar categorías al inicio
+  useEffect(() => {
+    fetchCategorias();
+  }, []);
+
+  // Cálculos de estadísticas en tiempo real
+  const currentStats = {
+    total: perfumes.length,
+    activos: perfumes.filter((p) => p.activo).length,
+    sinStock: perfumes.filter((p) => p.stock === 0).length,
+    valorInventario: perfumes.reduce((sum, p) => sum + (p.precio_costo || 0) * p.stock, 0),
+    margenPromedio: (() => {
+      const conCosto = perfumes.filter((p) => p.precio_costo && p.precio_costo > 0);
+      if (conCosto.length === 0) return 0;
+      const total = conCosto.reduce(
+        (sum, p) => sum + ((p.precio_venta - (p.precio_costo || 0)) / p.precio_venta) * 100,
+        0
+      );
+      return Math.round(total / conCosto.length);
+    })(),
+  };
 
   // Multi-select logic
   const toggleSelect = (id: string) => {
@@ -80,6 +127,49 @@ export default function DashboardClient({ perfumes: initialPerfumes, stats }: Pr
     );
     setSelectedIds(new Set());
     setBulkLoading(false);
+    toast.success(`Se actualizaron ${ids.length} productos.`);
+  }
+  
+  async function bulkUpdateField(field: "categoria" | "genero", value: string) {
+    setBulkLoading(true);
+    const ids = Array.from(selectedIds);
+    
+    let updateData: any = { [field]: value };
+    
+    // Si es categoría, buscamos el ID correspondiente
+    if (field === "categoria") {
+      console.log("Categorías en DB:", categoriasDb);
+      console.log("Buscando categoría:", value);
+      
+      const catEncontrada = categoriasDb.find(c => c.nombre.toLowerCase().trim() === value.toLowerCase().trim());
+      
+      if (catEncontrada) {
+        console.log("Categoría encontrada!", catEncontrada);
+        updateData = { 
+          categoria_id: catEncontrada.id,
+          categoria: catEncontrada.nombre 
+        };
+      } else {
+        console.error("No se encontró la categoría con nombre:", value);
+        toast.error(`No se encontró la categoría '${value}' en la base de datos.`);
+        setBulkLoading(false);
+        return;
+      }
+    }
+
+    const { error } = await supabase.from("perfumes").update(updateData).in("id", ids);
+    
+    if (error) {
+      console.error("Error Supabase:", error);
+      toast.error("Error al actualizar productos.");
+    } else {
+      setPerfumes((prev) =>
+        prev.map((p) => (selectedIds.has(p.id) ? { ...p, ...updateData } : p))
+      );
+      setSelectedIds(new Set());
+      toast.success("Productos actualizados correctamente.");
+    }
+    setBulkLoading(false);
   }
 
   async function ejecutarEliminarBulk() {
@@ -90,15 +180,17 @@ export default function DashboardClient({ perfumes: initialPerfumes, stats }: Pr
     setSelectedIds(new Set());
     setBulkLoading(false);
     setBulkDeleteModal(false);
+    toast.success("Productos eliminados correctamente.");
   }
 
-  const downloadExcel = () => {
-    const selectedPerfumes = perfumes.filter((p) => selectedIds.has(p.id));
-    const exportData = selectedPerfumes.map((p) => ({
+  const downloadExcel = (data?: Perfume[]) => {
+    const toExport = data || perfumes.filter((p) => selectedIds.has(p.id));
+    if (toExport.length === 0) return;
+
+    const exportData = toExport.map((p) => ({
       nombre: p.nombre,
       marca: p.marca,
-      descripcion: p.descripcion || "",
-      descripcion_corta: p.descripcion_corta || "",
+      categoria: p.categoria || "Fragancias",
       precio_costo: p.precio_costo || 0,
       precio_venta: p.precio_venta || 0,
       stock: p.stock || 0,
@@ -108,15 +200,15 @@ export default function DashboardClient({ perfumes: initialPerfumes, stats }: Pr
       familia: p.familia_olfativa?.nombre || "",
       inspired_in: p.inspired_in || "",
       imagen_url: p.imagen_url || "",
-      activo: p.activo,
-      destacado: p.destacado,
-      nuevo: p.nuevo,
+      activo: p.activo ? "SI" : "NO",
+      destacado: p.destacado ? "SI" : "NO",
+      nuevo: p.nuevo ? "SI" : "NO",
     }));
 
     const ws = XLSX.utils.json_to_sheet(exportData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Productos");
-    XLSX.writeFile(wb, `export_perfumes_${new Date().toISOString().split('T')[0]}.xlsx`);
+    XLSX.writeFile(wb, `export_productos_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
   function confirmarEliminar(id: string, nombre: string) {
@@ -130,14 +222,24 @@ export default function DashboardClient({ perfumes: initialPerfumes, stats }: Pr
     setPerfumes((prev) => prev.filter((p) => p.id !== deleteModal.id));
     setLoading(null);
     setDeleteModal({ isOpen: false, id: "", nombre: "" });
+    toast.success("Producto eliminado.");
   }
 
-  const perfumesFiltrados = perfumes.filter(
-    (p) =>
-      !busqueda ||
+  const perfumesFiltrados = perfumes.filter((p) => {
+    // 1. Filtro por búsqueda
+    const matchesBusqueda = !busqueda || 
       p.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-      p.marca.toLowerCase().includes(busqueda.toLowerCase())
-  );
+      p.marca.toLowerCase().includes(busqueda.toLowerCase());
+    
+    // 2. Filtro por categoría
+    // Si listarTodo es true, mostramos todos.
+    // Si es false, comparamos la categoría. 
+    // Si p.categoria no existe, asumimos "Fragancias" para compatibilidad (ya que el sitio empezó como perfumería).
+    const cat = p.categoria || "Fragancias";
+    const matchesCategoria = listarTodo || cat === categoriaFiltrada;
+
+    return matchesBusqueda && matchesCategoria;
+  });
 
   return (
     <>
@@ -147,21 +249,21 @@ export default function DashboardClient({ perfumes: initialPerfumes, stats }: Pr
           <div className="flex items-center gap-2 text-[#888888] text-xs mb-2">
             <Package size={14} /> TOTAL
           </div>
-          <p className="text-white font-bold text-2xl">{stats.total}</p>
+          <p className="text-white font-bold text-2xl">{currentStats.total}</p>
           <p className="text-[#555555] text-xs">perfumes</p>
         </div>
         <div className="bg-[#0D0D0D] border border-[#1A1A1A] p-5">
           <div className="flex items-center gap-2 text-[#D4AF37] text-xs mb-2">
             <Eye size={14} /> ACTIVOS
           </div>
-          <p className="text-white font-bold text-2xl">{stats.activos}</p>
+          <p className="text-white font-bold text-2xl">{currentStats.activos}</p>
           <p className="text-[#555555] text-xs">publicados</p>
         </div>
         <div className="bg-[#0D0D0D] border border-[#1A1A1A] p-5">
           <div className="flex items-center gap-2 text-orange-400 text-xs mb-2">
             <AlertTriangle size={14} /> SIN STOCK
           </div>
-          <p className="text-white font-bold text-2xl">{stats.sinStock}</p>
+          <p className="text-white font-bold text-2xl">{currentStats.sinStock}</p>
           <p className="text-[#555555] text-xs">para reponer</p>
         </div>
         <div className="bg-[#0D0D0D] border border-[#1A1A1A] p-5">
@@ -169,7 +271,7 @@ export default function DashboardClient({ perfumes: initialPerfumes, stats }: Pr
             <DollarSign size={14} /> INVENTARIO
           </div>
           <p className="text-white font-bold text-2xl">
-            ${stats.valorInventario.toLocaleString("es-AR")}
+            ${currentStats.valorInventario.toLocaleString("es-AR")}
           </p>
           <p className="text-[#555555] text-xs">valor costo</p>
         </div>
@@ -177,34 +279,85 @@ export default function DashboardClient({ perfumes: initialPerfumes, stats }: Pr
           <div className="flex items-center gap-2 text-[#D4AF37] text-xs mb-2">
             <TrendingUp size={14} /> MARGEN
           </div>
-          <p className="text-white font-bold text-2xl">{stats.margenPromedio}%</p>
+          <p className="text-white font-bold text-2xl">{currentStats.margenPromedio}%</p>
           <p className="text-[#555555] text-xs">promedio</p>
         </div>
       </div>
 
       {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6 items-start sm:items-center justify-between">
-        <input
-          type="search"
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-          placeholder="Buscar por nombre o marca..."
-          className="bg-[#0D0D0D] border border-[#2D2D2D] text-white placeholder-[#555555] px-4 py-2.5 focus:outline-none focus:border-[#D4AF37] transition-colors text-sm w-full sm:w-80"
-        />
-        <div className="flex items-center gap-3 w-full sm:w-auto">
+      <div className="flex flex-col lg:flex-row gap-4 mb-6 items-start lg:items-center justify-between">
+        <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+          <input
+            type="search"
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            placeholder="Buscar por nombre o marca..."
+            className="bg-[#0D0D0D] border border-[#2D2D2D] text-white placeholder-[#555555] px-4 py-2.5 focus:outline-none focus:border-[#D4AF37] transition-colors text-sm w-full sm:w-80"
+          />
+          <div className="w-full sm:w-48">
+            <CustomSelect
+              value={categoriaFiltrada}
+              onChange={(val) => setCategoriaFiltrada(val)}
+              options={[
+                { value: "Fragancias", label: "Fragancias" },
+                { value: "Cuidados de la Piel", label: "Cuidados de la Piel" },
+                { value: "Bienestar", label: "Bienestar" },
+                { value: "Aromatizantes", label: "Aromatizantes" },
+              ]}
+              placeholder="Categoría"
+            />
+          </div>
+
+          <label className="flex items-center gap-2 cursor-pointer group whitespace-nowrap pt-2 sm:pt-0 sm:ml-2">
+            <div className="relative">
+              <input
+                type="checkbox"
+                checked={listarTodo}
+                onChange={(e) => setListarTodo(e.target.checked)}
+                className="sr-only peer"
+              />
+              <div className="w-10 h-5 bg-[#1A1A1A] border border-[#2D2D2D] rounded-full peer peer-checked:bg-[#D4AF37] transition-all duration-300"></div>
+              <div className="absolute left-1 top-1 w-3 h-3 bg-[#555555] peer-checked:bg-black rounded-full transition-all duration-300 peer-checked:translate-x-5"></div>
+            </div>
+            <span className="text-xs text-[#888888] group-hover:text-white transition-colors uppercase tracking-widest font-bold">
+              Listar todo
+            </span>
+          </label>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+
+
+          <div className="h-8 w-px bg-[#1A1A1A] hidden md:block mx-2" />
+
           <button
             onClick={() => setIsImportModalOpen(true)}
-            className="flex items-center gap-2 bg-[#1A1A1A] text-white border border-[#2D2D2D] font-bold px-4 py-2.5 text-sm tracking-wider hover:bg-[#252525] transition-colors whitespace-nowrap"
+            className="flex items-center gap-2 bg-[#1A1A1A] text-white border border-[#2D2D2D] font-bold px-4 py-2.5 text-sm tracking-wider hover:bg-[#252525] transition-colors whitespace-nowrap group"
           >
-            <FileSpreadsheet size={16} className="text-[#D4AF37]" />
-            Importar Excel
+            <div className="relative flex items-center">
+              <FileSpreadsheet size={16} className="text-[#D4AF37]" />
+              <ArrowDown size={10} className="text-white absolute -right-1 -bottom-1 bg-[#1A1A1A] rounded-full group-hover:translate-y-0.5 transition-transform" />
+            </div>
+            Importar
           </button>
+          
+          <button
+            onClick={() => downloadExcel(perfumesFiltrados)}
+            className="flex items-center gap-2 bg-[#1A1A1A] text-white border border-[#2D2D2D] font-bold px-4 py-2.5 text-sm tracking-wider hover:bg-[#252525] transition-colors whitespace-nowrap group"
+          >
+            <div className="relative flex items-center">
+              <FileSpreadsheet size={16} className="text-[#D4AF37]" />
+              <ArrowUp size={10} className="text-white absolute -right-1 -bottom-1 bg-[#1A1A1A] rounded-full group-hover:-translate-y-0.5 transition-transform" />
+            </div>
+            Exportar
+          </button>
+
           <Link
             href="/dashboard/nuevo"
             className="flex items-center gap-2 bg-[#D4AF37] text-black font-bold px-5 py-2.5 text-sm tracking-wider hover:bg-[#E8CC6B] transition-colors whitespace-nowrap"
           >
             <Plus size={16} />
-            Nuevo Perfume
+            Nuevo
           </Link>
         </div>
       </div>
@@ -224,6 +377,7 @@ export default function DashboardClient({ perfumes: initialPerfumes, stats }: Pr
                   />
                 </th>
                 <th className="text-left text-[#555555] text-xs tracking-widest uppercase px-4 py-3">Producto</th>
+                <th className="text-left text-[#555555] text-xs tracking-widest uppercase px-4 py-3 hidden lg:table-cell">Categoría</th>
                 <th className="text-left text-[#555555] text-xs tracking-widest uppercase px-4 py-3 hidden sm:table-cell">Género</th>
                 <th className="text-right text-[#555555] text-xs tracking-widest uppercase px-4 py-3">Costo</th>
                 <th className="text-right text-[#555555] text-xs tracking-widest uppercase px-4 py-3">Venta</th>
@@ -271,6 +425,9 @@ export default function DashboardClient({ perfumes: initialPerfumes, stats }: Pr
                           <p className="text-[#555555] text-xs">{perfume.marca}</p>
                         </div>
                       </div>
+                    </td>
+                    <td className="px-4 py-3 text-[#888888] text-xs hidden lg:table-cell">
+                      {perfume.categoria || "Fragancias"}
                     </td>
                     <td className="px-4 py-3 text-[#888888] text-xs hidden sm:table-cell">{perfume.genero}</td>
                     <td className="px-4 py-3 text-right text-[#888888]">
@@ -354,9 +511,12 @@ export default function DashboardClient({ perfumes: initialPerfumes, stats }: Pr
           <div className="flex items-center gap-3">
             <button 
               onClick={downloadExcel}
-              className="px-3 py-1.5 text-xs font-bold text-[#D4AF37] border border-[#D4AF37]/20 hover:bg-[#D4AF37]/10 transition-colors flex items-center gap-2"
+              className="px-3 py-1.5 text-xs font-bold text-[#D4AF37] border border-[#D4AF37]/20 hover:bg-[#D4AF37]/10 transition-colors flex items-center gap-2 group"
             >
-              <FileSpreadsheet size={12} />
+              <div className="relative flex items-center">
+                <FileSpreadsheet size={14} className="text-[#D4AF37]" />
+                <ArrowUp size={8} className="text-white absolute -right-0.5 -bottom-0.5 bg-[#1A1A1A] rounded-full group-hover:-translate-y-0.5 transition-transform" />
+              </div>
               Exportar
             </button>
             <button 
@@ -373,6 +533,66 @@ export default function DashboardClient({ perfumes: initialPerfumes, stats }: Pr
             >
               Ocultar
             </button>
+
+            <div className="h-6 w-px bg-[#2D2D2D] mx-1" />
+
+            {/* Categoría Masiva */}
+            <div className="relative">
+              <button 
+                onClick={() => setMenuBulkAbierto(menuBulkAbierto === "categoria" ? null : "categoria")}
+                className={`px-3 py-1.5 text-xs font-bold border transition-colors ${menuBulkAbierto === "categoria" ? "bg-[#D4AF37] text-black border-[#D4AF37]" : "text-[#D4AF37] border-[#D4AF37]/20 hover:bg-[#D4AF37]/10"}`}
+              >
+                Categoría
+              </button>
+              {menuBulkAbierto === "categoria" && (
+                <>
+                  <div className="fixed inset-0 z-[-1]" onClick={() => setMenuBulkAbierto(null)} />
+                  <div className="absolute bottom-full left-0 mb-2 bg-[#111111] border border-[#2D2D2D] shadow-2xl p-2 min-w-[160px] animate-fade-in-up">
+                    {categoriasDb.map(cat => (
+                      <button
+                        key={cat.id}
+                        onClick={() => {
+                          bulkUpdateField("categoria", cat.nombre);
+                          setMenuBulkAbierto(null);
+                        }}
+                        className="w-full text-left px-3 py-2 text-[10px] text-[#888888] hover:text-white hover:bg-[#1A1A1A] transition-colors"
+                      >
+                        {cat.nombre}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Género Masivo */}
+            <div className="relative">
+              <button 
+                onClick={() => setMenuBulkAbierto(menuBulkAbierto === "genero" ? null : "genero")}
+                className={`px-3 py-1.5 text-xs font-bold border transition-colors ${menuBulkAbierto === "genero" ? "bg-[#D4AF37] text-black border-[#D4AF37]" : "text-[#D4AF37] border-[#D4AF37]/20 hover:bg-[#D4AF37]/10"}`}
+              >
+                Género
+              </button>
+              {menuBulkAbierto === "genero" && (
+                <>
+                  <div className="fixed inset-0 z-[-1]" onClick={() => setMenuBulkAbierto(null)} />
+                  <div className="absolute bottom-full left-0 mb-2 bg-[#111111] border border-[#2D2D2D] shadow-2xl p-2 min-w-[120px] animate-fade-in-up">
+                    {["Femenino", "Masculino", "Unisex"].map(gen => (
+                      <button
+                        key={gen}
+                        onClick={() => {
+                          bulkUpdateField("genero", gen);
+                          setMenuBulkAbierto(null);
+                        }}
+                        className="w-full text-left px-3 py-2 text-[10px] text-[#888888] hover:text-white hover:bg-[#1A1A1A] transition-colors"
+                      >
+                        {gen}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
             <button 
               onClick={() => setBulkDeleteModal(true)}
               disabled={bulkLoading}
@@ -449,14 +669,14 @@ export default function DashboardClient({ perfumes: initialPerfumes, stats }: Pr
               <button
                 onClick={ejecutarEliminarBulk}
                 disabled={bulkLoading}
-                className="flex-1 px-4 py-2.5 text-sm text-white bg-red-600/90 hover:bg-red-500 transition-colors flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-2.5 text-sm text-white bg-red-600/90 hover:bg-red-500 transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
               >
                 {bulkLoading ? (
                   <span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
                 ) : (
                   <Trash2 size={14} />
                 )}
-                Eliminar {selectedIds.size} productos
+                Eliminar {selectedIds.size} {selectedIds.size === 1 ? 'producto' : 'productos'}
               </button>
             </div>
           </div>
@@ -466,7 +686,10 @@ export default function DashboardClient({ perfumes: initialPerfumes, stats }: Pr
       <BulkImportModal 
         isOpen={isImportModalOpen} 
         onClose={() => setIsImportModalOpen(false)} 
-        onSuccess={() => router.refresh()} 
+        onSuccess={() => {
+          fetchPerfumes();
+          router.refresh();
+        }} 
       />
     </>
   );

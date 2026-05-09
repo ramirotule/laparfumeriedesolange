@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -14,6 +14,8 @@ import {
   LogOut,
   Menu,
   X,
+  ShoppingBag,
+  Bell,
 } from "lucide-react";
 
 const NAV = [
@@ -25,6 +27,12 @@ const NAV = [
       p === "/dashboard" ||
       p.startsWith("/dashboard/nuevo") ||
       p.startsWith("/dashboard/editar"),
+  },
+  {
+    href: "/dashboard/pedidos",
+    label: "Pedidos",
+    icon: ShoppingBag,
+    match: (p: string) => p.startsWith("/dashboard/pedidos"),
   },
   {
     href: "/dashboard/vendedoras",
@@ -63,6 +71,34 @@ export default function DashboardShell({ user, nombreCompleto, children }: Props
   const router = useRouter();
   const supabase = createClient();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [pendingOrders, setPendingOrders] = useState(0);
+
+  // Fetch pending orders count
+  useEffect(() => {
+    const fetchPending = async () => {
+      const { count } = await supabase
+        .from("pedidos")
+        .select("*", { count: "exact", head: true })
+        .eq("estado", "pendiente");
+      setPendingOrders(count || 0);
+    };
+
+    fetchPending();
+
+    // Subscribe to changes
+    const channel = supabase
+      .channel("pedidos_count")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "pedidos" },
+        () => fetchPending()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [supabase]);
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -182,14 +218,34 @@ export default function DashboardShell({ user, nombreCompleto, children }: Props
             {displayName}
           </p>
 
-          {/* Logout — siempre a la derecha */}
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 border border-[#2D2D2D] hover:border-red-500/50 text-[#888888] hover:text-red-400 hover:bg-red-500/5 text-xs px-3 py-2 transition-all duration-200 ml-auto md:ml-0"
-          >
-            <LogOut size={13} />
-            Cerrar sesión
-          </button>
+          <div className="flex items-center gap-4 ml-auto md:ml-0">
+            {/* Campanita de Notificaciones */}
+            <Link 
+              href="/dashboard/pedidos" 
+              className="relative p-2 text-[#888888] hover:text-[#D4AF37] transition-colors group"
+            >
+              <Bell size={20} className={pendingOrders > 0 ? "animate-pulse" : ""} />
+              {pendingOrders > 0 && (
+                <span className="absolute top-1 right-1 w-4 h-4 bg-red-600 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-black">
+                  {pendingOrders}
+                </span>
+              )}
+              
+              {/* Tooltip simple */}
+              <span className="absolute top-full right-0 mt-2 bg-[#1A1A1A] text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 border border-[#2D2D2D]">
+                {pendingOrders} {pendingOrders === 1 ? 'pedido pendiente' : 'pedidos pendientes'}
+              </span>
+            </Link>
+
+            {/* Logout */}
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 border border-[#2D2D2D] hover:border-red-500/50 text-[#888888] hover:text-red-400 hover:bg-red-500/5 text-xs px-3 py-2 transition-all duration-200"
+            >
+              <LogOut size={13} />
+              Cerrar sesión
+            </button>
+          </div>
         </header>
 
         {/* Page content */}

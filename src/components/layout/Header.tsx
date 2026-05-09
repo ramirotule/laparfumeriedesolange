@@ -7,7 +7,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { Search, Menu, X, ChevronDown, ShoppingBag } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 
-import { aromatizantes, bienestar } from "@/constants/navigation";
+import { aromatizantes, bienestar, skincare } from "@/constants/navigation";
+import { SITE_CONFIG } from "@/constants/site";
 
 const familias = [
   { nombre: "Floral", href: "/perfumes?familia=Floral" },
@@ -43,7 +44,7 @@ export default function Header() {
   const [megaMenuOpen, setMegaMenuOpen] = useState(false);
   const [bienestarOpen, setBienestarOpen] = useState(false);
   const [aromatizantesOpen, setAromatizantesOpen] = useState(false);
-  const [busquedaOpen, setBusquedaOpen] = useState(false);
+  const [skincareOpen, setSkincareOpen] = useState(false);
   const [busqueda, setBusqueda] = useState("");
   const [, startTransition] = useTransition();
   const pathname = usePathname();
@@ -61,8 +62,8 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 bg-black border-b border-[#1A1A1A]">
-      <div className="w-full px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-8 pt-1 pb-6 md:pt-2 md:pb-8">
+      <div className="w-full px-2 sm:px-4 lg:px-6">
+        <div className="flex items-center gap-12 lg:gap-20 pt-1 pb-6 md:pt-2 md:pb-8">
             {/* Columna Izquierda: Logo */}
             <div className="shrink-0 py-2">
               <Link href="/">
@@ -82,7 +83,7 @@ export default function Header() {
               {/* Fila 1: Menú Superior (Utilidades) */}
               <div className="hidden md:flex items-center justify-end gap-6 border-b border-[#1A1A1A]/50 pb-4">
                 <Link
-                  href="https://wa.me/542954808202?text=Me%20interesa%20emprender%20con%20Bagu%C3%A9s"
+                  href={`https://wa.me/${SITE_CONFIG.contact.phone}?text=${encodeURIComponent(SITE_CONFIG.contact.emprenderMsg)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-[11px] tracking-[0.2em] text-[#D4AF37] hover:text-white transition-colors font-bold uppercase flex items-center gap-2 group"
@@ -254,52 +255,63 @@ export default function Header() {
                     )}
                   </div>
 
-                  {/* Filtrar por */}
+                  {/* Cuidados de la Piel */}
                   <div
                     className="relative"
-                    onMouseEnter={() => setBusquedaOpen(true)}
-                    onMouseLeave={() => setBusquedaOpen(false)}
+                    onMouseEnter={() => setSkincareOpen(true)}
+                    onMouseLeave={() => setSkincareOpen(false)}
                   >
                     <button
-                      onClick={() => setBusquedaOpen(!busquedaOpen)}
+                      onClick={() => setSkincareOpen(!skincareOpen)}
                       className="flex items-center gap-1.5 text-xs tracking-[0.2em] text-white hover:text-[#D4AF37] transition-colors font-bold uppercase"
                     >
-                      Filtrar por
+                      Cuidados de la Piel
                       <ChevronDown
                         size={12}
-                        className={`transition-transform ${busquedaOpen ? "rotate-180" : ""}`}
+                        className={`transition-transform ${skincareOpen ? "rotate-180" : ""}`}
                       />
                     </button>
 
-                    {busquedaOpen && (
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 w-[220px] pt-4 z-50">
-                        <div className="bg-[#0D0D0D] border border-[#2D2D2D] shadow-2xl shadow-black/80 p-5">
-                          <Link
-                            href="/perfumes?open=notas"
-                            className="block text-xs text-[#cccccc] hover:text-[#D4AF37] py-1.5 transition-colors"
-                          >
-                            Buscar por Notas
-                          </Link>
-                          <Link
-                            href="/perfumes?open=acordes"
-                            className="block text-xs text-[#cccccc] hover:text-[#D4AF37] py-1.5 transition-colors"
-                          >
-                            Buscar por Acordes
-                          </Link>
-                          <div className="border-t border-[#2D2D2D] mt-2 pt-2">
-                            <p className="text-[#555555] text-xs tracking-widest mb-1.5 uppercase">
-                              Familia Olfativa
-                        </p>
-                            {familias.map((f) => (
-                              <Link
-                                key={f.nombre}
-                                href={f.href}
-                                className="block text-xs text-[#cccccc] hover:text-[#D4AF37] py-1 transition-colors"
-                              >
-                                {f.nombre}
-                              </Link>
-                            ))}
+                    {skincareOpen && (
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 w-[800px] pt-4 z-50">
+                        <div className="bg-[#0D0D0D] border border-[#2D2D2D] shadow-2xl shadow-black/80 p-8 grid grid-cols-5 gap-8">
+                          {/* Columna Ver Todo */}
+                          <div>
+                            <Link
+                              href="/cuidados-piel"
+                              className="text-[#D4AF37] text-xs font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
+                            >
+                              VER TODO
+                            </Link>
                           </div>
+
+                          {skincare.filter(item => item.nombre !== "VER TODO").map((item) => (
+                            <div key={item.nombre}>
+                              {item.href ? (
+                                <Link 
+                                  href={item.href}
+                                  className="text-[#D4AF37] text-xs font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
+                                >
+                                  {item.nombre}
+                                </Link>
+                              ) : (
+                                <h3 className="text-[#D4AF37] text-xs font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1">
+                                  {item.nombre}
+                                </h3>
+                              )}
+                              <div className="flex flex-col gap-2">
+                                {item.sub?.map((s) => (
+                                  <Link
+                                    key={s.nombre}
+                                    href={s.href}
+                                    className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
+                                  >
+                                    {s.nombre}
+                                  </Link>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     )}

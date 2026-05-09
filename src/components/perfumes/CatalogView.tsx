@@ -53,6 +53,10 @@ async function getPerfumes(params: SearchParams): Promise<Perfume[]> {
       query = query.ilike("categoria", "%aromatizantes%");
     }
 
+    if (params.seccion === "cuidados-piel") {
+      query = query.ilike("categoria", "%piel%");
+    }
+
     if (params.busqueda || params.q) {
       const term = params.busqueda || params.q || "";
       query = query.or(
@@ -127,7 +131,9 @@ export default async function CatalogView({
             ? searchParams.categoria.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase())
             : searchParams.seccion === "bienestar"
               ? "Línea Bienestar"
-              : "Catálogo de Perfumes");
+              : searchParams.seccion === "cuidados-piel"
+                ? "Cuidados de la Piel"
+                : "Catálogo de Perfumes");
 
   return (
     <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -140,10 +146,12 @@ export default async function CatalogView({
         </h1>
         <p className="text-[#888888] text-sm">
           {perfumes.length}{" "}
-          {searchParams.seccion === "bienestar" || searchParams.seccion === "aromatizantes"
+          {searchParams.seccion === "bienestar" || 
+           searchParams.seccion === "aromatizantes" || 
+           searchParams.seccion === "cuidados-piel"
             ? "producto"
             : "fragancia"}
-          {perfumes.length !== 1 ? "s" : ""} encontrados en{" "}
+          {perfumes.length !== 1 ? "s" : ""} {perfumes.length === 1 ? "encontrado" : "encontrados"} en{" "}
           {searchParams.categoria
             ? searchParams.categoria
                 .replace(/-/g, " ")
@@ -152,7 +160,9 @@ export default async function CatalogView({
               ? "toda la categoría Bienestar"
               : searchParams.seccion === "aromatizantes"
                 ? "toda la categoría Aromatizantes"
-                : "el catálogo"}
+                : searchParams.seccion === "cuidados-piel"
+                  ? "toda la categoría Cuidados de la Piel"
+                  : "el catálogo"}
         </p>
       </div>
 
@@ -173,7 +183,9 @@ export default async function CatalogView({
         </div>
 
         {/* Sidebar Derecha (Categorías) - Solo mostrar si NO es bienestar o aromatizantes */}
-        {!(searchParams.seccion === "bienestar" || searchParams.seccion === "aromatizantes") && (
+        {!(searchParams.seccion === "bienestar" || 
+           searchParams.seccion === "aromatizantes" || 
+           searchParams.seccion === "cuidados-piel") && (
           <aside className="lg:w-72 shrink-0">
             <CategoriasSidebar />
           </aside>

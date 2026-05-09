@@ -1,0 +1,272 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { 
+  ShoppingBag, 
+  Search, 
+  Calendar, 
+  User, 
+  Phone, 
+  MapPin, 
+  CheckCircle2, 
+  Clock, 
+  PackageCheck, 
+  Truck,
+  XCircle,
+  Eye
+} from "lucide-react";
+import CustomSelect from "@/components/ui/CustomSelect";
+import toast from "react-hot-toast";
+
+interface OrderItem {
+  id: string;
+  nombre: string;
+  cantidad: number;
+  precio: number;
+}
+
+interface Order {
+  id: string;
+  numero_pedido: string;
+  cliente_nombre: string;
+  cliente_apellido: string;
+  cliente_telefono: string;
+  cliente_email: string;
+  cliente_direccion: string;
+  cliente_notas: string;
+  items: OrderItem[];
+  total: number;
+  metodo_pago: string;
+  estado: string;
+  created_at: string;
+}
+
+interface Props {
+  initialOrders: any[];
+}
+
+const ESTADOS = [
+  { value: "pendiente", label: "Pendiente", color: "bg-orange-500/10 text-orange-500 border-orange-500/20" },
+  { value: "confirmado", label: "Confirmado", color: "bg-blue-500/10 text-blue-500 border-blue-500/20" },
+  { value: "preparado", label: "Preparado", color: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20" },
+  { value: "entregado", label: "Entregado", color: "bg-green-500/10 text-green-500 border-green-500/20" },
+  { value: "cancelado", label: "Cancelado", color: "bg-red-500/10 text-red-500 border-red-500/20" },
+];
+
+export default function OrdersClient({ initialOrders }: Props) {
+  const [orders, setOrders] = useState<Order[]>(initialOrders as Order[]);
+  const [filter, setFilter] = useState("todos");
+  const [search, setSearch] = useState("");
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+  const supabase = createClient();
+
+  useEffect(() => {
+    // Real-time updates for orders
+    const channel = supabase
+      .channel("orders_realtime")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "pedidos" },
+        async (payload) => {
+          if (payload.eventType === "INSERT") {
+            setOrders(prev => [payload.new as Order, ...prev]);
+            toast.success("¡Nuevo pedido recibido!");
+          } else if (payload.eventType === "UPDATE") {
+            setOrders(prev => prev.map(o => o.id === payload.new.id ? payload.new as Order : o));
+          } else if (payload.eventType === "DELETE") {
+            setOrders(prev => prev.filter(o => o.id !== payload.old.id));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [supabase]);
+
+  const updateStatus = async (id: string, newStatus: string) => {
+    setLoadingId(id);
+    const { error } = await supabase
+      .from("pedidos")
+      .update({ estado: newStatus })
+      .eq("id", id);
+
+    if (error) {
+      toast.error("Error al actualizar el estado");
+    } else {
+      toast.success("Estado actualizado");
+    }
+    setLoadingId(null);
+  };
+
+  const filteredOrders = orders.filter(order => {
+    const matchesStatus = filter === "todos" || order.estado === filter;
+    const matchesSearch = !search || 
+      `${order.cliente_nombre} ${order.cliente_apellido}`.toLowerCase().includes(search.toLowerCase()) ||
+      order.numero_pedido.toLowerCase().includes(search.toLowerCase());
+    return matchesStatus && matchesSearch;
+  });
+
+  const getStatusConfig = (status: string) => {
+    return ESTADOS.find(e => e.value === status) || ESTADOS[0];
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-serif text-white flex items-center gap-2">
+            <ShoppingBag className="text-[#D4AF37]" />
+            Gestión de Pedidos
+          </h1>
+          <p className="text-[#555555] text-sm mt-1">
+            Administrá y hacé seguimiento de las ventas web.
+          </p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#555555]" />
+            <input
+              type="text"
+              placeholder="Buscar por cliente o #..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="bg-[#0D0D0D] border border-[#1A1A1A] text-white pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-[#D4AF37] w-full sm:w-64 transition-colors"
+            />
+          </div>
+          <div className="w-full sm:w-48">
+            <CustomSelect
+              value={filter}
+              onChange={setFilter}
+              options={[
+                { value: "todos", label: "Todos los estados" },
+                ...ESTADOS.map(e => ({ value: e.value, label: e.label }))
+              ]}
+              placeholder="Estado"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-4">
+        {filteredOrders.map((order) => {
+          const status = getStatusConfig(order.estado);
+          return (
+            <div 
+              key={order.id} 
+              className="bg-[#0D0D0D] border border-[#1A1A1A] overflow-hidden group hover:border-[#D4AF37]/30 transition-all duration-300"
+            >
+              <div className="p-4 sm:p-6">
+                {/* Header del pedido */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                  <div className="flex items-center gap-4">
+                    <div className={`p-3 rounded-full ${status.color.split(' ')[0]} border ${status.color.split(' ')[2]}`}>
+                      {order.estado === 'pendiente' && <Clock size={20} />}
+                      {order.estado === 'confirmado' && <CheckCircle2 size={20} />}
+                      {order.estado === 'preparado' && <PackageCheck size={20} />}
+                      {order.estado === 'entregado' && <Truck size={20} />}
+                      {order.estado === 'cancelado' && <XCircle size={20} />}
+                    </div>
+                    <div>
+                      <h3 className="text-white font-bold tracking-wider">#{order.numero_pedido}</h3>
+                      <p className="text-[#555555] text-xs flex items-center gap-1 mt-1">
+                        <Calendar size={12} />
+                        {new Date(order.created_at).toLocaleString('es-AR')}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <div className="text-right mr-2 hidden sm:block">
+                      <p className="text-[#555555] text-[10px] uppercase tracking-widest">Total</p>
+                      <p className="text-[#D4AF37] font-bold text-lg">${order.total.toLocaleString('es-AR')}</p>
+                    </div>
+                    <div className="w-40">
+                      <CustomSelect
+                        value={order.estado}
+                        onChange={(val) => updateStatus(order.id, val)}
+                        options={ESTADOS.map(e => ({ value: e.value, label: e.label }))}
+                        placeholder="Cambiar estado"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  {/* Info Cliente */}
+                  <div className="space-y-3">
+                    <h4 className="text-[#333333] text-[10px] uppercase tracking-[0.2em] font-bold border-b border-[#1A1A1A] pb-2">Datos del Cliente</h4>
+                    <div className="space-y-2">
+                      <div className="flex items-start gap-3 text-sm">
+                        <User size={16} className="text-[#D4AF37] mt-0.5 shrink-0" />
+                        <div>
+                          <p className="text-white font-medium">{order.cliente_nombre} {order.cliente_apellido}</p>
+                          <p className="text-[#888888] text-xs">{order.cliente_email}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 text-sm">
+                        <Phone size={16} className="text-[#D4AF37] shrink-0" />
+                        <p className="text-[#888888]">{order.cliente_telefono}</p>
+                      </div>
+                      {order.cliente_direccion && (
+                        <div className="flex items-start gap-3 text-sm">
+                          <MapPin size={16} className="text-[#D4AF37] mt-0.5 shrink-0" />
+                          <p className="text-[#888888]">{order.cliente_direccion}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Items del Pedido */}
+                  <div className="lg:col-span-2 space-y-3">
+                    <h4 className="text-[#333333] text-[10px] uppercase tracking-[0.2em] font-bold border-b border-[#1A1A1A] pb-2">Productos</h4>
+                    <div className="grid sm:grid-cols-2 gap-x-8 gap-y-2">
+                      {order.items.map((item, idx) => (
+                        <div key={idx} className="flex items-center justify-between text-sm py-1 border-b border-[#111111] last:border-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[#D4AF37] font-mono text-xs bg-[#D4AF37]/10 px-1.5 rounded">{item.cantidad}x</span>
+                            <span className="text-gray-200 truncate max-w-[150px]">{item.nombre}</span>
+                          </div>
+                          <span className="text-[#555555] font-mono text-xs">${(item.precio * item.cantidad).toLocaleString('es-AR')}</span>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    {order.cliente_notas && (
+                      <div className="mt-4 p-3 bg-[#111111] border-l-2 border-[#D4AF37] text-xs text-[#888888] italic">
+                        &quot;{order.cliente_notas}&quot;
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer del pedido (Método de Pago) */}
+              <div className="bg-black/50 border-t border-[#1A1A1A] px-6 py-3 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-[#333333] text-[10px] uppercase tracking-widest">Pago via:</span>
+                  <span className="text-[#888888] text-xs uppercase font-medium tracking-wider">{order.metodo_pago}</span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <span className={`text-[10px] uppercase font-bold px-2 py-0.5 border rounded ${status.color}`}>
+                    {status.label}
+                  </span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+
+        {filteredOrders.length === 0 && (
+          <div className="text-center py-20 bg-[#0D0D0D] border border-[#1A1A1A]">
+            <ShoppingBag size={48} className="mx-auto mb-4 text-[#1A1A1A]" />
+            <p className="text-[#555555]">No se encontraron pedidos con estos criterios.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

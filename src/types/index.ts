@@ -26,7 +26,8 @@ export interface Perfume {
   imagenes_adicionales?: string[];
   familia_olfativa_id?: number;
   familia_olfativa?: FamiliaOlfativa;
-  categoria?: string;
+  categoria_id?: string;
+  subcategoria_id?: string;
   genero: "Femenino" | "Masculino" | "Unisex" | "Árabe";
   concentracion?: string;
   volumen_ml?: number;

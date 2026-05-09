@@ -1,19 +1,18 @@
 "use client";
 
+import { SITE_CONFIG } from "@/constants/site";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { useCart } from "@/context/CartContext";
 
 export default function WhatsAppButton() {
-  const pathname = usePathname();
-  const phoneNumber = "542954808202"; // Número sacado del schema de LocalBusiness
-  const message = "¡Hola! Estoy interesado en uno de sus perfumes.";
+  const { drawerOpen } = useCart();
 
-  // No mostrar el botón en el dashboard
-  if (pathname?.startsWith("/dashboard")) {
+  // No mostrar el botón cuando el carrito está abierto
+  if (drawerOpen) {
     return null;
   }
 
-  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+  const whatsappUrl = `https://wa.me/${SITE_CONFIG.contact.phone}?text=${encodeURIComponent(SITE_CONFIG.contact.whatsappMsg)}`;
 
   return (
     <a
