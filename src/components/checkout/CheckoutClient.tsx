@@ -128,7 +128,7 @@ export default function CheckoutPage() {
         <span className="text-gray-500">Checkout</span>
       </nav>
 
-      <h1 className="font-serif text-3xl text-black mb-2">Finalizar compra</h1>
+      <h1 className="font-serif text-3xl text-white mb-2">Finalizar compra</h1>
       <p className="text-gray-400 text-sm mb-10">Revisá tu pedido y completá tus datos</p>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-10">
@@ -136,7 +136,7 @@ export default function CheckoutPage() {
         <form onSubmit={handleSubmit} className="lg:col-span-3 space-y-8">
           {/* Datos personales */}
           <section>
-            <h2 className="text-black text-xs font-bold tracking-[0.2em] uppercase mb-4 pb-3 border-b border-gray-100">
+            <h2 className="text-white text-xs font-bold tracking-[0.2em] uppercase mb-4 pb-3 border-b border-[#1A1A1A]">
               Tus datos
             </h2>
             <div className="grid grid-cols-2 gap-4">
@@ -148,7 +148,7 @@ export default function CheckoutPage() {
                   value={nombre}
                   onChange={(e) => setNombre(e.target.value)}
                   required
-                  className="w-full bg-white border border-gray-200 text-black px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
+                  className="w-full bg-black border border-[#1A1A1A] text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
                   placeholder="María"
                 />
               </div>
@@ -160,7 +160,7 @@ export default function CheckoutPage() {
                   value={apellido}
                   onChange={(e) => setApellido(e.target.value)}
                   required
-                  className="w-full bg-white border border-gray-200 text-black px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
+                  className="w-full bg-black border border-[#1A1A1A] text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
                   placeholder="González"
                 />
               </div>
@@ -175,7 +175,7 @@ export default function CheckoutPage() {
                   onChange={(e) => setTelefono(e.target.value)}
                   required
                   type="tel"
-                  className="w-full bg-white border border-gray-200 text-black px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
+                  className="w-full bg-black border border-[#1A1A1A] text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
                   placeholder="2954 000000"
                 />
               </div>
@@ -187,7 +187,7 @@ export default function CheckoutPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   type="email"
-                  className="w-full bg-white border border-gray-200 text-black px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
+                  className="w-full bg-black border border-[#1A1A1A] text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
                   placeholder="opcional"
                 />
               </div>
@@ -219,7 +219,7 @@ export default function CheckoutPage() {
 
           {/* Método de pago */}
           <section>
-            <h2 className="text-black text-xs font-bold tracking-[0.2em] uppercase mb-4 pb-3 border-b border-gray-100">
+            <h2 className="text-white text-xs font-bold tracking-[0.2em] uppercase mb-4 pb-3 border-b border-[#1A1A1A]">
               Forma de pago
             </h2>
             <div className="space-y-3">
@@ -232,7 +232,7 @@ export default function CheckoutPage() {
                     className={`flex items-start gap-4 p-4 border cursor-pointer transition-all duration-200 ${
                       selected
                         ? "border-[#D4AF37] bg-[#D4AF37]/5"
-                        : "border-gray-200 hover:border-gray-400 bg-white"
+                        : "border-[#1A1A1A] hover:border-[#333333] bg-[#0D0D0D]"
                     }`}
                   >
                     <input
@@ -257,7 +257,7 @@ export default function CheckoutPage() {
                       className={selected ? "text-[#D4AF37] shrink-0 mt-0.5" : "text-gray-400 shrink-0 mt-0.5"}
                     />
                     <div>
-                      <p className={`text-sm font-semibold ${selected ? "text-[#D4AF37]" : "text-black"}`}>
+                      <p className={`text-sm font-semibold ${selected ? "text-[#D4AF37]" : "text-white"}`}>
                         {m.label}
                       </p>
                       <p className="text-gray-400 text-xs mt-0.5">{m.desc}</p>
@@ -300,14 +300,14 @@ export default function CheckoutPage() {
         </form>
 
         <aside className="lg:col-span-2">
-          <div className="bg-white border border-gray-100 p-6 sticky top-32 shadow-sm">
-            <h2 className="text-black text-xs font-bold tracking-[0.2em] uppercase mb-6 pb-3 border-b border-gray-50">
+          <div className="bg-[#0D0D0D] border border-[#1A1A1A] p-6 sticky top-32 shadow-sm">
+            <h2 className="text-white text-xs font-bold tracking-[0.2em] uppercase mb-6 pb-3 border-b border-[#1A1A1A]">
               Tu pedido
             </h2>
             <ul className="space-y-4 mb-6">
               {checkoutItems.map((item) => (
                 <li key={item.id} className="flex gap-3">
-                  <div className="w-14 h-14 bg-gray-50 border border-gray-100 shrink-0 overflow-hidden">
+                  <div className="w-14 h-14 bg-[#1A1A1A] border border-[#2D2D2D] shrink-0 overflow-hidden">
                     {item.imagen_url ? (
                       <Image
                         src={item.imagen_url}
@@ -323,7 +323,7 @@ export default function CheckoutPage() {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-black text-xs font-medium leading-snug">{item.nombre}</p>
+                    <p className="text-white text-xs font-medium leading-snug">{item.nombre}</p>
                     <p className="text-gray-400 text-[10px] mt-0.5">{item.marca}</p>
                     <p className="text-gray-500 text-[10px] mt-1">
                       {item.cantidad} x {formatPrice(item.precio_unidad)}
@@ -339,7 +339,7 @@ export default function CheckoutPage() {
             <div className="border-t border-gray-100 pt-5 space-y-3">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">Subtotal</span>
-                <span className="text-black">{formatPrice(finalTotal)}</span>
+                <span className="text-white">{formatPrice(finalTotal)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <div className="flex flex-col">
@@ -350,7 +350,7 @@ export default function CheckoutPage() {
               </div>
               
               {!isMercadoPago && (
-                <div className="bg-green-50 p-2 text-green-700 text-[10px] font-medium flex justify-between items-center border border-green-100">
+                <div className="bg-green-500/10 p-2 text-green-400 text-[10px] font-medium flex justify-between items-center border border-green-500/20">
                   <span>DESCUENTO POR CONTADO APLICADO</span>
                   <span className="font-bold">-22.36%</span>
                 </div>
@@ -358,7 +358,7 @@ export default function CheckoutPage() {
 
               <div className="flex justify-between items-end pt-4 border-t border-gray-100">
                 <div className="flex flex-col">
-                  <span className="text-black font-bold text-sm uppercase tracking-wider">Total</span>
+                  <span className="text-white font-bold text-sm uppercase tracking-wider">Total</span>
                   <span className="text-gray-400 text-[10px]">
                     {isMercadoPago ? "Precio de lista" : "Precio efectivo / transf."}
                   </span>

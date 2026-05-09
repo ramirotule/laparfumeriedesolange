@@ -36,12 +36,12 @@ export default function FiltrosCatalogo({ activeParams }: Props) {
   );
 
   return (
-    <div className="space-y-6 pl-4 pr-5 border-r border-gray-100">
+    <div className="space-y-6 pl-4 pr-5 border-r border-[#1A1A1A]">
       {/* Limpiar filtros */}
       {Object.values(activeParams).some(Boolean) && (
         <Link
           href="/perfumes"
-          className="block text-xs text-gray-500 hover:text-[#D4AF37] transition-colors border border-gray-200 hover:border-[#D4AF37]/40 px-3 py-2 text-center"
+          className="block text-xs text-gray-400 hover:text-[#D4AF37] transition-colors border border-[#1A1A1A] hover:border-[#D4AF37]/40 px-3 py-2 text-center"
         >
           ✕ Limpiar filtros
         </Link>
@@ -49,7 +49,7 @@ export default function FiltrosCatalogo({ activeParams }: Props) {
 
       {/* Género */}
       <div>
-        <h3 className="text-black text-xs font-bold tracking-[0.2em] uppercase mb-3">
+        <h3 className="text-white text-xs font-bold tracking-[0.2em] uppercase mb-3">
           Género
         </h3>
         <div className="space-y-1.5">
@@ -62,7 +62,7 @@ export default function FiltrosCatalogo({ activeParams }: Props) {
               className={`block w-full text-left text-sm px-3 py-2 transition-all duration-150 ${
                 activeParams.genero === g
                   ? "bg-[#D4AF37]/10 border-l-2 border-[#D4AF37] text-[#D4AF37] pl-2.5"
-                  : "text-gray-500 hover:text-black border-l-2 border-transparent"
+                  : "text-gray-400 hover:text-white border-l-2 border-transparent"
               } `}
             >
               {g}
@@ -73,7 +73,7 @@ export default function FiltrosCatalogo({ activeParams }: Props) {
 
       {/* Familia olfativa */}
       <div>
-        <h3 className="text-black text-xs font-bold tracking-[0.2em] uppercase mb-3">
+        <h3 className="text-white text-xs font-bold tracking-[0.2em] uppercase mb-3">
           Familia Olfativa
         </h3>
         <div className="space-y-1.5">
@@ -86,7 +86,7 @@ export default function FiltrosCatalogo({ activeParams }: Props) {
               className={`block w-full text-left text-sm px-3 py-2 transition-all duration-150 ${
                 activeParams.familia === f
                   ? "bg-[#D4AF37]/10 border-l-2 border-[#D4AF37] text-[#D4AF37] pl-2.5"
-                  : "text-gray-500 hover:text-black border-l-2 border-transparent"
+                  : "text-gray-400 hover:text-white border-l-2 border-transparent"
               } `}
             >
               {f}
@@ -97,7 +97,7 @@ export default function FiltrosCatalogo({ activeParams }: Props) {
 
       {/* Colecciones */}
       <div>
-        <h3 className="text-black text-xs font-bold tracking-[0.2em] uppercase mb-3">
+        <h3 className="text-white text-xs font-bold tracking-[0.2em] uppercase mb-3">
           Colecciones
         </h3>
         <div className="space-y-1.5">
@@ -133,7 +133,7 @@ export default function FiltrosCatalogo({ activeParams }: Props) {
 
       {/* Ordenar */}
       <div>
-        <h3 className="text-black text-xs font-bold tracking-[0.2em] uppercase mb-3">
+        <h3 className="text-white text-xs font-bold tracking-[0.2em] uppercase mb-3">
           Ordenar por
         </h3>
         <div className="space-y-1.5">
@@ -144,7 +144,7 @@ export default function FiltrosCatalogo({ activeParams }: Props) {
               className={`block w-full text-left text-sm px-3 py-2 transition-all duration-150 ${
                 (activeParams.ordenar || "") === op.value
                   ? "bg-[#D4AF37]/10 border-l-2 border-[#D4AF37] text-[#D4AF37] pl-2.5"
-                  : "text-gray-500 hover:text-black border-l-2 border-transparent"
+                  : "text-gray-400 hover:text-white border-l-2 border-transparent"
               } `}
             >
               {op.label}

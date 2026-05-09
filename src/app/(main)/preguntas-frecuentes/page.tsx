@@ -12,15 +12,15 @@ const generalFaqs = [
     respuesta: (
       <div className="space-y-4">
         <div>
-          <strong className="text-black block mb-1">Santa Rosa, La Pampa</strong>
+          <strong className="text-white block mb-1">Santa Rosa, La Pampa</strong>
           <p>Enviamos por motomensajería. Entrega en hasta 24 horas hábiles.</p>
         </div>
         <div>
-          <strong className="text-black block mb-1">Interior de La Pampa</strong>
+          <strong className="text-white block mb-1">Interior de La Pampa</strong>
           <p>Realizamos envíos a domicilio o retiro por sucursal mediante Correo Argentino. Entrega estimada: de 2 a 3 días hábiles.</p>
         </div>
         <div>
-          <strong className="text-black block mb-1">Interior del país</strong>
+          <strong className="text-white block mb-1">Interior del país</strong>
           <p>Envíos a domicilio o retiro por sucursal mediante Correo Argentino. El tiempo de entrega dependerá del correo y la ubicación de destino.</p>
         </div>
         <p className="text-sm italic pt-2">
@@ -131,7 +131,7 @@ export default function FAQPage() {
     <div className="w-full max-w-4xl mx-auto px-4 py-16">
       <div className="text-center mb-12">
         <HelpCircle size={40} className="mx-auto text-[#D4AF37] mb-4" />
-        <h1 className="font-serif text-4xl md:text-5xl text-black mb-4">
+        <h1 className="font-serif text-4xl md:text-5xl text-white mb-4">
           Preguntas Frecuentes
         </h1>
         <p className="text-gray-500">
@@ -143,12 +143,12 @@ export default function FAQPage() {
         {/* General Section */}
         <div className="space-y-4">
           {generalFaqs.map((faq, index) => (
-            <details key={index} className="group bg-white border border-gray-100 rounded-lg overflow-hidden transition-all hover:border-[#D4AF37]/30">
+            <details key={index} className="group bg-[#0D0D0D] border border-[#1A1A1A] rounded-lg overflow-hidden transition-all hover:border-[#D4AF37]/30">
               <summary className="flex items-center justify-between p-5 cursor-pointer list-none">
-                <span className="font-medium text-black pr-6">{faq.pregunta}</span>
+                <span className="font-medium text-white pr-6">{faq.pregunta}</span>
                 <ChevronDown className="text-[#D4AF37] transition-transform group-open:rotate-180" size={20} />
               </summary>
-              <div className="px-5 pb-5 text-gray-500 leading-relaxed border-t border-gray-50 pt-4">
+              <div className="px-5 pb-5 text-[#888888] leading-relaxed border-t border-[#1A1A1A] pt-4">
                 {faq.respuesta}
               </div>
             </details>
@@ -157,17 +157,17 @@ export default function FAQPage() {
 
         {/* Revendedores Section */}
         <div className="space-y-6">
-          <h2 className="font-serif text-3xl text-black border-b border-gray-100 pb-4">
+          <h2 className="font-serif text-3xl text-white border-b border-[#1A1A1A] pb-4">
             Revendedores Bagués
           </h2>
           <div className="space-y-4">
             {revendedoresFaqs.map((faq, index) => (
-              <details key={index} className="group bg-white border border-gray-100 rounded-lg overflow-hidden transition-all hover:border-[#D4AF37]/30">
+              <details key={index} className="group bg-[#0D0D0D] border border-[#1A1A1A] rounded-lg overflow-hidden transition-all hover:border-[#D4AF37]/30">
                 <summary className="flex items-center justify-between p-5 cursor-pointer list-none">
-                  <span className="font-medium text-black pr-6">{faq.pregunta}</span>
+                  <span className="font-medium text-white pr-6">{faq.pregunta}</span>
                   <ChevronDown className="text-[#D4AF37] transition-transform group-open:rotate-180" size={20} />
                 </summary>
-                <div className="px-5 pb-5 text-gray-500 leading-relaxed border-t border-gray-50 pt-4">
+                <div className="px-5 pb-5 text-[#888888] leading-relaxed border-t border-[#1A1A1A] pt-4">
                   {faq.respuesta}
                 </div>
               </details>

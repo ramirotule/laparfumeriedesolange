@@ -128,7 +128,7 @@ export default async function HomePage() {
       )}
 
       {/* FAMILIAS OLFATIVAS */}
-      <section className="bg-gray-50 border-y border-gray-100 py-20">
+      <section className="bg-[#0D0D0D] border-y border-[#1A1A1A] py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <p className="text-[#D4AF37] text-xs tracking-[0.3em] uppercase mb-2">

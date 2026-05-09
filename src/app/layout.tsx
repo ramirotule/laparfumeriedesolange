@@ -102,11 +102,12 @@ export default function RootLayout({
         />
       </head>
       <body 
-        className="min-h-full flex flex-col bg-white text-black dark:bg-black dark:text-white antialiased transition-colors duration-300"
+        className="min-h-full flex flex-col bg-black text-white antialiased transition-colors duration-300"
       >
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
+          forcedTheme="dark"
           enableSystem={false}
           disableTransitionOnChange
         >

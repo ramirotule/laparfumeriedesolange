@@ -169,7 +169,7 @@ export default function BuscadorNotas() {
                 className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-200 text-sm font-medium ${
                   isSelected
                     ? "bg-[#D4AF37] border-[#D4AF37] text-black shadow-[0_0_15px_rgba(212,175,55,0.4)]"
-                    : "bg-white border-gray-200 text-gray-800 hover:border-[#D4AF37] hover:shadow-md"
+                    : "bg-[#1A1A1A] border-[#333] text-white hover:border-[#D4AF37] hover:shadow-md"
                 }`}
               >
                 <span className="text-lg leading-none">{nota.emoji}</span>

@@ -42,14 +42,14 @@ export default function PerfumeGrid({
   return (
     <div className="flex flex-col gap-6">
       {/* View Toggle Bar */}
-      <div className="flex justify-end items-center border-b border-gray-100 pb-4 mb-2">
-        <div className="flex items-center bg-gray-50 p-1 rounded-lg border border-gray-100">
+      <div className="flex justify-end items-center border-b border-[#1A1A1A] pb-4 mb-2">
+        <div className="flex items-center bg-[#0D0D0D] p-1 rounded-lg border border-[#1A1A1A]">
           <button
             onClick={() => setViewMode("large")}
             className={`p-2 rounded-md transition-all ${
               viewMode === "large"
-                ? "bg-white text-[#D4AF37] shadow-sm"
-                : "text-gray-400 hover:text-gray-600"
+                ? "bg-black text-[#D4AF37] shadow-sm"
+                : "text-gray-400 hover:text-white"
             }`}
             title="Vista Grande (3 por fila)"
           >
@@ -59,8 +59,8 @@ export default function PerfumeGrid({
             onClick={() => setViewMode("standard")}
             className={`p-2 rounded-md transition-all ${
               viewMode === "standard"
-                ? "bg-white text-[#D4AF37] shadow-sm"
-                : "text-gray-400 hover:text-gray-600"
+                ? "bg-black text-[#D4AF37] shadow-sm"
+                : "text-gray-400 hover:text-white"
             }`}
             title="Vista Estándar"
           >
@@ -70,8 +70,8 @@ export default function PerfumeGrid({
             onClick={() => setViewMode("compact")}
             className={`p-2 rounded-md transition-all ${
               viewMode === "compact"
-                ? "bg-white text-[#D4AF37] shadow-sm"
-                : "text-gray-400 hover:text-gray-600"
+                ? "bg-black text-[#D4AF37] shadow-sm"
+                : "text-gray-400 hover:text-white"
             }`}
             title="Vista Compacta (6 por fila)"
           >

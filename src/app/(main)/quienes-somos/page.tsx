@@ -41,12 +41,12 @@ export default function QuienesSomosPage() {
           className="object-cover object-center"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-white via-white/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 px-6 pb-8 max-w-4xl mx-auto">
           <p className="text-[#D4AF37] text-xs tracking-[0.3em] uppercase mb-2">
             La Parfumerie de Solange
           </p>
-          <h1 className="font-serif text-4xl md:text-5xl text-black">
+          <h1 className="font-serif text-4xl md:text-5xl text-white">
             Quiénes Somos
           </h1>
         </div>
@@ -57,15 +57,15 @@ export default function QuienesSomosPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
 
           {/* Foto de Solange */}
-          <div className="relative aspect-[3/4] max-h-[500px] bg-white border border-gray-100 overflow-hidden">
+          <div className="relative aspect-[3/4] max-h-[500px] bg-black border border-[#1A1A1A] overflow-hidden">
             <Image
               src="/empresarios%20/WhatsApp%20Image%202026-04-27%20at%2022.14.04.jpeg"
               alt="Romina Solange Toulemonde — La Parfumerie de Solange"
               fill
               className="object-cover object-top"
             />
-            <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-white/90 to-transparent px-4 pb-4 pt-8">
-              <p className="text-black font-serif text-lg">Romina Solange Toulemonde</p>
+            <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 to-transparent px-4 pb-4 pt-8">
+              <p className="text-white font-serif text-lg">Romina Solange Toulemonde</p>
               <p className="text-[#D4AF37] text-xs tracking-wider uppercase mt-0.5">
                 Fundadora
               </p>
@@ -78,21 +78,21 @@ export default function QuienesSomosPage() {
               <p className="text-[#D4AF37] text-xs tracking-[0.3em] uppercase mb-3">
                 Nuestra historia
               </p>
-              <h2 className="font-serif text-3xl text-black mb-6 leading-snug">
+              <h2 className="font-serif text-3xl text-white mb-6 leading-snug">
                 Una vocación que nació en 2002
               </h2>
             </div>
 
-            <p className="text-gray-500 leading-relaxed text-base">
+            <p className="text-[#888888] leading-relaxed text-base">
               ¡Hola! Soy{" "}
-              <span className="text-black font-medium">Romina Solange Toulemonde</span>.
+              <span className="text-white font-medium">Romina Solange Toulemonde</span>.
               Mi viaje emprendedor empezó hace tiempo, allá por el{" "}
               <span className="text-[#D4AF37]">2002</span>. Fue entonces cuando descubrí,
               a través de Bagués, mi verdadera vocación:{" "}
-              <span className="text-black italic">conectar a las personas con su esencia</span>.
+              <span className="text-white italic">conectar a las personas con su esencia</span>.
             </p>
 
-            <p className="text-gray-500 leading-relaxed">
+            <p className="text-[#888888] leading-relaxed">
               A lo largo de estos años he aprendido, me he desafiado y, sobre todo,
               he crecido junto a cada persona que confió en mí. Hoy, mi compromiso es
               seguir brindándote calidad y calidez en cada paso.
@@ -111,12 +111,12 @@ export default function QuienesSomosPage() {
       </section>
 
       {/* Línea de tiempo */}
-      <section className="bg-gray-50 border-y border-gray-100 py-16">
+      <section className="bg-[#0D0D0D] border-y border-[#1A1A1A] py-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-[#D4AF37] text-xs tracking-[0.3em] uppercase mb-2 text-center">
             Nuestro recorrido
           </p>
-          <h2 className="font-serif text-3xl text-black mb-12 text-center">
+          <h2 className="font-serif text-3xl text-white mb-12 text-center">
             Más de 20 años de historia
           </h2>
 
@@ -125,8 +125,8 @@ export default function QuienesSomosPage() {
               <div key={i} className="relative pl-6 border-l border-[#D4AF37]/30">
                 <span className="absolute -left-[9px] top-0 w-4 h-4 bg-[#D4AF37] rounded-full" />
                 <p className="text-[#D4AF37] font-bold text-xl mb-1">{h.año}</p>
-                <p className="text-black font-semibold text-sm mb-2">{h.titulo}</p>
-                <p className="text-gray-500 text-sm leading-relaxed">{h.desc}</p>
+                <p className="text-white font-semibold text-sm mb-2">{h.titulo}</p>
+                <p className="text-[#888888] text-sm leading-relaxed">{h.desc}</p>
               </div>
             ))}
           </div>
@@ -138,13 +138,13 @@ export default function QuienesSomosPage() {
         <p className="text-[#D4AF37] text-xs tracking-[0.3em] uppercase mb-2">
           Nuestro espacio
         </p>
-        <h2 className="font-serif text-3xl text-black mb-8">
+        <h2 className="font-serif text-3xl text-white mb-8">
           El local — Inaugurado noviembre 2021
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Interior grande */}
-          <div className="relative aspect-square overflow-hidden border border-gray-100 sm:row-span-2 sm:aspect-auto sm:h-full min-h-[280px]">
+          <div className="relative aspect-square overflow-hidden border border-[#1A1A1A] sm:row-span-2 sm:aspect-auto sm:h-full min-h-[280px]">
             <Image
               src="/negocio/negocio-adentro-02.webp"
               alt="Interior de La Parfumerie de Solange — Ayala 604"
@@ -154,7 +154,7 @@ export default function QuienesSomosPage() {
           </div>
 
           {/* Exterior */}
-          <div className="relative aspect-square overflow-hidden border border-gray-100">
+          <div className="relative aspect-square overflow-hidden border border-[#1A1A1A]">
             <Image
               src="/negocio/adentro2.jpeg"
               alt="La Parfumerie de Solange — Santa Rosa La Pampa"
@@ -164,7 +164,7 @@ export default function QuienesSomosPage() {
           </div>
 
           {/* Interior 2 */}
-          <div className="relative aspect-square overflow-hidden border border-gray-100">
+          <div className="relative aspect-square overflow-hidden border border-[#1A1A1A]">
             <Image
               src="/negocio/negocio-afuera.webp"
               alt="Frente de La Parfumerie de Solange — Ayala 604, Santa Rosa"
@@ -176,20 +176,20 @@ export default function QuienesSomosPage() {
       </section>
 
       {/* CTA final */}
-      <section className="bg-gray-50 border-t border-gray-100 py-16">
+      <section className="bg-[#0D0D0D] border-t border-[#1A1A1A] py-16">
         <div className="max-w-2xl mx-auto px-4 text-center">
           <Heart size={28} className="mx-auto mb-4 text-[#D4AF37]" />
-          <h2 className="font-serif text-3xl text-black mb-4">
+          <h2 className="font-serif text-3xl text-white mb-4">
             Vení a conocernos
           </h2>
-          <p className="text-gray-500 mb-8">
+          <p className="text-[#888888] mb-8">
             Te esperamos en Ayala 604, Santa Rosa, La Pampa. O escribinos por WhatsApp y
             te ayudamos a encontrar tu fragancia perfecta.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/perfumes"
-              className="bg-[#D4AF37] text-black font-bold px-8 py-3.5 text-sm tracking-wider uppercase hover:bg-[#E8CC6B] transition-colors"
+              className="bg-[#D4AF37] text-black font-bold px-8 py-3.5 text-sm tracking-wider uppercase hover:bg-[#E8CC6B] transition-colors shadow-lg shadow-[#D4AF37]/20"
             >
               Ver catálogo
             </Link>
