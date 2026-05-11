@@ -520,7 +520,7 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
           <div className="h-8 w-px bg-[#2D2D2D]" />
           <div className="flex items-center gap-3">
             <button 
-              onClick={downloadExcel}
+              onClick={() => downloadExcel()}
               className="px-3 py-1.5 text-xs font-bold text-[#D4AF37] border border-[#D4AF37]/20 hover:bg-[#D4AF37]/10 transition-colors flex items-center gap-2 group"
             >
               <div className="relative flex items-center">
