@@ -27,6 +27,7 @@ export interface Producto {
   familia_olfativa_id?: number;
   familia_olfativa?: FamiliaOlfativa;
   categoria_id?: string;
+  categoria?: string;
   subcategoria_id?: string;
   genero: "Femenino" | "Masculino" | "Unisex" | "Árabe";
   concentracion?: string;
