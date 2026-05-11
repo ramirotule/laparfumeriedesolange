@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import CatalogView from "@/components/perfumes/CatalogView";
+import CatalogView from "@/components/productos/CatalogView";
 import { notFound } from "next/navigation";
 
 interface Props {

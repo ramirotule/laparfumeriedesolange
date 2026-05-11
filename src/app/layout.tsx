@@ -23,18 +23,18 @@ export const metadata: Metadata = {
     ],
   },
   title: {
-    default: "La Parfumerie de Solange | Perfumería de Lujo en Santa Rosa, La Pampa",
+    default: "La Parfumerie de Solange | Productoría de Lujo en Santa Rosa, La Pampa",
     template: "%s | La Parfumerie de Solange",
   },
   description:
-    "Perfumería de lujo en Santa Rosa, La Pampa. Fragancias exclusivas: Femeninas, Masculinas, Unisex y Árabes. Envío gratis dentro de Santa Rosa. Visitanos en Ayala 604.",
+    "Productoría de lujo en Santa Rosa, La Pampa. Fragancias exclusivas: Femeninas, Masculinas, Unisex y Árabes. Envío gratis dentro de Santa Rosa. Visitanos en Ayala 604.",
   keywords: [
-    "perfumería santa rosa la pampa",
-    "perfumes de lujo argentina",
-    "perfumes árabes santa rosa",
-    "comprar perfumes santa rosa",
+    "productoría santa rosa la pampa",
+    "productos de lujo argentina",
+    "productos árabes santa rosa",
+    "comprar productos santa rosa",
     "La Parfumerie de Solange",
-    "perfumería Ayala 604",
+    "productoría Ayala 604",
   ],
   authors: [{ name: "La Parfumerie de Solange" }],
   creator: "La Parfumerie de Solange",
@@ -43,14 +43,14 @@ export const metadata: Metadata = {
     locale: "es_AR",
     url: process.env.NEXT_PUBLIC_SITE_URL || "https://laparfumerie.com.ar",
     siteName: "La Parfumerie de Solange",
-    title: "La Parfumerie de Solange | Perfumería de Lujo en Santa Rosa, La Pampa",
+    title: "La Parfumerie de Solange | Productoría de Lujo en Santa Rosa, La Pampa",
     description:
       "Fragancias exclusivas para quienes buscan lo mejor. Envío gratis en Santa Rosa.",
   },
   twitter: {
     card: "summary_large_image",
     title: "La Parfumerie de Solange",
-    description: "Perfumería de lujo en Santa Rosa, La Pampa.",
+    description: "Productoría de lujo en Santa Rosa, La Pampa.",
   },
   robots: {
     index: true,
@@ -89,7 +89,7 @@ export default function RootLayout({
               "@type": "LocalBusiness",
               name: "La Parfumerie de Solange",
               description:
-                "Perfumería de lujo en Santa Rosa, La Pampa, Argentina.",
+                "Productoría de lujo en Santa Rosa, La Pampa, Argentina.",
               url: process.env.NEXT_PUBLIC_SITE_URL || "https://laparfumerie.com.ar",
               telephone: "+542954808202",
               address: {

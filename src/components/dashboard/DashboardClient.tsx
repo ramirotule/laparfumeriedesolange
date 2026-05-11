@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Perfume } from "@/types";
+import { Producto } from "@/types";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -33,11 +33,11 @@ interface Stats {
 }
 
 interface Props {
-  perfumes: Perfume[];
+  productos: Producto[];
 }
 
-export default function DashboardClient({ perfumes: initialPerfumes }: Props) {
-  const [perfumes, setPerfumes] = useState<Perfume[]>(initialPerfumes);
+export default function DashboardClient({ productos: initialProductos }: Props) {
+  const [productos, setProductos] = useState<Producto[]>(initialProductos);
   const [loading, setLoading] = useState<string | null>(null);
   const [bulkLoading, setBulkLoading] = useState(false);
   const [busqueda, setBusqueda] = useState("");
@@ -53,15 +53,21 @@ export default function DashboardClient({ perfumes: initialPerfumes }: Props) {
   const router = useRouter();
   const supabase = createClient();
 
-  const fetchPerfumes = async () => {
+  const fetchProductos = async () => {
     setBulkLoading(true);
     const { data } = await supabase
-      .from("perfumes")
-      .select("*, familia_olfativa:familias_olfativas(*)")
+      .from("productos")
+      .select("*, familia_olfativa:familias_olfativas(*), categorias(*)")
       .order("created_at", { ascending: false });
     
     if (data) {
-      setPerfumes(data as Perfume[]);
+      console.log("Datos crudos de productos:", data[0]); // Para ver si 'categorias' viene bien
+      // Mapeamos para que 'categoria' en el objeto sea el nombre real de la tabla categorias
+      const formattedData = (data as any[]).map(p => ({
+        ...p,
+        categoria: p.categorias?.nombre || "Sin categoría" 
+      }));
+      setProductos(formattedData as Producto[]);
     }
     setBulkLoading(false);
   };
@@ -78,12 +84,12 @@ export default function DashboardClient({ perfumes: initialPerfumes }: Props) {
 
   // Cálculos de estadísticas en tiempo real
   const currentStats = {
-    total: perfumes.length,
-    activos: perfumes.filter((p) => p.activo).length,
-    sinStock: perfumes.filter((p) => p.stock === 0).length,
-    valorInventario: perfumes.reduce((sum, p) => sum + (p.precio_costo || 0) * p.stock, 0),
+    total: productos.length,
+    activos: productos.filter((p) => p.activo).length,
+    sinStock: productos.filter((p) => p.stock === 0).length,
+    valorInventario: productos.reduce((sum, p) => sum + (p.precio_costo || 0) * p.stock, 0),
     margenPromedio: (() => {
-      const conCosto = perfumes.filter((p) => p.precio_costo && p.precio_costo > 0);
+      const conCosto = productos.filter((p) => p.precio_costo && p.precio_costo > 0);
       if (conCosto.length === 0) return 0;
       const total = conCosto.reduce(
         (sum, p) => sum + ((p.precio_venta - (p.precio_costo || 0)) / p.precio_venta) * 100,
@@ -102,17 +108,17 @@ export default function DashboardClient({ perfumes: initialPerfumes }: Props) {
   };
 
   const toggleSelectAll = () => {
-    if (selectedIds.size === perfumesFiltrados.length) {
+    if (selectedIds.size === productosFiltrados.length) {
       setSelectedIds(new Set());
     } else {
-      setSelectedIds(new Set(perfumesFiltrados.map((p) => p.id)));
+      setSelectedIds(new Set(productosFiltrados.map((p) => p.id)));
     }
   };
 
   async function toggleActivo(id: string, activo: boolean) {
     setLoading(id);
-    await supabase.from("perfumes").update({ activo: !activo }).eq("id", id);
-    setPerfumes((prev) =>
+    await supabase.from("productos").update({ activo: !activo }).eq("id", id);
+    setProductos((prev) =>
       prev.map((p) => (p.id === id ? { ...p, activo: !activo } : p))
     );
     setLoading(null);
@@ -121,8 +127,8 @@ export default function DashboardClient({ perfumes: initialPerfumes }: Props) {
   async function bulkToggleActivo(activo: boolean) {
     setBulkLoading(true);
     const ids = Array.from(selectedIds);
-    await supabase.from("perfumes").update({ activo }).in("id", ids);
-    setPerfumes((prev) =>
+    await supabase.from("productos").update({ activo }).in("id", ids);
+    setProductos((prev) =>
       prev.map((p) => (selectedIds.has(p.id) ? { ...p, activo } : p))
     );
     setSelectedIds(new Set());
@@ -147,7 +153,7 @@ export default function DashboardClient({ perfumes: initialPerfumes }: Props) {
         console.log("Categoría encontrada!", catEncontrada);
         updateData = { 
           categoria_id: catEncontrada.id,
-          categoria: catEncontrada.nombre 
+          categoria: catEncontrada.nombre
         };
       } else {
         console.error("No se encontró la categoría con nombre:", value);
@@ -157,13 +163,17 @@ export default function DashboardClient({ perfumes: initialPerfumes }: Props) {
       }
     }
 
-    const { error } = await supabase.from("perfumes").update(updateData).in("id", ids);
+    // 2. Preparamos lo que se guarda en DB (solo columnas reales)
+    const dbPayload = { ...updateData };
+    delete (dbPayload as any).categoria; // No existe en DB
+
+    const { error } = await supabase.from("productos").update(dbPayload).in("id", ids);
     
     if (error) {
       console.error("Error Supabase:", error);
       toast.error("Error al actualizar productos.");
     } else {
-      setPerfumes((prev) =>
+      setProductos((prev) =>
         prev.map((p) => (selectedIds.has(p.id) ? { ...p, ...updateData } : p))
       );
       setSelectedIds(new Set());
@@ -175,16 +185,16 @@ export default function DashboardClient({ perfumes: initialPerfumes }: Props) {
   async function ejecutarEliminarBulk() {
     setBulkLoading(true);
     const ids = Array.from(selectedIds);
-    await supabase.from("perfumes").delete().in("id", ids);
-    setPerfumes((prev) => prev.filter((p) => !selectedIds.has(p.id)));
+    await supabase.from("productos").delete().in("id", ids);
+    setProductos((prev) => prev.filter((p) => !selectedIds.has(p.id)));
     setSelectedIds(new Set());
     setBulkLoading(false);
     setBulkDeleteModal(false);
     toast.success("Productos eliminados correctamente.");
   }
 
-  const downloadExcel = (data?: Perfume[]) => {
-    const toExport = data || perfumes.filter((p) => selectedIds.has(p.id));
+  const downloadExcel = (data?: Producto[]) => {
+    const toExport = data || productos.filter((p) => selectedIds.has(p.id));
     if (toExport.length === 0) return;
 
     const exportData = toExport.map((p) => ({
@@ -218,14 +228,14 @@ export default function DashboardClient({ perfumes: initialPerfumes }: Props) {
   async function ejecutarEliminar() {
     if (!deleteModal.id) return;
     setLoading(deleteModal.id);
-    await supabase.from("perfumes").delete().eq("id", deleteModal.id);
-    setPerfumes((prev) => prev.filter((p) => p.id !== deleteModal.id));
+    await supabase.from("productos").delete().eq("id", deleteModal.id);
+    setProductos((prev) => prev.filter((p) => p.id !== deleteModal.id));
     setLoading(null);
     setDeleteModal({ isOpen: false, id: "", nombre: "" });
     toast.success("Producto eliminado.");
   }
 
-  const perfumesFiltrados = perfumes.filter((p) => {
+  const productosFiltrados = productos.filter((p) => {
     // 1. Filtro por búsqueda
     const matchesBusqueda = !busqueda || 
       p.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
@@ -234,7 +244,7 @@ export default function DashboardClient({ perfumes: initialPerfumes }: Props) {
     // 2. Filtro por categoría
     // Si listarTodo es true, mostramos todos.
     // Si es false, comparamos la categoría. 
-    // Si p.categoria no existe, asumimos "Fragancias" para compatibilidad (ya que el sitio empezó como perfumería).
+    // Si p.categoria no existe, asumimos "Fragancias" para compatibilidad (ya que el sitio empezó como productoría).
     const cat = p.categoria || "Fragancias";
     const matchesCategoria = listarTodo || cat === categoriaFiltrada;
 
@@ -250,7 +260,7 @@ export default function DashboardClient({ perfumes: initialPerfumes }: Props) {
             <Package size={14} /> TOTAL
           </div>
           <p className="text-white font-bold text-2xl">{currentStats.total}</p>
-          <p className="text-[#555555] text-xs">perfumes</p>
+          <p className="text-[#555555] text-xs">productos</p>
         </div>
         <div className="bg-[#0D0D0D] border border-[#1A1A1A] p-5">
           <div className="flex items-center gap-2 text-[#D4AF37] text-xs mb-2">
@@ -342,7 +352,7 @@ export default function DashboardClient({ perfumes: initialPerfumes }: Props) {
           </button>
           
           <button
-            onClick={() => downloadExcel(perfumesFiltrados)}
+            onClick={() => downloadExcel(productosFiltrados)}
             className="flex items-center gap-2 bg-[#1A1A1A] text-white border border-[#2D2D2D] font-bold px-4 py-2.5 text-sm tracking-wider hover:bg-[#252525] transition-colors whitespace-nowrap group"
           >
             <div className="relative flex items-center">
@@ -371,7 +381,7 @@ export default function DashboardClient({ perfumes: initialPerfumes }: Props) {
                 <th className="px-4 py-3 text-left w-10">
                   <input
                     type="checkbox"
-                    checked={selectedIds.size === perfumesFiltrados.length && perfumesFiltrados.length > 0}
+                    checked={selectedIds.size === productosFiltrados.length && productosFiltrados.length > 0}
                     onChange={toggleSelectAll}
                     className="w-4 h-4 rounded border-[#2D2D2D] bg-black text-[#D4AF37] focus:ring-[#D4AF37]"
                   />
@@ -388,53 +398,53 @@ export default function DashboardClient({ perfumes: initialPerfumes }: Props) {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#111111]">
-              {perfumesFiltrados.map((perfume) => {
+              {productosFiltrados.map((producto) => {
                 const margen =
-                  perfume.precio_costo && perfume.precio_costo > 0
+                  producto.precio_costo && producto.precio_costo > 0
                     ? Math.round(
-                        ((perfume.precio_venta - perfume.precio_costo) / perfume.precio_venta) * 100
+                        ((producto.precio_venta - producto.precio_costo) / producto.precio_venta) * 100
                       )
                     : null;
 
                 return (
                   <tr
-                    key={perfume.id}
-                    className={`hover:bg-[#111111] transition-colors ${!perfume.activo ? "opacity-50" : ""} ${selectedIds.has(perfume.id) ? "bg-[#D4AF37]/5" : ""}`}
+                    key={producto.id}
+                    className={`hover:bg-[#111111] transition-colors ${!producto.activo ? "opacity-50" : ""} ${selectedIds.has(producto.id) ? "bg-[#D4AF37]/5" : ""}`}
                   >
                     <td className="px-4 py-3">
                       <input
                         type="checkbox"
-                        checked={selectedIds.has(perfume.id)}
-                        onChange={() => toggleSelect(perfume.id)}
+                        checked={selectedIds.has(producto.id)}
+                        onChange={() => toggleSelect(producto.id)}
                         className="w-4 h-4 rounded border-[#2D2D2D] bg-black text-[#D4AF37] focus:ring-[#D4AF37]"
                       />
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        {perfume.imagen_url && (
+                        {producto.imagen_url && (
                           <Image
-                            src={perfume.imagen_url}
-                            alt={perfume.nombre}
+                            src={producto.imagen_url}
+                            alt={producto.nombre}
                             width={32}
                             height={32}
                             className="w-8 h-8 object-cover shrink-0 hidden sm:block"
                           />
                         )}
                         <div>
-                          <p className="text-white font-medium line-clamp-1">{perfume.nombre}</p>
-                          <p className="text-[#555555] text-xs">{perfume.marca}</p>
+                          <p className="text-white font-medium line-clamp-1">{producto.nombre}</p>
+                          <p className="text-[#555555] text-xs">{producto.marca}</p>
                         </div>
                       </div>
                     </td>
                     <td className="px-4 py-3 text-[#888888] text-xs hidden lg:table-cell">
-                      {perfume.categoria || "Fragancias"}
+                      {producto.categoria || "Fragancias"}
                     </td>
-                    <td className="px-4 py-3 text-[#888888] text-xs hidden sm:table-cell">{perfume.genero}</td>
+                    <td className="px-4 py-3 text-[#888888] text-xs hidden sm:table-cell">{producto.genero}</td>
                     <td className="px-4 py-3 text-right text-[#888888]">
-                      {perfume.precio_costo ? `$${perfume.precio_costo.toLocaleString("es-AR")}` : "—"}
+                      {producto.precio_costo ? `$${producto.precio_costo.toLocaleString("es-AR")}` : "—"}
                     </td>
                     <td className="px-4 py-3 text-right text-[#D4AF37] font-semibold">
-                      ${perfume.precio_venta.toLocaleString("es-AR")}
+                      ${producto.precio_venta.toLocaleString("es-AR")}
                     </td>
                     <td className="px-4 py-3 text-right hidden md:table-cell">
                       {margen !== null ? (
@@ -446,36 +456,36 @@ export default function DashboardClient({ perfumes: initialPerfumes }: Props) {
                       )}
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <span className={`text-xs font-bold ${perfume.stock > 5 ? "text-green-400" : perfume.stock > 0 ? "text-yellow-400" : "text-red-400"}`}>
-                        {perfume.stock}
+                      <span className={`text-xs font-bold ${producto.stock > 5 ? "text-green-400" : producto.stock > 0 ? "text-yellow-400" : "text-red-400"}`}>
+                        {producto.stock}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-center">
                       <button
-                        onClick={() => toggleActivo(perfume.id, perfume.activo)}
-                        disabled={loading === perfume.id}
+                        onClick={() => toggleActivo(producto.id, producto.activo)}
+                        disabled={loading === producto.id}
                         className={`text-xs px-2 py-1 border transition-colors ${
-                          perfume.activo
+                          producto.activo
                             ? "border-green-400/30 text-green-400 hover:bg-green-400/10"
                             : "border-[#333333] text-[#555555] hover:border-[#555555]"
                         }`}
                       >
-                        {perfume.activo ? "Activo" : "Oculto"}
+                        {producto.activo ? "Activo" : "Oculto"}
                       </button>
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-center gap-2">
-                        <Link href={`/perfumes/${perfume.slug}`} target="_blank"
+                        <Link href={`/productos/${producto.slug}`} target="_blank"
                           className="text-[#555555] hover:text-[#D4AF37] transition-colors" title="Ver en tienda">
                           <Eye size={14} />
                         </Link>
-                        <Link href={`/dashboard/editar/${perfume.id}`}
+                        <Link href={`/dashboard/editar/${producto.id}`}
                           className="text-[#555555] hover:text-[#D4AF37] transition-colors" title="Editar">
                           <Edit2 size={14} />
                         </Link>
                         <button
-                          onClick={() => confirmarEliminar(perfume.id, perfume.nombre)}
-                          disabled={loading === perfume.id}
+                          onClick={() => confirmarEliminar(producto.id, producto.nombre)}
+                          disabled={loading === producto.id}
                           className="text-[#555555] hover:text-red-400 transition-colors" title="Eliminar">
                           <Trash2 size={14} />
                         </button>
@@ -487,17 +497,17 @@ export default function DashboardClient({ perfumes: initialPerfumes }: Props) {
             </tbody>
           </table>
 
-          {perfumesFiltrados.length === 0 && (
+          {productosFiltrados.length === 0 && (
             <div className="text-center py-12 text-[#555555]">
               <Package size={32} className="mx-auto mb-3 opacity-30" />
-              <p>No hay perfumes que mostrar.</p>
+              <p>No hay productos que mostrar.</p>
             </div>
           )}
         </div>
       </div>
 
       <p className="text-[#333333] text-xs mt-4 text-center">
-        {perfumesFiltrados.length} de {perfumes.length} perfumes
+        {productosFiltrados.length} de {productos.length} productos
       </p>
 
       {/* Bulk Actions Bar */}
@@ -552,7 +562,7 @@ export default function DashboardClient({ perfumes: initialPerfumes }: Props) {
                       <button
                         key={cat.id}
                         onClick={() => {
-                          bulkUpdateField("categoria", cat.nombre);
+                          bulkUpdateField("categoria_id", cat.id);
                           setMenuBulkAbierto(null);
                         }}
                         className="w-full text-left px-3 py-2 text-[10px] text-[#888888] hover:text-white hover:bg-[#1A1A1A] transition-colors"
@@ -687,7 +697,7 @@ export default function DashboardClient({ perfumes: initialPerfumes }: Props) {
         isOpen={isImportModalOpen} 
         onClose={() => setIsImportModalOpen(false)} 
         onSuccess={() => {
-          fetchPerfumes();
+          fetchProductos();
           router.refresh();
         }} 
       />

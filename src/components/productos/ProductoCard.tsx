@@ -1,24 +1,24 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Perfume } from "@/types";
+import { Producto } from "@/types";
 import AddToCartButton from "@/components/cart/AddToCartButton";
 import { calculateListPrice, calculateInstallment, formatPrice } from "@/lib/price-utils";
 
 interface Props {
-  perfume: Perfume;
+  producto: Producto;
   isCompact?: boolean;
 }
 
-export default function PerfumeCard({ perfume, isCompact = false }: Props) {
+export default function ProductoCard({ producto, isCompact = false }: Props) {
 
   if (isCompact) {
     return (
       <article className="group relative bg-[#0D0D0D] border border-[#1A1A1A] hover:border-[#D4AF37]/40 transition-all duration-300 hover:shadow-lg flex flex-col overflow-hidden">
-        <Link href={`/perfumes/${perfume.slug}`} className="block relative aspect-square bg-black/40">
-          {perfume.imagen_url ? (
+        <Link href={`/productos/${producto.slug}`} className="block relative aspect-square bg-black/40">
+          {producto.imagen_url ? (
             <Image
-              src={perfume.imagen_url}
-              alt={`Perfume ${perfume.nombre} ${perfume.marca}`}
+              src={producto.imagen_url}
+              alt={`Producto ${producto.nombre} ${producto.marca}`}
               fill
               sizes="(max-width: 640px) 33vw, (max-width: 1024px) 20vw, 15vw"
               className="object-cover group-hover:scale-110 transition-transform duration-500"
@@ -31,10 +31,10 @@ export default function PerfumeCard({ perfume, isCompact = false }: Props) {
           
           {/* Minimal Badges for Compact View */}
           <div className="absolute top-1 left-1 flex flex-col gap-0.5">
-            {perfume.nuevo && (
+            {producto.nuevo && (
               <div className="w-2 h-2 rounded-full bg-[#D4AF37]" title="Nuevo" />
             )}
-            {perfume.stock === 0 && (
+            {producto.stock === 0 && (
               <div className="w-2 h-2 rounded-full bg-gray-300" title="Sin stock" />
             )}
           </div>
@@ -42,7 +42,7 @@ export default function PerfumeCard({ perfume, isCompact = false }: Props) {
           {/* Hover Name Overlay */}
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2 text-center">
             <p className="text-white text-[10px] font-medium leading-tight line-clamp-2">
-              {perfume.nombre}
+              {producto.nombre}
             </p>
           </div>
         </Link>
@@ -53,11 +53,11 @@ export default function PerfumeCard({ perfume, isCompact = false }: Props) {
   return (
     <article className="group bg-[#0D0D0D] border border-[#1A1A1A] hover:border-[#D4AF37]/40 transition-all duration-300 hover:shadow-xl hover:shadow-black/50 flex flex-col h-full">
       {/* Image */}
-      <Link href={`/perfumes/${perfume.slug}`} className="block relative overflow-hidden aspect-square bg-black/40">
-        {perfume.imagen_url ? (
+      <Link href={`/productos/${producto.slug}`} className="block relative overflow-hidden aspect-square bg-black/40">
+        {producto.imagen_url ? (
           <Image
-            src={perfume.imagen_url}
-            alt={`Perfume ${perfume.nombre} ${perfume.marca} - ${perfume.genero} - La Parfumerie Santa Rosa La Pampa`}
+            src={producto.imagen_url}
+            alt={`Producto ${producto.nombre} ${producto.marca} - ${producto.genero} - La Parfumerie Santa Rosa La Pampa`}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -67,7 +67,7 @@ export default function PerfumeCard({ perfume, isCompact = false }: Props) {
             <div className="text-center">
               <div className="text-4xl mb-2 text-[#D4AF37]">✦</div>
               <p className="text-gray-400 text-xs tracking-wider">
-                {perfume.marca}
+                {producto.marca}
               </p>
             </div>
           </div>
@@ -75,17 +75,17 @@ export default function PerfumeCard({ perfume, isCompact = false }: Props) {
 
         {/* Badges */}
         <div className="absolute top-2 left-2 flex flex-col gap-1">
-          {perfume.nuevo && (
+          {producto.nuevo && (
             <span className="bg-[#D4AF37] text-black text-[9px] font-bold tracking-wider px-2 py-0.5 uppercase">
               Nuevo
             </span>
           )}
-          {perfume.destacado && !perfume.nuevo && (
+          {producto.destacado && !producto.nuevo && (
             <span className="bg-[#1A1A1A] border border-[#D4AF37]/50 text-[#D4AF37] text-[9px] font-bold tracking-wider px-2 py-0.5 uppercase">
               Destacado
             </span>
           )}
-          {perfume.stock === 0 && (
+          {producto.stock === 0 && (
             <span className="bg-[#1A1A1A] border border-gray-800 text-gray-500 text-[9px] font-bold tracking-wider px-2 py-0.5 uppercase">
               Sin stock
             </span>
@@ -95,39 +95,39 @@ export default function PerfumeCard({ perfume, isCompact = false }: Props) {
         {/* Género badge */}
         <div className="absolute top-2 right-2">
           <span className="bg-black/60 border border-[#1A1A1A] text-gray-300 text-[9px] tracking-wider px-2 py-0.5 uppercase backdrop-blur-sm">
-            {perfume.genero}
+            {producto.genero}
           </span>
         </div>
       </Link>
 
       {/* Content */}
       <div className="p-4 flex flex-col flex-1">
-        <Link href={`/perfumes/${perfume.slug}`}>
+        <Link href={`/productos/${producto.slug}`}>
           <p className="text-[#555555] text-xs tracking-[0.2em] uppercase mb-1">
-            {perfume.marca}
+            {producto.marca}
           </p>
           <h3 className="text-white font-serif text-base leading-snug group-hover:text-[#D4AF37] transition-colors line-clamp-2">
-            {perfume.nombre}
+            {producto.nombre}
           </h3>
         </Link>
 
-        {perfume.volumen_ml && perfume.concentracion && (
+        {producto.volumen_ml && producto.concentracion && (
           <p className="text-gray-400 text-xs mt-1">
-            {perfume.volumen_ml}ml · {perfume.concentracion}
+            {producto.volumen_ml}ml · {producto.concentracion}
           </p>
         )}
 
         <div className="mt-auto pt-4">
           <div className="mb-3 flex flex-col">
             <span className="text-gray-400 text-[10px] uppercase tracking-wider">
-              Precio de lista: {formatPrice(calculateListPrice(perfume.precio_venta))}
+              Precio de lista: {formatPrice(calculateListPrice(producto.precio_venta))}
             </span>
             <span className="text-gray-600 text-xs font-medium">
-              3 cuotas sin interés de {formatPrice(calculateInstallment(perfume.precio_venta))}
+              3 cuotas sin interés de {formatPrice(calculateInstallment(producto.precio_venta))}
             </span>
             <div className="mt-1">
               <span className="text-white font-bold text-xl">
-                {formatPrice(perfume.precio_venta)}
+                {formatPrice(producto.precio_venta)}
               </span>
               <span className="text-[#D4AF37] text-[10px] font-bold ml-1 uppercase tracking-tight">
                 Contado / Transferencia
@@ -138,14 +138,14 @@ export default function PerfumeCard({ perfume, isCompact = false }: Props) {
           <div className="flex items-center gap-2">
             <AddToCartButton
               item={{
-                id: perfume.id,
-                nombre: perfume.nombre,
-                marca: perfume.marca,
-                slug: perfume.slug,
-                precio_venta: perfume.precio_venta,
-                imagen_url: perfume.imagen_url,
+                id: producto.id,
+                nombre: producto.nombre,
+                marca: producto.marca,
+                slug: producto.slug,
+                precio_venta: producto.precio_venta,
+                imagen_url: producto.imagen_url,
               }}
-              inStock={perfume.stock > 0}
+              inStock={producto.stock > 0}
               variant="card"
             />
           </div>

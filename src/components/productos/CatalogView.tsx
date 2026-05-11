@@ -1,8 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
-import { Perfume } from "@/types";
-import PerfumeGrid from "@/components/perfumes/PerfumeGrid";
-import FiltrosCatalogo from "@/components/perfumes/FiltrosCatalogo";
-import CategoriasSidebar from "@/components/perfumes/CategoriasSidebar";
+import { Producto } from "@/types";
+import ProductoGrid from "@/components/productos/ProductoGrid";
+import FiltrosCatalogo from "@/components/productos/FiltrosCatalogo";
+import CategoriasSidebar from "@/components/productos/CategoriasSidebar";
 
 interface SearchParams {
   genero?: string;
@@ -20,11 +20,11 @@ interface SearchParams {
   tipo?: string;
 }
 
-async function getPerfumes(params: SearchParams): Promise<Perfume[]> {
+async function getProductos(params: SearchParams): Promise<Producto[]> {
   try {
     const supabase = await createClient();
     let query = supabase
-      .from("perfumes")
+      .from("productos")
       .select("*, familia_olfativa:familias_olfativas(*)")
       .eq("activo", true);
 
@@ -104,7 +104,7 @@ async function getPerfumes(params: SearchParams): Promise<Perfume[]> {
     }
 
     const { data } = await query.limit(100);
-    return (data as Perfume[]) || [];
+    return (data as Producto[]) || [];
   } catch {
     return [];
   }
@@ -117,23 +117,23 @@ export default async function CatalogView({
   searchParams: SearchParams;
   title?: string;
 }) {
-  const perfumes = await getPerfumes(searchParams);
+  const productos = await getProductos(searchParams);
 
   const displayTitle = title || (searchParams.genero
-    ? `Perfumes ${searchParams.genero}s`
+    ? `Productos ${searchParams.genero}s`
     : searchParams.familia
-      ? `Perfumes ${searchParams.familia}s`
+      ? `Productos ${searchParams.familia}s`
       : searchParams.nuevo === "true"
         ? "Novedades"
         : searchParams.destacado === "true"
-          ? "Perfumes Destacados"
+          ? "Productos Destacados"
           : searchParams.categoria
             ? searchParams.categoria.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase())
             : searchParams.seccion === "bienestar"
               ? "Línea Bienestar"
               : searchParams.seccion === "cuidados-piel"
                 ? "Cuidados de la Piel"
-                : "Catálogo de Perfumes");
+                : "Catálogo de Productos");
 
   return (
     <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -145,13 +145,13 @@ export default async function CatalogView({
           {displayTitle}
         </h1>
         <p className="text-[#888888] text-sm">
-          {perfumes.length}{" "}
+          {productos.length}{" "}
           {searchParams.seccion === "bienestar" || 
            searchParams.seccion === "aromatizantes" || 
            searchParams.seccion === "cuidados-piel"
             ? "producto"
             : "fragancia"}
-          {perfumes.length !== 1 ? "s" : ""} {perfumes.length === 1 ? "encontrado" : "encontrados"} en{" "}
+          {productos.length !== 1 ? "s" : ""} {productos.length === 1 ? "encontrado" : "encontrados"} en{" "}
           {searchParams.categoria
             ? searchParams.categoria
                 .replace(/-/g, " ")
@@ -176,8 +176,8 @@ export default async function CatalogView({
       <div className="flex flex-col lg:flex-row gap-12 px-4 sm:px-6 lg:px-8">
         {/* Grilla de Productos (Centro) */}
         <div className="flex-1 min-w-0">
-          <PerfumeGrid
-            perfumes={perfumes}
+          <ProductoGrid
+            productos={productos}
             emptyMessage="No encontramos productos con ese filtro. Probá con otras opciones."
           />
         </div>

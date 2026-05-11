@@ -94,7 +94,7 @@ export default function BuscadorAcordes() {
       >
         <div>
           <h2 className="text-white font-serif text-xl sm:text-2xl mb-1 transition-colors group-hover:text-[#D4AF37]">Buscar por Acordes</h2>
-          <p className="text-[#888888] text-xs">Añadí acordes para filtrar los perfumes.</p>
+          <p className="text-[#888888] text-xs">Añadí acordes para filtrar los productos.</p>
         </div>
         <div className="flex items-center gap-4">
           {acordesSeleccionados.length > 0 && (

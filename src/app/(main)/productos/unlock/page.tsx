@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import CatalogView from "@/components/perfumes/CatalogView";
+import CatalogView from "@/components/productos/CatalogView";
 
 interface SearchParams {
   genero?: string;
@@ -10,9 +10,9 @@ interface SearchParams {
 
 export const metadata: Metadata = {
   title: "Línea Unlock | Fragancias Exclusivas en La Parfumerie",
-  description: "Descubrí la colección exclusiva de fragancias Unlock. Perfumes femeninos, masculinos y unisex con el sello distintivo de Bagués.",
+  description: "Descubrí la colección exclusiva de fragancias Unlock. Productos femeninos, masculinos y unisex con el sello distintivo de Bagués.",
   alternates: {
-    canonical: "/perfumes/unlock",
+    canonical: "/productos/unlock",
   },
 };
 

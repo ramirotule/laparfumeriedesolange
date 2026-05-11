@@ -188,7 +188,7 @@ export default function QuienesSomosPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/perfumes"
+              href="/productos"
               className="bg-[#D4AF37] text-black font-bold px-8 py-3.5 text-sm tracking-wider uppercase hover:bg-[#E8CC6B] transition-colors shadow-lg shadow-[#D4AF37]/20"
             >
               Ver catálogo

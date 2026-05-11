@@ -60,7 +60,7 @@ export default function CheckoutPage() {
   // Redirect to catalog if cart is empty
   useEffect(() => {
     if (items.length === 0 && !loading) {
-      router.replace("/perfumes");
+      router.replace("/productos");
     }
   }, [items.length, loading, router]);
 

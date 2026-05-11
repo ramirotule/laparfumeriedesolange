@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import CatalogView from "@/components/perfumes/CatalogView";
+import CatalogView from "@/components/productos/CatalogView";
 
 interface SearchParams {
   genero?: string;
@@ -10,9 +10,9 @@ interface SearchParams {
 
 export const metadata: Metadata = {
   title: "Fragancias Internacionales | Catálogo de Lujo en La Parfumerie",
-  description: "Explorá nuestra selección de las mejores fragancias internacionales. Perfumes importados de las marcas más prestigiosas del mundo.",
+  description: "Explorá nuestra selección de las mejores fragancias internacionales. Productos importados de las marcas más prestigiosas del mundo.",
   alternates: {
-    canonical: "/perfumes/internacionales",
+    canonical: "/productos/internacionales",
   },
 };
 

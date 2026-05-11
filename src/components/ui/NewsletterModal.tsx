@@ -52,7 +52,7 @@ export default function NewsletterModal({ isOpen, onClose }: NewsletterModalProp
               <h3 className="text-[#D4AF37] text-xs font-bold tracking-[0.3em] uppercase mb-4">Newsletter</h3>
               <h2 className="font-serif text-3xl text-white mb-4">Sé parte de la exclusividad</h2>
               <p className="text-gray-400 text-sm leading-relaxed">
-                Suscribite para recibir lanzamientos anticipados, eventos privados y consejos de perfumería de lujo.
+                Suscribite para recibir lanzamientos anticipados, eventos privados y consejos de productoría de lujo.
               </p>
             </div>
 

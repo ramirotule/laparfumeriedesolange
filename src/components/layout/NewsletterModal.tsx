@@ -79,7 +79,7 @@ export default function NewsletterModal() {
                   Unite a la <span className="text-gold">Elite</span>
                 </h2>
                 <p className="text-zinc-400 text-sm md:text-base max-w-xs mx-auto">
-                  Suscribite para recibir lanzamientos exclusivos, ofertas privadas y novedades del mundo de la alta perfumería.
+                  Suscribite para recibir lanzamientos exclusivos, ofertas privadas y novedades del mundo de la alta productoría.
                 </p>
               </div>
 

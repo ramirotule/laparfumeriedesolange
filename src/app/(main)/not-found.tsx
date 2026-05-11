@@ -17,7 +17,7 @@ export default function NotFound() {
             Ir al Inicio
           </Link>
           <Link
-            href="/perfumes"
+            href="/productos"
             className="border border-[#D4AF37]/40 text-[#D4AF37] font-semibold px-8 py-3 text-sm hover:bg-[#D4AF37]/10 transition-colors"
           >
             Ver Catálogo

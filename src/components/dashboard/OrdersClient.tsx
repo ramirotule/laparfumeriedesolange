@@ -14,7 +14,10 @@ import {
   PackageCheck, 
   Truck,
   XCircle,
-  Eye
+  Eye,
+  Trash2,
+  AlertTriangle,
+  Loader2
 } from "lucide-react";
 import CustomSelect from "@/components/ui/CustomSelect";
 import toast from "react-hot-toast";
@@ -48,9 +51,9 @@ interface Props {
 
 const ESTADOS = [
   { value: "pendiente", label: "Pendiente", color: "bg-orange-500/10 text-orange-500 border-orange-500/20" },
-  { value: "confirmado", label: "Confirmado", color: "bg-blue-500/10 text-blue-500 border-blue-500/20" },
-  { value: "preparado", label: "Preparado", color: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20" },
-  { value: "entregado", label: "Entregado", color: "bg-green-500/10 text-green-500 border-green-500/20" },
+  { value: "confirmado", label: "Confirmado", color: "bg-green-500/10 text-green-500 border-green-500/20" },
+  { value: "preparado", label: "Preparado", color: "bg-purple-500/10 text-purple-500 border-purple-500/20" },
+  { value: "entregado", label: "Entregado", color: "bg-blue-500/10 text-blue-500 border-blue-500/20" },
   { value: "cancelado", label: "Cancelado", color: "bg-red-500/10 text-red-500 border-red-500/20" },
 ];
 
@@ -59,6 +62,7 @@ export default function OrdersClient({ initialOrders }: Props) {
   const [filter, setFilter] = useState("todos");
   const [search, setSearch] = useState("");
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, id: "", numero: "" });
   const supabase = createClient();
 
   useEffect(() => {
@@ -81,8 +85,13 @@ export default function OrdersClient({ initialOrders }: Props) {
       )
       .subscribe();
 
+    // Escuchar evento manual de refresco
+    const handleManualRefresh = () => fetchPending();
+    window.addEventListener('refresh-orders-count', handleManualRefresh);
+
     return () => {
       supabase.removeChannel(channel);
+      window.removeEventListener('refresh-orders-count', handleManualRefresh);
     };
   }, [supabase]);
 
@@ -97,6 +106,37 @@ export default function OrdersClient({ initialOrders }: Props) {
       toast.error("Error al actualizar el estado");
     } else {
       toast.success("Estado actualizado");
+      // Actualizamos el estado local inmediatamente
+      setOrders(prev => prev.map(o => 
+        o.id === id ? { ...o, estado: newStatus } : o
+      ));
+      // Notificar a la campana
+      window.dispatchEvent(new CustomEvent('refresh-orders-count'));
+    }
+    setLoadingId(null);
+  };
+  
+  const deleteOrder = (id: string, numero: string) => {
+    setDeleteModal({ isOpen: true, id, numero });
+  };
+
+  const confirmDelete = async () => {
+    const { id } = deleteModal;
+    setLoadingId(id);
+    const { error } = await supabase
+      .from("pedidos")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      console.error("Error al eliminar:", error);
+      toast.error("Error al eliminar el pedido");
+    } else {
+      toast.success("Pedido eliminado correctamente");
+      setOrders(prev => prev.filter(o => o.id !== id));
+      setDeleteModal({ isOpen: false, id: "", numero: "" });
+      // Notificar a la campana
+      window.dispatchEvent(new CustomEvent('refresh-orders-count'));
     }
     setLoadingId(null);
   };
@@ -157,8 +197,17 @@ export default function OrdersClient({ initialOrders }: Props) {
           return (
             <div 
               key={order.id} 
-              className="bg-[#0D0D0D] border border-[#1A1A1A] overflow-hidden group hover:border-[#D4AF37]/30 transition-all duration-300"
+              className="bg-[#0D0D0D] border border-[#1A1A1A] overflow-hidden group hover:border-[#D4AF37]/30 transition-all duration-300 relative"
             >
+              {/* Overlay de carga para toda la tarjeta */}
+              {loadingId === order.id && (
+                <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-[1px]">
+                  <div className="flex flex-col items-center gap-2">
+                    <Loader2 size={32} className="text-[#D4AF37] animate-spin" />
+                    <span className="text-[#D4AF37] text-xs font-medium uppercase tracking-widest">Actualizando...</span>
+                  </div>
+                </div>
+              )}
               <div className="p-4 sm:p-6">
                 {/* Header del pedido */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
@@ -184,13 +233,24 @@ export default function OrdersClient({ initialOrders }: Props) {
                       <p className="text-[#555555] text-[10px] uppercase tracking-widest">Total</p>
                       <p className="text-[#D4AF37] font-bold text-lg">${order.total.toLocaleString('es-AR')}</p>
                     </div>
-                    <div className="w-40">
-                      <CustomSelect
-                        value={order.estado}
-                        onChange={(val) => updateStatus(order.id, val)}
-                        options={ESTADOS.map(e => ({ value: e.value, label: e.label }))}
-                        placeholder="Cambiar estado"
-                      />
+                    <div className="flex items-center gap-2">
+                      <div className="w-40">
+                        <CustomSelect
+                          value={order.estado}
+                          onChange={(val) => updateStatus(order.id, val)}
+                          options={ESTADOS.map(e => ({ value: e.value, label: e.label }))}
+                          placeholder="Cambiar estado"
+                          disabled={loadingId === order.id}
+                        />
+                      </div>
+                      <button
+                        onClick={() => deleteOrder(order.id, order.numero_pedido)}
+                        disabled={loadingId === order.id}
+                        className="p-2.5 bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500 hover:text-white transition-all duration-200 rounded"
+                        title="Eliminar pedido"
+                      >
+                        <Trash2 size={18} />
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -267,6 +327,42 @@ export default function OrdersClient({ initialOrders }: Props) {
           </div>
         )}
       </div>
+
+      {/* Modal de confirmación de eliminación */}
+      {deleteModal.isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#0A0A0A] border border-[#2D2D2D] w-full max-w-md p-6 md:p-8">
+            <div className="flex items-center gap-3 text-red-500 mb-4">
+              <AlertTriangle size={24} />
+              <h2 className="font-serif text-xl text-white">Confirmar eliminación</h2>
+            </div>
+            <p className="text-[#888888] text-sm mb-6 leading-relaxed">
+              ¿Estás seguro que deseas eliminar el pedido <strong className="text-[#D4AF37]">#{deleteModal.numero}</strong>? Esta acción no se puede deshacer y se perderá todo el historial de este pedido.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setDeleteModal({ isOpen: false, id: "", numero: "" })}
+                className="flex-1 px-4 py-2.5 text-sm text-[#888888] hover:text-white border border-[#2D2D2D] hover:bg-[#1A1A1A] transition-colors"
+                disabled={loadingId === deleteModal.id}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmDelete}
+                disabled={loadingId === deleteModal.id}
+                className="flex-1 px-4 py-2.5 text-sm text-white bg-red-600/90 hover:bg-red-500 transition-colors flex items-center justify-center gap-2"
+              >
+                {loadingId === deleteModal.id ? (
+                  <span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <Trash2 size={14} />
+                )}
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

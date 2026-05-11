@@ -11,18 +11,18 @@ import { aromatizantes, bienestar, skincare } from "@/constants/navigation";
 import { SITE_CONFIG } from "@/constants/site";
 
 const familias = [
-  { nombre: "Floral", href: "/perfumes?familia=Floral" },
-  { nombre: "Oriental", href: "/perfumes?familia=Oriental" },
-  { nombre: "Amaderado", href: "/perfumes?familia=Amaderado" },
-  { nombre: "Fresco", href: "/perfumes?familia=Fresco" },
-  { nombre: "Chipre", href: "/perfumes?familia=Chipre" },
-  { nombre: "Gourmand", href: "/perfumes?familia=Gourmand" },
+  { nombre: "Floral", href: "/productos?familia=Floral" },
+  { nombre: "Oriental", href: "/productos?familia=Oriental" },
+  { nombre: "Amaderado", href: "/productos?familia=Amaderado" },
+  { nombre: "Fresco", href: "/productos?familia=Fresco" },
+  { nombre: "Chipre", href: "/productos?familia=Chipre" },
+  { nombre: "Gourmand", href: "/productos?familia=Gourmand" },
 ];
 
 const generos = [
-  { nombre: "Femenino", href: "/perfumes?genero=Femenino" },
-  { nombre: "Masculino", href: "/perfumes?genero=Masculino" },
-  { nombre: "Unisex", href: "/perfumes?genero=Unisex" },
+  { nombre: "Femenino", href: "/productos?genero=Femenino" },
+  { nombre: "Masculino", href: "/productos?genero=Masculino" },
+  { nombre: "Unisex", href: "/productos?genero=Unisex" },
 ];
 
 // Constantes movidas a @/constants/navigation.ts
@@ -155,7 +155,7 @@ export default function Header() {
                       <div className="absolute top-full left-1/2 -translate-x-1/2 w-[240px] pt-4 z-50">
                         <div className="bg-[#0D0D0D] border border-[#1A1A1A] shadow-2xl shadow-black/80 p-6 flex flex-col gap-6">
                           <Link
-                            href="/perfumes"
+                            href="/productos"
                             className="text-[#D4AF37] text-xs font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
                           >
                             VER TODO
@@ -164,26 +164,26 @@ export default function Header() {
                           {/* Unlock */}
                           <div>
                             <Link
-                              href="/perfumes/unlock"
+                              href="/productos/unlock"
                               className="text-[#D4AF37] text-xs font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
                             >
                               Unlock
                             </Link>
                             <div className="flex flex-col gap-1.5">
                               <Link
-                                href="/perfumes?marca=Unlock&genero=Femenino"
+                                href="/productos?marca=Unlock&genero=Femenino"
                                 className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
                               >
                                 Femeninas
                               </Link>
                               <Link
-                                href="/perfumes?marca=Unlock&genero=Masculino"
+                                href="/productos?marca=Unlock&genero=Masculino"
                                 className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
                               >
                                 Masculinas
                               </Link>
                               <Link
-                                href="/perfumes?marca=Unlock&genero=Unisex"
+                                href="/productos?marca=Unlock&genero=Unisex"
                                 className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
                               >
                                 Unisex
@@ -201,19 +201,19 @@ export default function Header() {
                             </Link>
                             <div className="flex flex-col gap-1.5">
                               <Link
-                                href="/perfumes?categoria=arabes&genero=Femenino"
+                                href="/productos?categoria=arabes&genero=Femenino"
                                 className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
                               >
                                 Femeninos
                               </Link>
                               <Link
-                                href="/perfumes?categoria=arabes&genero=Masculino"
+                                href="/productos?categoria=arabes&genero=Masculino"
                                 className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
                               >
                                 Masculinos
                               </Link>
                               <Link
-                                href="/perfumes?categoria=arabes&genero=Unisex"
+                                href="/productos?categoria=arabes&genero=Unisex"
                                 className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
                               >
                                 Unisex
@@ -224,26 +224,26 @@ export default function Header() {
                           {/* Internacionales */}
                           <div>
                             <Link
-                              href="/perfumes/internacionales"
+                              href="/productos/internacionales"
                               className="text-[#D4AF37] text-xs font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
                             >
                               Internacionales
                             </Link>
                             <div className="flex flex-col gap-1.5">
                               <Link
-                                href="/perfumes?tipo=internacional&genero=Femenino"
+                                href="/productos?tipo=internacional&genero=Femenino"
                                 className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
                               >
                                 Femeninos
                               </Link>
                               <Link
-                                href="/perfumes?tipo=internacional&genero=Masculino"
+                                href="/productos?tipo=internacional&genero=Masculino"
                                 className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
                               >
                                 Masculinos
                               </Link>
                               <Link
-                                href="/perfumes?tipo=internacional&genero=Unisex"
+                                href="/productos?tipo=internacional&genero=Unisex"
                                 className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
                               >
                                 Unisex
@@ -515,7 +515,7 @@ export default function Header() {
               INICIO
             </Link>
             <Link
-              href="/perfumes"
+              href="/productos"
               onClick={() => setMenuOpen(false)}
               className="text-sm tracking-wider text-white hover:text-[#D4AF37] transition-colors"
             >
@@ -659,14 +659,14 @@ export default function Header() {
                 BÚSQUEDA
               </p>
               <Link
-                href="/perfumes?open=notas"
+                href="/productos?open=notas"
                 onClick={() => setMenuOpen(false)}
                 className="block text-xs text-[#cccccc] hover:text-[#D4AF37] py-1.5 transition-colors"
               >
                 Buscar por Notas
               </Link>
               <Link
-                href="/perfumes?open=acordes"
+                href="/productos?open=acordes"
                 onClick={() => setMenuOpen(false)}
                 className="block text-xs text-[#cccccc] hover:text-[#D4AF37] py-1.5 transition-colors"
               >

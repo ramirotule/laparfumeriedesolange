@@ -6,17 +6,17 @@ import { useSearchParams } from "next/navigation";
 const CATEGORIAS_MAIN = [
   { 
     nombre: "UNLOCK", 
-    href: "/perfumes/unlock",
+    href: "/productos/unlock",
     description: "Nuestra línea exclusiva"
   },
   { 
     nombre: "INTERNACIONALES", 
-    href: "/perfumes/internacionales",
+    href: "/productos/internacionales",
     description: "Fragancias del mundo"
   },
   { 
     nombre: "ÁRABES", 
-    href: "/perfumes/arabes",
+    href: "/productos/arabes",
     description: "Esencias de oriente"
   },
 ];

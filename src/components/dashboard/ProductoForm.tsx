@@ -3,11 +3,11 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Perfume, FamiliaOlfativa } from "@/types";
+import { Producto, FamiliaOlfativa } from "@/types";
 import CustomSelect from "@/components/ui/CustomSelect";
 
 interface Props {
-  perfume?: Partial<Perfume>;
+  producto?: Partial<Producto>;
   isEdit?: boolean;
 }
 
@@ -17,34 +17,36 @@ const categorias = ["Fragancias", "Cuidados de la Piel", "Bienestar", "Aromatiza
 
 const supabase = createClient();
 
-export default function PerfumeForm({ perfume = {}, isEdit = false }: Props) {
+export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [familias, setFamilias] = useState<FamiliaOlfativa[]>([]);
   const [loadingFamilias, setLoadingFamilias] = useState(true);
+  const [categoriasDb, setCategoriasDb] = useState<{id: string, nombre: string}[]>([]);
 
   const [form, setForm] = useState({
-    nombre: perfume.nombre || "",
-    marca: perfume.marca || "",
-    descripcion: perfume.descripcion || "",
-    descripcion_corta: perfume.descripcion_corta || "",
-    precio_costo: perfume.precio_costo?.toString() || "",
-    precio_venta: perfume.precio_venta?.toString() || "",
-    stock: perfume.stock?.toString() || "0",
-    imagen_url: perfume.imagen_url || "",
-    familia_olfativa_id: perfume.familia_olfativa_id?.toString() || "",
-    genero: perfume.genero || "Unisex",
-    concentracion: perfume.concentracion || "EDP",
-    volumen_ml: perfume.volumen_ml?.toString() || "",
-    categoria: perfume.categoria || "Fragancias",
-    activo: perfume.activo !== undefined ? perfume.activo : true,
-    destacado: perfume.destacado || false,
-    nuevo: perfume.nuevo || false,
-    meta_titulo: perfume.meta_titulo || "",
-    meta_descripcion: perfume.meta_descripcion || "",
-    inspired_in: perfume.inspired_in || "",
+    nombre: producto.nombre || "",
+    marca: producto.marca || "",
+    descripcion: producto.descripcion || "",
+    descripcion_corta: producto.descripcion_corta || "",
+    precio_costo: producto.precio_costo?.toString() || "",
+    precio_venta: producto.precio_venta?.toString() || "",
+    stock: producto.stock?.toString() || "0",
+    imagen_url: producto.imagen_url || "",
+    familia_olfativa_id: producto.familia_olfativa_id?.toString() || "",
+    genero: producto.genero || "Unisex",
+    concentracion: producto.concentracion || "EDP",
+    volumen_ml: producto.volumen_ml?.toString() || "",
+    categoria_id: producto.categoria_id?.toString() || "",
+    categoria_nombre: producto.categoria || "Fragancias", // Para el select inicial
+    activo: producto.activo !== undefined ? producto.activo : true,
+    destacado: producto.destacado || false,
+    nuevo: producto.nuevo || false,
+    meta_titulo: producto.meta_titulo || "",
+    meta_descripcion: producto.meta_descripcion || "",
+    inspired_in: producto.inspired_in || "",
   });
 
   useEffect(() => {
@@ -62,8 +64,27 @@ export default function PerfumeForm({ perfume = {}, isEdit = false }: Props) {
       }
       setLoadingFamilias(false);
     }
+
+    async function fetchCategorias() {
+      const { data, error } = await supabase.from("categorias").select("id, nombre").order("nombre");
+      
+      if (error) {
+        console.error("Error cargando categorías de la DB:", error);
+      } else if (data) {
+        setCategoriasDb(data);
+        // Si estamos editando y no tenemos ID pero sí nombre, buscamos el ID
+        if (producto.categoria && !form.categoria_id) {
+          const found = data.find(c => c.nombre.toLowerCase() === producto.categoria?.toLowerCase());
+          if (found) {
+            setForm(prev => ({ ...prev, categoria_id: found.id }));
+          }
+        }
+      }
+    }
+
     fetchFamilias();
-  }, []);
+    fetchCategorias();
+  }, [producto.id]);
 
   function update(key: string, value: string | boolean) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -87,7 +108,7 @@ export default function PerfumeForm({ perfume = {}, isEdit = false }: Props) {
       genero: form.genero,
       concentracion: form.concentracion || null,
       volumen_ml: form.volumen_ml ? parseInt(form.volumen_ml) : null,
-      categoria: form.categoria,
+      categoria_id: form.categoria_id || null,
       activo: form.activo,
       destacado: form.destacado,
       nuevo: form.nuevo,
@@ -97,10 +118,10 @@ export default function PerfumeForm({ perfume = {}, isEdit = false }: Props) {
     };
 
     let result;
-    if (isEdit && perfume.id) {
-      result = await supabase.from("perfumes").update(payload).eq("id", perfume.id);
+    if (isEdit && producto.id) {
+      result = await supabase.from("productos").update(payload).eq("id", producto.id);
     } else {
-      result = await supabase.from("perfumes").insert(payload);
+      result = await supabase.from("productos").insert(payload);
     }
 
     if (result.error) {
@@ -109,7 +130,7 @@ export default function PerfumeForm({ perfume = {}, isEdit = false }: Props) {
       return;
     }
 
-    setSuccess(isEdit ? "Perfume actualizado correctamente." : "Perfume creado correctamente.");
+    setSuccess(isEdit ? "Producto actualizado correctamente." : "Producto creado correctamente.");
     setTimeout(() => router.push("/dashboard"), 1500);
   }
 
@@ -126,7 +147,7 @@ export default function PerfumeForm({ perfume = {}, isEdit = false }: Props) {
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="mb-8">
         <h1 className="font-serif text-3xl text-white">
-          {isEdit ? "Editar Perfume" : "Nuevo Perfume"}
+          {isEdit ? "Editar Producto" : "Nuevo Producto"}
         </h1>
       </div>
 
@@ -241,9 +262,12 @@ export default function PerfumeForm({ perfume = {}, isEdit = false }: Props) {
             />
             <CustomSelect
               label="Categoría *"
-              value={form.categoria}
-              onChange={(val) => update("categoria", val)}
-              options={categorias.map((c) => ({ value: c, label: c }))}
+              value={form.categoria_id}
+              onChange={(val) => {
+                const name = categoriasDb.find(c => c.id === val)?.nombre || "";
+                setForm(prev => ({ ...prev, categoria_id: val, categoria_nombre: name }));
+              }}
+              options={categoriasDb.map((c) => ({ value: c.id, label: c.nombre }))}
             />
             <div>
               <label className="text-[#888888] text-xs uppercase tracking-widest block mb-1.5">
@@ -398,7 +422,7 @@ export default function PerfumeForm({ perfume = {}, isEdit = false }: Props) {
             disabled={loading}
             className="flex-1 bg-[#D4AF37] text-black font-bold py-4 tracking-widest text-sm uppercase hover:bg-[#E8CC6B] transition-colors disabled:opacity-70"
           >
-            {loading ? "Guardando..." : isEdit ? "Guardar Cambios" : "Crear Perfume"}
+            {loading ? "Guardando..." : isEdit ? "Guardar Cambios" : "Crear Producto"}
           </button>
           <button
             type="button"

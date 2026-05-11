@@ -12,7 +12,7 @@ export interface NotaAromatica {
   descripcion?: string;
 }
 
-export interface Perfume {
+export interface Producto {
   id: string;
   nombre: string;
   marca: string;
@@ -55,7 +55,7 @@ export interface Vendedora {
   updated_at: string;
 }
 
-export interface FiltroPerfumes {
+export interface FiltroProductos {
   genero?: string;
   familia?: number;
   notas?: number[];

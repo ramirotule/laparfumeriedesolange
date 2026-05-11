@@ -1,36 +1,36 @@
 import { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
-import { Perfume } from "@/types";
-import PerfumeGrid from "@/components/perfumes/PerfumeGrid";
+import { Producto } from "@/types";
+import ProductoGrid from "@/components/productos/ProductoGrid";
 import Link from "next/link";
 import Script from "next/script";
 
 export const metadata: Metadata = {
-  title: "Perfumería Árabe en Santa Rosa La Pampa | Oud, Bagues y Fragancias Orientales",
+  title: "Productoría Árabe en Santa Rosa La Pampa | Oud, Bagues y Fragancias Orientales",
   description:
-    "La mejor selección de perfumes árabes en Argentina. Oud, ámbar, rosas árabes y bagues exclusivos disponibles en Santa Rosa, La Pampa. Perfumería árabe con envío gratis.",
+    "La mejor selección de productos árabes en Argentina. Oud, ámbar, rosas árabes y bagues exclusivos disponibles en Santa Rosa, La Pampa. Productoría árabe con envío gratis.",
   keywords: [
-    "perfumería árabe argentina",
-    "perfumes árabes santa rosa la pampa",
+    "productoría árabe argentina",
+    "productos árabes santa rosa la pampa",
     "oud santa rosa",
-    "bagues perfumes argentina",
-    "perfumes orientales argentina",
-    "comprar perfumes arabes argentina",
+    "bagues productos argentina",
+    "productos orientales argentina",
+    "comprar productos arabes argentina",
   ],
   alternates: { canonical: "/arabes" },
 };
 
-async function getPerfumesArabes(): Promise<Perfume[]> {
+async function getProductosArabes(): Promise<Producto[]> {
   try {
     const supabase = await createClient();
     const { data } = await supabase
-      .from("perfumes")
+      .from("productos")
       .select("*, familia_olfativa:familias_olfativas(*)")
       .eq("activo", true)
       .eq("genero", "Árabe")
       .order("destacado", { ascending: false })
       .order("created_at", { ascending: false });
-    return (data as Perfume[]) || [];
+    return (data as Producto[]) || [];
   } catch {
     return [];
   }
@@ -64,17 +64,17 @@ const caracteristicas = [
 ];
 
 export default async function ArabesPage() {
-  const perfumes = await getPerfumesArabes();
+  const productos = await getProductosArabes();
 
-  // JSON-LD específico para búsquedas locales de perfumería árabe
+  // JSON-LD específico para búsquedas locales de productoría árabe
   const localSchema = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: "Perfumes Árabes - La Parfumerie de Solange",
+    name: "Productos Árabes - La Parfumerie de Solange",
     description:
-      "Colección de perfumes árabes: Oud, Bagues y fragancias orientales disponibles en Santa Rosa, La Pampa, Argentina.",
-    numberOfItems: perfumes.length,
-    itemListElement: perfumes.slice(0, 10).map((p, i) => ({
+      "Colección de productos árabes: Oud, Bagues y fragancias orientales disponibles en Santa Rosa, La Pampa, Argentina.",
+    numberOfItems: productos.length,
+    itemListElement: productos.slice(0, 10).map((p, i) => ({
       "@type": "ListItem",
       position: i + 1,
       item: {
@@ -117,7 +117,7 @@ export default async function ArabesPage() {
             La Parfumerie de Solange
           </p>
           <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl text-white mb-6 leading-none">
-            Perfumería
+            Productoría
             <span className="block text-[#D4AF37]">Árabe</span>
           </h1>
           <p className="text-gray-500 text-lg md:text-xl max-w-2xl mx-auto mb-3 leading-relaxed">
@@ -125,7 +125,7 @@ export default async function ArabesPage() {
             Fragancias de oud, ámbar y rosas árabes que perduran en el tiempo.
           </p>
           <p className="text-[#D4AF37] text-sm font-semibold mb-10">
-            Perfumería Árabe disponible en Argentina · Santa Rosa, La Pampa
+            Productoría Árabe disponible en Argentina · Santa Rosa, La Pampa
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
@@ -135,7 +135,7 @@ export default async function ArabesPage() {
               Ver Colección
             </a>
             <a
-              href="https://wa.me/5492954808202?text=Hola!%20Me%20interesan%20los%20perfumes%20%C3%A1rabes"
+              href="https://wa.me/5492954808202?text=Hola!%20Me%20interesan%20los%20productos%20%C3%A1rabes"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 border border-[#D4AF37]/60 text-[#D4AF37] font-semibold px-8 py-4 text-sm hover:bg-[#D4AF37]/10 transition-colors"
@@ -175,23 +175,23 @@ export default async function ArabesPage() {
             Colección exclusiva
           </p>
           <h2 className="font-serif text-3xl md:text-4xl text-white mb-4">
-            Nuestros Perfumes Árabes
+            Nuestros Productos Árabes
           </h2>
           <p className="text-gray-500 max-w-xl mx-auto text-sm">
-            Todos los perfumes disponibles en tienda física en Ayala 604, Santa Rosa, La Pampa.
+            Todos los productos disponibles en tienda física en Ayala 604, Santa Rosa, La Pampa.
             Consultas por WhatsApp.
           </p>
         </div>
 
-        <PerfumeGrid
-          perfumes={perfumes}
+        <ProductoGrid
+          productos={productos}
           emptyMessage="Pronto tendremos nuevas fragancias árabes disponibles. Consultanos por WhatsApp."
         />
 
-        {perfumes.length === 0 && (
+        {productos.length === 0 && (
           <div className="text-center mt-8">
             <a
-              href="https://wa.me/5492954808202?text=Hola!%20Me%20interesan%20los%20perfumes%20%C3%A1rabes.%20%C2%BFQu%C3%A9%20tienen%20disponible?"
+              href="https://wa.me/5492954808202?text=Hola!%20Me%20interesan%20los%20productos%20%C3%A1rabes.%20%C2%BFQu%C3%A9%20tienen%20disponible?"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-[#D4AF37] text-black font-bold px-8 py-4 text-sm uppercase tracking-wider hover:bg-[#E8CC6B] transition-colors"
@@ -207,23 +207,23 @@ export default async function ArabesPage() {
       <section className="bg-[#0D0D0D] border-t border-[#1A1A1A] py-16">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="font-serif text-2xl text-white mb-6">
-            La Perfumería Árabe en Argentina: Una Experiencia Única
+            La Productoría Árabe en Argentina: Una Experiencia Única
           </h2>
           <div className="space-y-4 text-gray-500 text-sm leading-relaxed">
             <p>
-              La perfumería árabe tiene una tradición de más de 5.000 años. El <strong className="text-[#cccccc]">oud</strong>,
-              conocido como el &quot;oro negro&quot; de la perfumería, es una de las materias primas más valiosas del mundo.
-              En La Parfumerie de Solange, traemos lo mejor de la perfumería árabe directamente a{" "}
+              La productoría árabe tiene una tradición de más de 5.000 años. El <strong className="text-[#cccccc]">oud</strong>,
+              conocido como el &quot;oro negro&quot; de la productoría, es una de las materias primas más valiosas del mundo.
+              En La Parfumerie de Solange, traemos lo mejor de la productoría árabe directamente a{" "}
               <strong className="text-[#cccccc]">Santa Rosa, La Pampa</strong>.
             </p>
             <p>
               Nuestros <strong className="text-[#cccccc]">bagues árabes</strong> son piezas doradas que
               contienen aceites puros de oud, almizcle y resinas orientales. A diferencia de los
-              perfumes occidentales, los aceites árabes no contienen alcohol, lo que los hace más
+              productos occidentales, los aceites árabes no contienen alcohol, lo que los hace más
               persistentes y adecuados para todo tipo de pieles.
             </p>
             <p>
-              Somos una de las pocas perfumerías en <strong className="text-[#cccccc]">La Pampa</strong>{" "}
+              Somos una de las pocas productorías en <strong className="text-[#cccccc]">La Pampa</strong>{" "}
               que ofrece una selección curada de fragancias árabes auténticas. Visitanos en{" "}
               <strong className="text-white">Ayala 604, Santa Rosa</strong>, o consultá por WhatsApp
               para conocer toda la disponibilidad de stock.
@@ -231,10 +231,10 @@ export default async function ArabesPage() {
           </div>
           <div className="mt-8">
             <Link
-              href="/perfumes"
+              href="/productos"
               className="text-[#D4AF37] text-sm hover:text-[#E8CC6B] transition-colors"
             >
-              Ver todo el catálogo de perfumes →
+              Ver todo el catálogo de productos →
             </Link>
           </div>
         </div>

@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import CatalogView from "@/components/perfumes/CatalogView";
+import CatalogView from "@/components/productos/CatalogView";
 
 interface SearchParams {
   genero?: string;
@@ -17,11 +17,11 @@ interface SearchParams {
 }
 
 export const metadata: Metadata = {
-  title: "Catálogo de Perfumes de Lujo en Santa Rosa, La Pampa",
+  title: "Catálogo de Productos de Lujo en Santa Rosa, La Pampa",
   description:
-    "Explorá nuestro catálogo completo de perfumes de lujo. Femeninos, masculinos, unisex y árabes. Envío gratis en Santa Rosa, La Pampa. Visitanos en Ayala 604.",
+    "Explorá nuestro catálogo completo de productos de lujo. Femeninos, masculinos, unisex y árabes. Envío gratis en Santa Rosa, La Pampa. Visitanos en Ayala 604.",
   alternates: {
-    canonical: "/perfumes",
+    canonical: "/productos",
   },
 };
 

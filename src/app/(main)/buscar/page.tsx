@@ -1,27 +1,27 @@
 import { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
-import { Perfume, NotaAromatica, FamiliaOlfativa } from "@/types";
-import PerfumeGrid from "@/components/perfumes/PerfumeGrid";
+import { Producto, NotaAromatica, FamiliaOlfativa } from "@/types";
+import ProductoGrid from "@/components/productos/ProductoGrid";
 import BuscarNotasClient from "@/components/buscar/BuscarNotasClient";
 import BuscarAcordesClient from "@/components/buscar/BuscarAcordesClient";
 
 export const metadata: Metadata = {
-  title: "Buscar Perfumes | La Parfumerie de Solange",
-  description: "Buscá entre toda nuestra colección de perfumes de lujo en Santa Rosa, La Pampa.",
+  title: "Buscar Productos | La Parfumerie de Solange",
+  description: "Buscá entre toda nuestra colección de productos de lujo en Santa Rosa, La Pampa.",
 };
 
-async function buscarPerfumes(q: string): Promise<Perfume[]> {
+async function buscarProductos(q: string): Promise<Producto[]> {
   if (!q || q.length < 2) return [];
   try {
     const supabase = await createClient();
     const { data } = await supabase
-      .from("perfumes")
+      .from("productos")
       .select("*, familia_olfativa:familias_olfativas(*)")
       .eq("activo", true)
       .or(`nombre.ilike.%${q}%,marca.ilike.%${q}%,descripcion.ilike.%${q}%,genero.ilike.%${q}%`)
       .order("destacado", { ascending: false })
       .limit(50);
-    return (data as Perfume[]) || [];
+    return (data as Producto[]) || [];
   } catch {
     return [];
   }
@@ -96,7 +96,7 @@ export default async function BuscarPage({
   }
 
   // — Búsqueda por texto (comportamiento original) —
-  const perfumes = await buscarPerfumes(q || "");
+  const productos = await buscarProductos(q || "");
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -107,19 +107,19 @@ export default async function BuscarPage({
       {q && q.length >= 2 ? (
         <>
           <p className="text-[#888888] text-sm mb-8">
-            {perfumes.length > 0
-              ? `${perfumes.length} resultado${perfumes.length !== 1 ? "s" : ""} para: "${q.toUpperCase()}"`
+            {productos.length > 0
+              ? `${productos.length} resultado${productos.length !== 1 ? "s" : ""} para: "${q.toUpperCase()}"`
               : `Sin resultados para: "${q.toUpperCase()}"`}
           </p>
-          <PerfumeGrid
-            perfumes={perfumes}
+          <ProductoGrid
+            productos={productos}
             emptyMessage={`No encontramos fragancias para "${q}". Probá con el nombre de la marca o nota olfativa.`}
           />
         </>
       ) : (
         <div className="text-center py-16">
           <div className="text-5xl mb-4 text-[#1A1A1A]">✦</div>
-          <p className="text-[#888888]">Ingresá el nombre de un perfume, marca o nota olfativa.</p>
+          <p className="text-[#888888]">Ingresá el nombre de un producto, marca o nota olfativa.</p>
         </div>
       )}
     </div>

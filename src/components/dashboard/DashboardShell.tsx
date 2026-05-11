@@ -16,6 +16,10 @@ import {
   X,
   ShoppingBag,
   Bell,
+  Cake,
+  Trash2,
+  ChevronRight,
+  Info
 } from "lucide-react";
 
 const NAV = [
@@ -71,23 +75,60 @@ export default function DashboardShell({ user, nombreCompleto, children }: Props
   const router = useRouter();
   const supabase = createClient();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [pendingOrders, setPendingOrders] = useState(0);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [pendingOrders, setPendingOrders] = useState<any[]>([]);
+  const [birthdays, setBirthdays] = useState<any[]>([]);
+  const [dismissedIds, setDismissedIds] = useState<string[]>([]);
 
-  // Fetch pending orders count
+  // Cargar notificaciones descartadas del localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem("dismissed_notifications");
+    if (saved) setDismissedIds(JSON.parse(saved));
+  }, []);
+
+  const dismissNotification = (id: string) => {
+    const updated = [...dismissedIds, id];
+    setDismissedIds(updated);
+    localStorage.setItem("dismissed_notifications", JSON.stringify(updated));
+  };
+
+  // Fetch pending orders and birthdays
   useEffect(() => {
     const fetchPending = async () => {
-      const { count } = await supabase
+      const { data } = await supabase
         .from("pedidos")
-        .select("*", { count: "exact", head: true })
-        .eq("estado", "pendiente");
-      setPendingOrders(count || 0);
+        .select("*")
+        .eq("estado", "pendiente")
+        .order("created_at", { ascending: false });
+      setPendingOrders(data || []);
+    };
+
+    const fetchBirthdays = async () => {
+      const today = new Date();
+      const month = today.getMonth() + 1;
+      const day = today.getDate();
+      
+      const { data } = await supabase
+        .from("vendedoras")
+        .select("id, nombre, apellido, fecha_nacimiento")
+        .eq("activo", true);
+      
+      if (data) {
+        const todayBirthdays = data.filter(v => {
+          if (!v.fecha_nacimiento) return false;
+          const bday = new Date(v.fecha_nacimiento);
+          return (bday.getUTCMonth() + 1) === month && bday.getUTCDate() === day;
+        });
+        setBirthdays(todayBirthdays);
+      }
     };
 
     fetchPending();
+    fetchBirthdays();
 
     // Subscribe to changes
     const channel = supabase
-      .channel("pedidos_count")
+      .channel("dashboard_notifications")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "pedidos" },
@@ -95,8 +136,16 @@ export default function DashboardShell({ user, nombreCompleto, children }: Props
       )
       .subscribe();
 
+    // Escuchar evento manual de refresco
+    const handleManualRefresh = () => {
+      fetchPending();
+      fetchBirthdays();
+    };
+    window.addEventListener('refresh-orders-count', handleManualRefresh);
+
     return () => {
       supabase.removeChannel(channel);
+      window.removeEventListener('refresh-orders-count', handleManualRefresh);
     };
   }, [supabase]);
 
@@ -220,22 +269,19 @@ export default function DashboardShell({ user, nombreCompleto, children }: Props
 
           <div className="flex items-center gap-4 ml-auto md:ml-0">
             {/* Campanita de Notificaciones */}
-            <Link 
-              href="/dashboard/pedidos" 
+            <button
+              onClick={() => setNotificationsOpen(true)}
               className="relative p-2 text-[#888888] hover:text-[#D4AF37] transition-colors group"
             >
-              <Bell size={20} className={pendingOrders > 0 ? "animate-pulse" : ""} />
-              {pendingOrders > 0 && (
+              <Bell size={20} className={(pendingOrders.length + birthdays.length) > 0 ? "animate-pulse" : ""} />
+              {(pendingOrders.filter(o => !dismissedIds.includes(o.id)).length + 
+                birthdays.filter(b => !dismissedIds.includes(`bday-${b.id}`)).length) > 0 && (
                 <span className="absolute top-1 right-1 w-4 h-4 bg-red-600 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-black">
-                  {pendingOrders}
+                  {pendingOrders.filter(o => !dismissedIds.includes(o.id)).length + 
+                   birthdays.filter(b => !dismissedIds.includes(`bday-${b.id}`)).length}
                 </span>
               )}
-              
-              {/* Tooltip simple */}
-              <span className="absolute top-full right-0 mt-2 bg-[#1A1A1A] text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 border border-[#2D2D2D]">
-                {pendingOrders} {pendingOrders === 1 ? 'pedido pendiente' : 'pedidos pendientes'}
-              </span>
-            </Link>
+            </button>
 
             {/* Logout */}
             <button
@@ -252,6 +298,144 @@ export default function DashboardShell({ user, nombreCompleto, children }: Props
         <main className="flex-1 p-4 sm:p-6 lg:p-8">
           {children}
         </main>
+
+        {/* CENTRO DE NOTIFICACIONES (Slide-over) */}
+        {notificationsOpen && (
+          <div className="fixed inset-0 z-[100] overflow-hidden">
+            <div 
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" 
+              onClick={() => setNotificationsOpen(false)} 
+            />
+            
+            <div className="absolute inset-y-0 right-0 max-w-full flex">
+              <div className="w-screen max-w-md transform transition-transform duration-300 ease-in-out bg-[#0D0D0D] border-l border-[#1A1A1A] shadow-2xl flex flex-col">
+                {/* Header */}
+                <div className="px-6 py-5 border-b border-[#1A1A1A] flex items-center justify-between bg-black">
+                  <div>
+                    <h2 className="text-white font-bold text-base tracking-widest uppercase flex items-center gap-2">
+                      <Bell size={18} className="text-[#D4AF37]" />
+                      Centro de Novedades
+                    </h2>
+                    <p className="text-[#555555] text-[10px] uppercase tracking-widest mt-0.5">
+                      Panel de control administrativo
+                    </p>
+                  </div>
+                  <button 
+                    onClick={() => setNotificationsOpen(false)}
+                    className="p-2 text-[#555555] hover:text-white transition-colors"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                  {/* Cumpleaños */}
+                  {birthdays.length > 0 && (
+                    <div className="space-y-3">
+                      <h3 className="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] uppercase flex items-center gap-2">
+                        <Cake size={12} /> Cumpleaños de hoy
+                      </h3>
+                      <div className="space-y-2">
+                        {birthdays.map(b => (
+                          !dismissedIds.includes(`bday-${b.id}`) && (
+                            <div key={`bday-${b.id}`} className="bg-black/40 border border-[#2D2D2D] p-4 rounded group relative">
+                              <div className="flex items-start justify-between gap-4">
+                                <div className="flex gap-3">
+                                  <div className="mt-1 w-8 h-8 rounded-full bg-pink-500/10 flex items-center justify-center text-pink-500">
+                                    <Cake size={16} />
+                                  </div>
+                                  <div>
+                                    <p className="text-white text-sm font-medium">¡Hoy cumple {b.nombre}!</p>
+                                    <p className="text-[#888888] text-xs mt-0.5">No olvides saludar a {b.nombre} {b.apellido} en su día.</p>
+                                  </div>
+                                </div>
+                                <button 
+                                  onClick={() => dismissNotification(`bday-${b.id}`)}
+                                  className="text-[#333333] hover:text-white transition-colors"
+                                  title="Ocultar"
+                                >
+                                  <X size={14} />
+                                </button>
+                              </div>
+                            </div>
+                          )
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Pedidos */}
+                  <div className="space-y-3">
+                    <h3 className="text-[#555555] text-[10px] font-bold tracking-[0.2em] uppercase flex items-center gap-2">
+                      <ShoppingBag size={12} /> Pedidos Pendientes
+                    </h3>
+                    <div className="space-y-2">
+                      {pendingOrders.length === 0 ? (
+                        <div className="bg-[#111111]/30 border border-dashed border-[#2D2D2D] p-8 text-center rounded">
+                          <ShoppingBag size={24} className="mx-auto mb-2 text-[#2D2D2D]" />
+                          <p className="text-[#555555] text-xs">No hay pedidos pendientes por procesar.</p>
+                        </div>
+                      ) : (
+                        pendingOrders.map(order => (
+                          !dismissedIds.includes(order.id) && (
+                            <div key={order.id} className="bg-black/40 border border-[#2D2D2D] p-4 rounded hover:border-[#D4AF37]/30 transition-all group relative">
+                              <div className="flex items-start justify-between gap-4">
+                                <div className="flex gap-3">
+                                  <div className="mt-1 w-8 h-8 rounded-full bg-[#D4AF37]/10 flex items-center justify-center text-[#D4AF37]">
+                                    <ShoppingBag size={16} />
+                                  </div>
+                                  <div>
+                                    <p className="text-white text-sm font-medium">Pedido #{order.numero_pedido}</p>
+                                    <p className="text-[#888888] text-xs mt-0.5">Monto total: <span className="text-[#D4AF37]">${order.total.toLocaleString()}</span></p>
+                                    <p className="text-[#555555] text-[10px] mt-2 italic">Hacé clic para gestionar</p>
+                                  </div>
+                                </div>
+                                <div className="flex flex-col items-end gap-2">
+                                  <button 
+                                    onClick={() => dismissNotification(order.id)}
+                                    className="text-[#333333] hover:text-white transition-colors"
+                                    title="Descartar aviso"
+                                  >
+                                    <X size={14} />
+                                  </button>
+                                  <Link 
+                                    href="/dashboard/pedidos"
+                                    onClick={() => setNotificationsOpen(false)}
+                                    className="text-[#555555] hover:text-[#D4AF37] transition-colors"
+                                  >
+                                    <ChevronRight size={18} />
+                                  </Link>
+                                </div>
+                              </div>
+                            </div>
+                          )
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div className="p-6 border-t border-[#1A1A1A] bg-black">
+                  <button 
+                    onClick={() => {
+                      const allIds = [
+                        ...pendingOrders.map(o => o.id),
+                        ...birthdays.map(b => `bday-${b.id}`)
+                      ];
+                      setDismissedIds(allIds);
+                      localStorage.setItem("dismissed_notifications", JSON.stringify(allIds));
+                    }}
+                    className="w-full py-3 border border-[#2D2D2D] text-[#888888] hover:text-white hover:border-[#D4AF37] transition-all text-xs uppercase tracking-[0.2em] font-bold"
+                  >
+                    Marcar todas como leídas
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

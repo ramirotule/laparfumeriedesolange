@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Script from "next/script";
 import { createClient } from "@/lib/supabase/server";
-import { Perfume } from "@/types";
+import { Producto } from "@/types";
 import { ChevronRight, MapPin } from "lucide-react";
 import InstagramIcon from "@/components/ui/InstagramIcon";
 import AddToCartButton from "@/components/cart/AddToCartButton";
@@ -14,13 +14,13 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
-async function getPerfume(slug: string): Promise<Perfume | null> {
+async function getProducto(slug: string): Promise<Producto | null> {
   try {
     const supabase = await createClient();
     const { data } = await supabase
-      .from("perfumes")
+      .from("productos")
       .select(
-        `*, familia_olfativa:familias_olfativas(*), notas:perfume_notas(nota:notas_aromaticas(*))`
+        `*, familia_olfativa:familias_olfativas(*), notas:producto_notas(nota:notas_aromaticas(*))`
       )
       .eq("slug", slug)
       .eq("activo", true)
@@ -29,11 +29,11 @@ async function getPerfume(slug: string): Promise<Perfume | null> {
     if (!data) return null;
 
     // Flatten notas
-    const perfume = {
+    const producto = {
       ...data,
       notas: data.notas?.map((n: { nota: unknown }) => n.nota) || [],
     };
-    return perfume as Perfume;
+    return producto as Producto;
   } catch {
     return null;
   }
@@ -41,65 +41,65 @@ async function getPerfume(slug: string): Promise<Perfume | null> {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const perfume = await getPerfume(slug);
+  const producto = await getProducto(slug);
 
-  if (!perfume) {
-    return { title: "Perfume no encontrado" };
+  if (!producto) {
+    return { title: "Producto no encontrado" };
   }
 
   const titulo =
-    perfume.meta_titulo ||
-    `Perfume ${perfume.nombre} ${perfume.marca} en Santa Rosa | La Parfumerie`;
+    producto.meta_titulo ||
+    `Producto ${producto.nombre} ${producto.marca} en Santa Rosa | La Parfumerie`;
   const descripcion =
-    perfume.meta_descripcion ||
-    `Comprá ${perfume.nombre} de ${perfume.marca} en La Parfumerie, Santa Rosa La Pampa. ${perfume.descripcion_corta || ""} Envío gratis.`;
+    producto.meta_descripcion ||
+    `Comprá ${producto.nombre} de ${producto.marca} en La Parfumerie, Santa Rosa La Pampa. ${producto.descripcion_corta || ""} Envío gratis.`;
 
   return {
     title: titulo,
     description: descripcion,
-    alternates: { canonical: `/perfumes/${slug}` },
+    alternates: { canonical: `/productos/${slug}` },
     openGraph: {
       title: titulo,
       description: descripcion,
-      images: perfume.imagen_url ? [{ url: perfume.imagen_url }] : [],
+      images: producto.imagen_url ? [{ url: producto.imagen_url }] : [],
       type: "website",
     },
   };
 }
 
-export default async function PerfumePage({ params }: Props) {
+export default async function ProductoPage({ params }: Props) {
   const { slug } = await params;
-  const perfume = await getPerfume(slug);
+  const producto = await getProducto(slug);
 
-  if (!perfume) notFound();
+  if (!producto) notFound();
 
   const whatsappMsg = encodeURIComponent(
-    `Hola! Me interesa el perfume *${perfume.nombre}* de *${perfume.marca}*. ¿Tienen stock disponible?`
+    `Hola! Me interesa el producto *${producto.nombre}* de *${producto.marca}*. ¿Tienen stock disponible?`
   );
   const whatsappUrl = `https://wa.me/5492954808202?text=${whatsappMsg}`;
 
-  const notasSalida = perfume.notas?.filter((n) => n.categoria === "salida") || [];
-  const notasCorazon = perfume.notas?.filter((n) => n.categoria === "corazon") || [];
-  const notasFondo = perfume.notas?.filter((n) => n.categoria === "fondo") || [];
+  const notasSalida = producto.notas?.filter((n) => n.categoria === "salida") || [];
+  const notasCorazon = producto.notas?.filter((n) => n.categoria === "corazon") || [];
+  const notasFondo = producto.notas?.filter((n) => n.categoria === "fondo") || [];
 
   // JSON-LD Product schema
   const productSchema = {
     "@context": "https://schema.org",
     "@type": "Product",
-    name: `${perfume.nombre} - ${perfume.marca}`,
-    description: perfume.descripcion,
-    image: perfume.imagen_url || undefined,
+    name: `${producto.nombre} - ${producto.marca}`,
+    description: producto.descripcion,
+    image: producto.imagen_url || undefined,
     brand: {
       "@type": "Brand",
-      name: perfume.marca,
+      name: producto.marca,
     },
     offers: {
       "@type": "Offer",
-      url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://laparfumerie.com.ar"}/perfumes/${slug}`,
+      url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://laparfumerie.com.ar"}/productos/${slug}`,
       priceCurrency: "ARS",
-      price: perfume.precio_venta.toString(),
+      price: producto.precio_venta.toString(),
       availability:
-        perfume.stock > 0
+        producto.stock > 0
           ? "https://schema.org/InStock"
           : "https://schema.org/OutOfStock",
       seller: {
@@ -119,7 +119,7 @@ export default async function PerfumePage({ params }: Props) {
   return (
     <>
       <Script
-        id={`ld-json-product-${perfume.id}`}
+        id={`ld-json-product-${producto.id}`}
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
       />
@@ -129,18 +129,18 @@ export default async function PerfumePage({ params }: Props) {
         <nav className="flex items-center gap-2 text-xs text-gray-400 mb-8">
           <Link href="/" className="hover:text-[#D4AF37] transition-colors">Inicio</Link>
           <ChevronRight size={12} />
-          <Link href="/perfumes" className="hover:text-[#D4AF37] transition-colors">Catálogo</Link>
+          <Link href="/productos" className="hover:text-[#D4AF37] transition-colors">Catálogo</Link>
           <ChevronRight size={12} />
-          <span className="text-gray-500 truncate max-w-[200px]">{perfume.nombre}</span>
+          <span className="text-gray-500 truncate max-w-[200px]">{producto.nombre}</span>
         </nav>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-20">
           {/* Imagen */}
           <div className="relative aspect-square bg-[#0D0D0D] border border-[#1A1A1A]">
-            {perfume.imagen_url ? (
+            {producto.imagen_url ? (
               <Image
-                src={perfume.imagen_url}
-                alt={`Perfume ${perfume.nombre} ${perfume.marca} - ${perfume.genero} - La Parfumerie Santa Rosa La Pampa`}
+                src={producto.imagen_url}
+                alt={`Producto ${producto.nombre} ${producto.marca} - ${producto.genero} - La Parfumerie Santa Rosa La Pampa`}
                 fill
                 sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover"
@@ -150,19 +150,19 @@ export default async function PerfumePage({ params }: Props) {
               <div className="w-full h-full flex items-center justify-center">
                 <div className="text-center">
                   <div className="text-7xl text-gray-50 mb-4">✦</div>
-                  <p className="text-gray-300 text-sm tracking-wider uppercase">{perfume.marca}</p>
+                  <p className="text-gray-300 text-sm tracking-wider uppercase">{producto.marca}</p>
                 </div>
               </div>
             )}
 
             {/* Badges */}
             <div className="absolute top-4 left-4 flex flex-col gap-2">
-              {perfume.nuevo && (
+              {producto.nuevo && (
                 <span className="bg-[#D4AF37] text-black text-xs font-bold tracking-wider px-3 py-1 uppercase">
                   Nuevo
                 </span>
               )}
-              {perfume.genero === "Árabe" && (
+              {producto.genero === "Árabe" && (
                 <span className="bg-black/90 border border-[#D4AF37]/60 text-[#D4AF37] text-xs font-bold tracking-wider px-3 py-1 uppercase">
                   Árabe
                 </span>
@@ -173,32 +173,32 @@ export default async function PerfumePage({ params }: Props) {
           {/* Info */}
           <div className="flex flex-col">
             <p className="text-[#D4AF37] text-xs tracking-[0.3em] uppercase mb-2">
-              {perfume.marca}
+              {producto.marca}
             </p>
             <h1 className="font-serif text-3xl md:text-4xl text-white mb-1 leading-tight">
-              {perfume.nombre}
+              {producto.nombre}
             </h1>
-            {perfume.inspired_in && (
+            {producto.inspired_in && (
               <p className="text-gray-400 italic text-sm mb-4">
-                Inspirado en: <span className="font-medium">{perfume.inspired_in}</span>
+                Inspirado en: <span className="font-medium">{producto.inspired_in}</span>
               </p>
             )}
 
-            {(perfume.volumen_ml || perfume.concentracion) && (
+            {(producto.volumen_ml || producto.concentracion) && (
               <p className="text-gray-500 text-sm mb-4">
-                {perfume.volumen_ml && `${perfume.volumen_ml}ml`}
-                {perfume.volumen_ml && perfume.concentracion && " · "}
-                {perfume.concentracion}
-                {perfume.genero && ` · ${perfume.genero}`}
+                {producto.volumen_ml && `${producto.volumen_ml}ml`}
+                {producto.volumen_ml && producto.concentracion && " · "}
+                {producto.concentracion}
+                {producto.genero && ` · ${producto.genero}`}
               </p>
             )}
 
-            {perfume.familia_olfativa && (
+            {producto.familia_olfativa && (
               <Link
-                href={`/perfumes?familia=${perfume.familia_olfativa.nombre}`}
+                href={`/productos?familia=${producto.familia_olfativa.nombre}`}
                 className="inline-flex w-fit items-center gap-1.5 border border-[#D4AF37]/30 text-[#D4AF37] text-xs px-3 py-1 mb-6 hover:bg-[#D4AF37]/10 transition-colors"
               >
-                {perfume.familia_olfativa.nombre}
+                {producto.familia_olfativa.nombre}
               </Link>
             )}
 
@@ -208,30 +208,30 @@ export default async function PerfumePage({ params }: Props) {
                   Precio de lista
                 </span>
                 <span className="text-[#cccccc] font-medium text-2xl">
-                  {formatPrice(calculateListPrice(perfume.precio_venta))}
+                  {formatPrice(calculateListPrice(producto.precio_venta))}
                 </span>
               </div>
               
               <div className="flex items-center gap-2 text-[#888888] mt-1">
                 <span className="font-semibold text-lg">
-                  3 cuotas sin interés de {formatPrice(calculateInstallment(perfume.precio_venta))}
+                  3 cuotas sin interés de {formatPrice(calculateInstallment(producto.precio_venta))}
                 </span>
               </div>
 
               <div className="mt-6 pt-6 border-t border-[#2D2D2D]">
                 <span className="text-[#888888] text-xs uppercase tracking-widest block mb-2">Precio Especial Contado / Transferencia</span>
                 <span className="text-white font-bold text-5xl block">
-                  {formatPrice(perfume.precio_venta)}
+                  {formatPrice(producto.precio_venta)}
                 </span>
               </div>
             </div>
 
             {/* Stock */}
             <div className="mb-6">
-              {perfume.stock > 0 ? (
+              {producto.stock > 0 ? (
                 <span className="flex items-center gap-1.5 text-green-600 text-sm">
                   <span className="w-2 h-2 bg-green-600 rounded-full" />
-                  En stock ({perfume.stock} disponibles)
+                  En stock ({producto.stock} disponibles)
                 </span>
               ) : (
                 <span className="flex items-center gap-1.5 text-gray-500 text-sm">
@@ -245,14 +245,14 @@ export default async function PerfumePage({ params }: Props) {
             <div className="flex flex-col sm:flex-row gap-3 mb-8">
               <AddToCartButton
                 item={{
-                  id: perfume.id,
-                  nombre: perfume.nombre,
-                  marca: perfume.marca,
-                  slug: perfume.slug,
-                  precio_venta: perfume.precio_venta,
-                  imagen_url: perfume.imagen_url,
+                  id: producto.id,
+                  nombre: producto.nombre,
+                  marca: producto.marca,
+                  slug: producto.slug,
+                  precio_venta: producto.precio_venta,
+                  imagen_url: producto.imagen_url,
                 }}
-                inStock={perfume.stock > 0}
+                inStock={producto.stock > 0}
                 variant="page"
               />
               <a
@@ -260,7 +260,7 @@ export default async function PerfumePage({ params }: Props) {
                 target="_blank"
                 rel="noopener noreferrer"
                 data-umami-event="compra-whatsapp"
-                data-umami-event-perfume={perfume.nombre}
+                data-umami-event-producto={producto.nombre}
                 className="flex items-center justify-center gap-2 border border-[#D4AF37]/40 text-[#D4AF37] font-semibold px-4 py-3.5 text-sm hover:bg-[#D4AF37]/10 transition-colors flex-1 whitespace-nowrap"
               >
                 <img src="/what.png" alt="WhatsApp" className="w-5 h-5 rounded-full object-cover" />
@@ -284,7 +284,7 @@ export default async function PerfumePage({ params }: Props) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
           <div>
             <h2 className="font-serif text-2xl text-white mb-4">Descripción</h2>
-            <p className="text-[#888888] leading-relaxed">{perfume.descripcion}</p>
+            <p className="text-[#888888] leading-relaxed">{producto.descripcion}</p>
           </div>
 
           {/* Pirámide olfativa */}

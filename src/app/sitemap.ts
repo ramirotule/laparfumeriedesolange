@@ -13,7 +13,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1,
     },
     {
-      url: `${baseUrl}/perfumes`,
+      url: `${baseUrl}/productos`,
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 0.9,
@@ -34,19 +34,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     const supabase = await createClient();
-    const { data: perfumes } = await supabase
-      .from("perfumes")
+    const { data: productos } = await supabase
+      .from("productos")
       .select("slug, updated_at")
       .eq("activo", true);
 
-    const perfumeRoutes: MetadataRoute.Sitemap = (perfumes || []).map((p) => ({
-      url: `${baseUrl}/perfumes/${p.slug}`,
+    const productoRoutes: MetadataRoute.Sitemap = (productos || []).map((p) => ({
+      url: `${baseUrl}/productos/${p.slug}`,
       lastModified: new Date(p.updated_at),
       changeFrequency: "weekly" as const,
       priority: 0.8,
     }));
 
-    return [...staticRoutes, ...perfumeRoutes];
+    return [...staticRoutes, ...productoRoutes];
   } catch {
     return staticRoutes;
   }

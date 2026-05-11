@@ -28,7 +28,7 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2">
               {[
-                { label: "Fragancias", href: "/perfumes" },
+                { label: "Fragancias", href: "/productos" },
                 { label: "Bienestar", href: "/bienestar" },
                 { label: "Aromatizantes", href: "/aromatizantes" },
               ].map((item) => (

@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
-import { NotaAromatica, Perfume } from "@/types";
+import { NotaAromatica, Producto } from "@/types";
 
 interface Props {
   notas: NotaAromatica[];
@@ -24,7 +24,7 @@ const COLOR_CATEGORIA: Record<string, string> = {
 
 export default function BuscarNotasClient({ notas }: Props) {
   const [notaSeleccionada, setNotaSeleccionada] = useState<NotaAromatica | null>(null);
-  const [perfumes, setPerfumes] = useState<Perfume[]>([]);
+  const [productos, setProductos] = useState<Producto[]>([]);
   const [cargando, setCargando] = useState(false);
 
   const categorias = ["salida", "corazon", "fondo"] as const;
@@ -32,7 +32,7 @@ export default function BuscarNotasClient({ notas }: Props) {
   async function seleccionarNota(nota: NotaAromatica) {
     if (notaSeleccionada?.id === nota.id) {
       setNotaSeleccionada(null);
-      setPerfumes([]);
+      setProductos([]);
       return;
     }
 
@@ -41,29 +41,29 @@ export default function BuscarNotasClient({ notas }: Props) {
 
     const supabase = createClient();
 
-    // Primero obtenemos los IDs de perfumes que tienen esta nota
+    // Primero obtenemos los IDs de productos que tienen esta nota
     const { data: relaciones } = await supabase
-      .from("perfume_notas")
-      .select("perfume_id")
+      .from("producto_notas")
+      .select("producto_id")
       .eq("nota_id", nota.id);
 
-    const perfumeIds = (relaciones || []).map((r: { perfume_id: string }) => r.perfume_id);
+    const productoIds = (relaciones || []).map((r: { producto_id: string }) => r.producto_id);
 
-    if (perfumeIds.length === 0) {
-      setPerfumes([]);
+    if (productoIds.length === 0) {
+      setProductos([]);
       setCargando(false);
       return;
     }
 
     const { data } = await supabase
-      .from("perfumes")
+      .from("productos")
       .select("*, familia_olfativa:familias_olfativas(*)")
       .eq("activo", true)
-      .in("id", perfumeIds)
+      .in("id", productoIds)
       .order("destacado", { ascending: false })
       .limit(40);
 
-    setPerfumes((data as Perfume[]) || []);
+    setProductos((data as Producto[]) || []);
     setCargando(false);
   }
 
@@ -109,25 +109,25 @@ export default function BuscarNotasClient({ notas }: Props) {
             <p className="text-[#888888] text-sm">
               {cargando
                 ? "Buscando..."
-                : `${perfumes.length} fragancia${perfumes.length !== 1 ? "s" : ""} con nota de `}
+                : `${productos.length} fragancia${productos.length !== 1 ? "s" : ""} con nota de `}
               {!cargando && (
                 <span className="text-[#D4AF37] font-semibold">{notaSeleccionada.nombre}</span>
               )}
             </p>
           </div>
 
-          {!cargando && perfumes.length === 0 && (
+          {!cargando && productos.length === 0 && (
             <p className="text-[#555555] text-sm text-center py-12">
-              No hay perfumes cargados con esta nota aún.
+              No hay productos cargados con esta nota aún.
             </p>
           )}
 
-          {!cargando && perfumes.length > 0 && (
+          {!cargando && productos.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {perfumes.map((p) => (
+              {productos.map((p) => (
                 <Link
                   key={p.id}
-                  href={`/perfumes/${p.slug}`}
+                  href={`/productos/${p.slug}`}
                   className="group bg-[#0D0D0D] border border-[#1A1A1A] hover:border-[#D4AF37]/40 transition-all duration-200 flex flex-col"
                 >
                   <div className="relative aspect-square overflow-hidden bg-[#111111]">

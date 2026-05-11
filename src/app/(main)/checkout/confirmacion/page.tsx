@@ -175,7 +175,7 @@ export default async function ConfirmacionPage({ searchParams }: Props) {
       </a>
 
       <Link
-        href="/perfumes"
+        href="/productos"
         className="flex items-center justify-center gap-2 w-full border border-[#2D2D2D] text-[#888888] hover:text-white hover:border-[#555555] py-3.5 text-sm transition-colors"
       >
         Seguir comprando

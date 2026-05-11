@@ -1,24 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import { Perfume } from "@/types";
-import PerfumeCard from "./PerfumeCard";
+import { Producto } from "@/types";
+import ProductoCard from "./ProductoCard";
 import { LayoutGrid, Grid3X3, Grid2X2 } from "lucide-react";
 
 interface Props {
-  perfumes: Perfume[];
+  productos: Producto[];
   emptyMessage?: string;
 }
 
 type ViewMode = "large" | "standard" | "compact";
 
-export default function PerfumeGrid({
-  perfumes,
-  emptyMessage = "No se encontraron perfumes.",
+export default function ProductoGrid({
+  productos,
+  emptyMessage = "No se encontraron productos.",
 }: Props) {
   const [viewMode, setViewMode] = useState<ViewMode>("standard");
 
-  if (perfumes.length === 0) {
+  if (productos.length === 0) {
     return (
       <div className="text-center py-20">
         <div className="text-5xl mb-4 text-[#2D2D2D]">✦</div>
@@ -82,10 +82,10 @@ export default function PerfumeGrid({
 
       {/* Grid */}
       <div className={`grid transition-all duration-300 ${getGridClasses()}`}>
-        {perfumes.map((perfume) => (
-          <PerfumeCard 
-            key={perfume.id} 
-            perfume={perfume} 
+        {productos.map((producto) => (
+          <ProductoCard 
+            key={producto.id} 
+            producto={producto} 
             isCompact={viewMode === "compact"} 
           />
         ))}

@@ -25,9 +25,9 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: Props) {
   const downloadTemplate = () => {
     const templateData = [
       {
-        nombre: "Ejemplo Perfume",
+        nombre: "Ejemplo Producto",
         marca: "Bagués",
-        descripcion: "Descripción larga del perfume...",
+        descripcion: "Descripción larga del producto...",
         precio_costo: 5000,
         precio_venta: 8500,
         stock: 10,
@@ -143,7 +143,7 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: Props) {
       const batchSize = 20;
       for (let i = 0; i < productosToInsert.length; i += batchSize) {
         const batch = productosToInsert.slice(i, i + batchSize);
-        const { error: insertError } = await supabase.from("perfumes").insert(batch);
+        const { error: insertError } = await supabase.from("productos").insert(batch);
         if (insertError) throw insertError;
       }
 
@@ -170,7 +170,7 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: Props) {
             </div>
             <div>
               <h2 className="text-xl font-serif text-white">Importar Catálogo</h2>
-              <p className="text-[#888888] text-xs">Carga masiva de perfumes desde Excel</p>
+              <p className="text-[#888888] text-xs">Carga masiva de productos desde Excel</p>
             </div>
           </div>
           <button onClick={onClose} className="text-[#555555] hover:text-white transition-colors">
