@@ -562,7 +562,7 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
                       <button
                         key={cat.id}
                         onClick={() => {
-                          bulkUpdateField("categoria_id", cat.id);
+                          bulkUpdateField("categoria", cat.nombre);
                           setMenuBulkAbierto(null);
                         }}
                         className="w-full text-left px-3 py-2 text-[10px] text-[#888888] hover:text-white hover:bg-[#1A1A1A] transition-colors"
