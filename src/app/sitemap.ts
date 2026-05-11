@@ -39,12 +39,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .select("slug, updated_at")
       .eq("activo", true);
 
-    const productoRoutes: MetadataRoute.Sitemap = (productos || []).map((p) => ({
-      url: `${baseUrl}/productos/${p.slug}`,
-      lastModified: new Date(p.updated_at),
-      changeFrequency: "weekly" as const,
-      priority: 0.8,
-    }));
+    const productoRoutes: MetadataRoute.Sitemap = (productos || []).map(
+      (p) => ({
+        url: `${baseUrl}/productos/${p.slug}`,
+        lastModified: new Date(p.updated_at),
+        changeFrequency: "weekly" as const,
+        priority: 0.8,
+      }),
+    );
 
     return [...staticRoutes, ...productoRoutes];
   } catch {

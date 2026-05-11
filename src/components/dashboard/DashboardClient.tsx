@@ -37,7 +37,12 @@ interface Props {
 }
 
 export default function DashboardClient({ productos: initialProductos }: Props) {
-  const [productos, setProductos] = useState<Producto[]>(initialProductos);
+  const [productos, setProductos] = useState<Producto[]>(() => 
+    initialProductos.map(p => ({
+      ...p,
+      categoria: (p as any).categorias?.nombre || p.categoria || "Fragancias"
+    }))
+  );
   const [loading, setLoading] = useState<string | null>(null);
   const [bulkLoading, setBulkLoading] = useState(false);
   const [busqueda, setBusqueda] = useState("");
@@ -54,33 +59,40 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
   const router = useRouter();
   const supabase = createClient();
 
-  const fetchProductos = async () => {
-    setBulkLoading(true);
-    const { data } = await supabase
-      .from("productos")
-      .select("*, familia_olfativa:familias_olfativas(*), categorias(*)")
-      .order("created_at", { ascending: false });
-    
-    if (data) {
-      console.log("Datos crudos de productos:", data[0]); // Para ver si 'categorias' viene bien
-      // Mapeamos para que 'categoria' en el objeto sea el nombre real de la tabla categorias
-      const formattedData = (data as any[]).map(p => ({
+  async function fetchProductos() {
+    try {
+      setBulkLoading(true);
+      // Cargamos categorías y productos en paralelo para máxima eficiencia
+      const [{ data: cats }, { data: prods }] = await Promise.all([
+        supabase.from("categorias").select("id, nombre"),
+        supabase.from("productos").select("*, familia_olfativa:familias_olfativas(*)").order("created_at", { ascending: false })
+      ]);
+
+      if (!prods) return;
+
+      const catMap = new Map(cats?.map(c => [c.id.toString(), c.nombre]) || []);
+
+      const formattedData = (prods as any[]).map(p => ({
         ...p,
-        categoria: p.categorias?.nombre || "Sin categoría" 
+        categoria: p.categoria_id ? (catMap.get(p.categoria_id.toString()) || "Fragancias") : (p.categoria || "Fragancias")
       }));
+
       setProductos(formattedData as Producto[]);
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+    } finally {
+      setBulkLoading(false);
     }
-    setBulkLoading(false);
-  };
+  }
 
   const fetchCategorias = async () => {
     const { data } = await supabase.from("categorias").select("id, nombre");
     if (data) setCategoriasDb(data);
   };
 
-  // Cargar categorías al inicio
   useEffect(() => {
     fetchCategorias();
+    fetchProductos(); // Aseguramos que la data inicial esté bien mapeada
   }, []);
 
   // Cálculos de estadísticas en tiempo real
@@ -524,7 +536,9 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
                     <td className="px-4 py-3 text-[#888888] text-xs hidden lg:table-cell">
                       {producto.categoria || "Fragancias"}
                     </td>
-                    <td className="px-4 py-3 text-[#888888] text-xs hidden sm:table-cell">{producto.genero}</td>
+                    <td className="px-4 py-3 text-[#888888] text-xs hidden sm:table-cell">
+                      {(producto.categoria?.toLowerCase() === "fragancias" || !producto.categoria) ? producto.genero : "—"}
+                    </td>
                     <td className="px-4 py-3 text-right text-[#888888]">
                       {producto.precio_costo ? `$${producto.precio_costo.toLocaleString("es-AR")}` : "—"}
                     </td>

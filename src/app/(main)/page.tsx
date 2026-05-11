@@ -111,11 +111,11 @@ export default async function HomePage() {
           </h1>
           <p className="text-gray-500 text-lg md:text-xl max-w-2xl mx-auto mb-4 leading-relaxed">
             Fragancias exclusivas que narran historias únicas. <br />
-            Productoría que vino a desbloquear el lujo en el corazón de Santa
+            Perfumería que vino a desbloquear el lujo en el corazón de Santa
             Rosa.
           </p>
           <div className="flex items-center justify-center gap-2 text-[#D4AF37] text-sm font-semibold mb-10 tracking-wider uppercase">
-            <span>✦ Más de 20 años en el rubro ✦</span>
+            <span>✦ Más de 25 años en el rubro ✦</span>
           </div>
         </div>
       </section>

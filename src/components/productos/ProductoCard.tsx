@@ -95,7 +95,7 @@ export default function ProductoCard({ producto, isCompact = false }: Props) {
         {/* Género badge */}
         <div className="absolute top-2 right-2">
           <span className="bg-black/60 border border-[#1A1A1A] text-gray-300 text-[9px] tracking-wider px-2 py-0.5 uppercase backdrop-blur-sm">
-            {producto.genero}
+            {(producto.categoria?.toLowerCase() === "fragancias" || !producto.categoria) ? producto.genero : "—"}
           </span>
         </div>
       </Link>

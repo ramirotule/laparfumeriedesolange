@@ -258,7 +258,9 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: Props) {
                         <td className="px-3 py-2 text-[#D4AF37]">{item.categoria || "Fragancias"}</td>
                         <td className="px-3 py-2">{item.marca}</td>
                         <td className="px-3 py-2 text-right">${item.precio_venta}</td>
-                        <td className="px-3 py-2">{item.genero}</td>
+                        <td className="px-3 py-2">
+                          {(String(item.categoria || "Fragancias").toLowerCase() === "fragancias") ? item.genero : "—"}
+                        </td>
                       </tr>
                     ))}
                   </tbody>

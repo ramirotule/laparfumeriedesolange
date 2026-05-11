@@ -12,7 +12,7 @@ export default function NewsletterModal() {
   useEffect(() => {
     // Check if the user has already seen or dismissed the modal
     const hasSeenNewsletter = localStorage.getItem("newsletter-dismissed");
-    
+
     if (!hasSeenNewsletter) {
       const timer = setTimeout(() => {
         setIsVisible(true);
@@ -44,20 +44,23 @@ export default function NewsletterModal() {
   if (!isVisible) return null;
 
   return (
-    <div className={`fixed inset-0 z-[200] flex items-center justify-center p-4 transition-opacity duration-300 ${isClosing ? 'opacity-0' : 'opacity-100'}`}>
+    <div
+      className={`fixed inset-0 z-[200] flex items-center justify-center p-4 transition-opacity duration-300 ${isClosing ? "opacity-0" : "opacity-100"}`}
+    >
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/70 backdrop-blur-md"
         onClick={handleClose}
       />
-      
+
       {/* Modal Container */}
-      <div className={`relative bg-zinc-900 border border-gold/30 w-full max-w-lg overflow-hidden shadow-[0_0_50px_rgba(212,175,55,0.15)] transition-all duration-500 transform ${isClosing ? 'scale-95 opacity-0' : 'scale-100 opacity-100'}`}>
-        
+      <div
+        className={`relative bg-zinc-900 border border-gold/30 w-full max-w-lg overflow-hidden shadow-[0_0_50px_rgba(212,175,55,0.15)] transition-all duration-500 transform ${isClosing ? "scale-95 opacity-0" : "scale-100 opacity-100"}`}
+      >
         {/* Decorative Gold Line */}
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-gold to-transparent" />
 
-        <button 
+        <button
           onClick={handleClose}
           className="absolute top-4 right-4 text-zinc-500 hover:text-gold transition-colors z-10"
           aria-label="Cerrar"
@@ -73,13 +76,14 @@ export default function NewsletterModal() {
                   <Mail className="text-gold" size={32} />
                 </div>
               </div>
-              
+
               <div className="space-y-2">
                 <h2 className="text-3xl md:text-4xl font-serif text-white tracking-tight">
                   Unite a la <span className="text-gold">Elite</span>
                 </h2>
                 <p className="text-zinc-400 text-sm md:text-base max-w-xs mx-auto">
-                  Suscribite para recibir lanzamientos exclusivos, ofertas privadas y novedades del mundo de la alta productoría.
+                  Suscribite para recibir lanzamientos exclusivos, ofertas
+                  privadas y novedades del mundo de la alta perfumería.
                 </p>
               </div>
 

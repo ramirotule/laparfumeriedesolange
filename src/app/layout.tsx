@@ -8,7 +8,7 @@ import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || "https://laparfumerie.com.ar"
+    process.env.NEXT_PUBLIC_SITE_URL || "https://laparfumerie.com.ar",
   ),
   icons: {
     icon: [
@@ -23,18 +23,18 @@ export const metadata: Metadata = {
     ],
   },
   title: {
-    default: "La Parfumerie de Solange | Productoría de Lujo en Santa Rosa, La Pampa",
+    default: "La Parfumerie de Solange de Lujo en Santa Rosa, La Pampa",
     template: "%s | La Parfumerie de Solange",
   },
   description:
-    "Productoría de lujo en Santa Rosa, La Pampa. Fragancias exclusivas: Femeninas, Masculinas, Unisex y Árabes. Envío gratis dentro de Santa Rosa. Visitanos en Ayala 604.",
+    "Perfumumería de lujo en Santa Rosa, La Pampa. Fragancias exclusivas: Femeninas, Masculinas, Unisex y Árabes. Envío gratis dentro de Santa Rosa. Visitanos en Ayala 604.",
   keywords: [
-    "productoría santa rosa la pampa",
-    "productos de lujo argentina",
-    "productos árabes santa rosa",
-    "comprar productos santa rosa",
+    "perfumes santa rosa la pampa",
+    "perfumes de lujo argentina",
+    "perfumes árabes santa rosa",
+    "comprar perfumes santa rosa",
     "La Parfumerie de Solange",
-    "productoría Ayala 604",
+    "perfumería Ayala 604",
   ],
   authors: [{ name: "La Parfumerie de Solange" }],
   creator: "La Parfumerie de Solange",
@@ -43,14 +43,14 @@ export const metadata: Metadata = {
     locale: "es_AR",
     url: process.env.NEXT_PUBLIC_SITE_URL || "https://laparfumerie.com.ar",
     siteName: "La Parfumerie de Solange",
-    title: "La Parfumerie de Solange | Productoría de Lujo en Santa Rosa, La Pampa",
+    title: "La Parfumerie de Solange de Lujo en Santa Rosa, La Pampa",
     description:
       "Fragancias exclusivas para quienes buscan lo mejor. Envío gratis en Santa Rosa.",
   },
   twitter: {
     card: "summary_large_image",
     title: "La Parfumerie de Solange",
-    description: "Productoría de lujo en Santa Rosa, La Pampa.",
+    description: "Perfumería de lujo en Santa Rosa, La Pampa.",
   },
   robots: {
     index: true,
@@ -65,8 +65,6 @@ export const metadata: Metadata = {
   },
 };
 
-
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -74,8 +72,7 @@ export default function RootLayout({
 }>) {
   const umamiId = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID;
   const umamiUrl =
-    process.env.NEXT_PUBLIC_UMAMI_URL ||
-    "https://analytics.umami.is/script.js";
+    process.env.NEXT_PUBLIC_UMAMI_URL || "https://analytics.umami.is/script.js";
 
   return (
     <html lang="es-AR" className="h-full dark" suppressHydrationWarning>
@@ -89,8 +86,10 @@ export default function RootLayout({
               "@type": "LocalBusiness",
               name: "La Parfumerie de Solange",
               description:
-                "Productoría de lujo en Santa Rosa, La Pampa, Argentina.",
-              url: process.env.NEXT_PUBLIC_SITE_URL || "https://laparfumerie.com.ar",
+                "Perfumería de lujo en Santa Rosa, La Pampa, Argentina.",
+              url:
+                process.env.NEXT_PUBLIC_SITE_URL ||
+                "https://laparfumerie.com.ar",
               telephone: "+542954808202",
               address: {
                 "@type": "PostalAddress",
@@ -105,28 +104,25 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body 
-        className="min-h-full flex flex-col bg-black text-white antialiased transition-colors duration-300"
-      >
-
-          <Suspense>
-            <ScrollToTop />
-          </Suspense>
-          {children}
-          <Toaster 
-            position="top-center"
-            toastOptions={{
-              duration: 3000,
-              style: {
-                background: '#0D0D0D',
-                color: '#fff',
-                border: '1px solid #1A1A1A',
-                fontSize: '14px',
-                padding: '12px 24px',
-                borderRadius: '0px'
-              },
-            }}
-          />
+      <body className="min-h-full flex flex-col bg-black text-white antialiased transition-colors duration-300">
+        <Suspense>
+          <ScrollToTop />
+        </Suspense>
+        {children}
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            duration: 3000,
+            style: {
+              background: "#0D0D0D",
+              color: "#fff",
+              border: "1px solid #1A1A1A",
+              fontSize: "14px",
+              padding: "12px 24px",
+              borderRadius: "0px",
+            },
+          }}
+        />
 
         {umamiId && (
           <Script

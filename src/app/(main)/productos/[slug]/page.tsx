@@ -20,7 +20,7 @@ async function getProducto(slug: string): Promise<Producto | null> {
     const { data } = await supabase
       .from("productos")
       .select(
-        `*, familia_olfativa:familias_olfativas(*), notas:producto_notas(nota:notas_aromaticas(*))`
+        `*, familia_olfativa:familias_olfativas(*), categorias(*), notas:producto_notas(nota:notas_aromaticas(*))`
       )
       .eq("slug", slug)
       .eq("activo", true)
@@ -32,6 +32,7 @@ async function getProducto(slug: string): Promise<Producto | null> {
     const producto = {
       ...data,
       notas: data.notas?.map((n: { nota: unknown }) => n.nota) || [],
+      categoria: data.categorias?.nombre || data.categoria || "Fragancias"
     };
     return producto as Producto;
   } catch {
@@ -189,7 +190,7 @@ export default async function ProductoPage({ params }: Props) {
                 {producto.volumen_ml && `${producto.volumen_ml}ml`}
                 {producto.volumen_ml && producto.concentracion && " · "}
                 {producto.concentracion}
-                {producto.genero && ` · ${producto.genero}`}
+                {((producto.categoria?.toLowerCase() === "fragancias" || !producto.categoria) && producto.genero) && ` · ${producto.genero}`}
               </p>
             )}
 
