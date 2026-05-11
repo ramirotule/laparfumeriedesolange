@@ -235,7 +235,7 @@ export default function OrdersClient({ initialOrders }: Props) {
                           onChange={(val) => updateStatus(order.id, val)}
                           options={ESTADOS.map(e => ({ value: e.value, label: e.label }))}
                           placeholder="Cambiar estado"
-                          disabled={loadingId === order.id}
+                          loading={loadingId === order.id}
                         />
                       </div>
                       <button
