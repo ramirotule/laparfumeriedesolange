@@ -50,6 +50,7 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
   const [listarTodo, setListarTodo] = useState<boolean>(false);
   const [menuBulkAbierto, setMenuBulkAbierto] = useState<"categoria" | "genero" | null>(null);
   const [categoriasDb, setCategoriasDb] = useState<{id: string, nombre: string}[]>([]);
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
   const router = useRouter();
   const supabase = createClient();
 
@@ -221,6 +222,14 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
     XLSX.writeFile(wb, `export_productos_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
+  const handleSort = (key: string) => {
+    let direction: "asc" | "desc" = "asc";
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
+
   function confirmarEliminar(id: string, nombre: string) {
     setDeleteModal({ isOpen: true, id, nombre });
   }
@@ -242,13 +251,29 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
       p.marca.toLowerCase().includes(busqueda.toLowerCase());
     
     // 2. Filtro por categoría
-    // Si listarTodo es true, mostramos todos.
-    // Si es false, comparamos la categoría. 
-    // Si p.categoria no existe, asumimos "Fragancias" para compatibilidad (ya que el sitio empezó como productoría).
     const cat = p.categoria || "Fragancias";
     const matchesCategoria = listarTodo || cat === categoriaFiltrada;
 
     return matchesBusqueda && matchesCategoria;
+  }).sort((a, b) => {
+    if (!sortConfig) return 0;
+    
+    let aValue: any = a[sortConfig.key as keyof Producto];
+    let bValue: any = b[sortConfig.key as keyof Producto];
+
+    // Casos especiales para campos virtuales o anidados
+    if (sortConfig.key === "categoria") {
+      aValue = a.categoria || "Fragancias";
+      bValue = b.categoria || "Fragancias";
+    }
+
+    if (aValue < bValue) {
+      return sortConfig.direction === "asc" ? -1 : 1;
+    }
+    if (aValue > bValue) {
+      return sortConfig.direction === "asc" ? 1 : -1;
+    }
+    return 0;
   });
 
   return (
@@ -386,14 +411,74 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
                     className="w-4 h-4 rounded border-[#2D2D2D] bg-black text-[#D4AF37] focus:ring-[#D4AF37]"
                   />
                 </th>
-                <th className="text-left text-[#555555] text-xs tracking-widest uppercase px-4 py-3">Producto</th>
-                <th className="text-left text-[#555555] text-xs tracking-widest uppercase px-4 py-3 hidden lg:table-cell">Categoría</th>
+                <th 
+                  className="text-left text-[#555555] text-xs tracking-widest uppercase px-4 py-3 cursor-pointer hover:text-white transition-colors group"
+                  onClick={() => handleSort("nombre")}
+                >
+                  <div className="flex items-center gap-2">
+                    Producto
+                    <span className={`transition-all ${sortConfig?.key === "nombre" ? "opacity-100 text-[#D4AF37]" : "opacity-30 text-white"}`}>
+                      {sortConfig?.key === "nombre" && sortConfig.direction === "desc" ? <ArrowDown size={12} /> : <ArrowUp size={12} />}
+                    </span>
+                  </div>
+                </th>
+                <th 
+                  className="text-left text-[#555555] text-xs tracking-widest uppercase px-4 py-3 hidden lg:table-cell cursor-pointer hover:text-white transition-colors group"
+                  onClick={() => handleSort("categoria")}
+                >
+                  <div className="flex items-center gap-2">
+                    Categoría
+                    <span className={`transition-all ${sortConfig?.key === "categoria" ? "opacity-100 text-[#D4AF37]" : "opacity-30 text-white"}`}>
+                      {sortConfig?.key === "categoria" && sortConfig.direction === "desc" ? <ArrowDown size={12} /> : <ArrowUp size={12} />}
+                    </span>
+                  </div>
+                </th>
                 <th className="text-left text-[#555555] text-xs tracking-widest uppercase px-4 py-3 hidden sm:table-cell">Género</th>
-                <th className="text-right text-[#555555] text-xs tracking-widest uppercase px-4 py-3">Costo</th>
-                <th className="text-right text-[#555555] text-xs tracking-widest uppercase px-4 py-3">Venta</th>
+                <th 
+                  className="text-right text-[#555555] text-xs tracking-widest uppercase px-4 py-3 cursor-pointer hover:text-white transition-colors group"
+                  onClick={() => handleSort("precio_costo")}
+                >
+                  <div className="flex items-center justify-end gap-2">
+                    Costo
+                    <span className={`transition-all ${sortConfig?.key === "precio_costo" ? "opacity-100 text-[#D4AF37]" : "opacity-30 text-white"}`}>
+                      {sortConfig?.key === "precio_costo" && sortConfig.direction === "desc" ? <ArrowDown size={12} /> : <ArrowUp size={12} />}
+                    </span>
+                  </div>
+                </th>
+                <th 
+                  className="text-right text-[#555555] text-xs tracking-widest uppercase px-4 py-3 cursor-pointer hover:text-white transition-colors group"
+                  onClick={() => handleSort("precio_venta")}
+                >
+                  <div className="flex items-center justify-end gap-2">
+                    Venta
+                    <span className={`transition-all ${sortConfig?.key === "precio_venta" ? "opacity-100 text-[#D4AF37]" : "opacity-30 text-white"}`}>
+                      {sortConfig?.key === "precio_venta" && sortConfig.direction === "desc" ? <ArrowDown size={12} /> : <ArrowUp size={12} />}
+                    </span>
+                  </div>
+                </th>
                 <th className="text-right text-[#555555] text-xs tracking-widest uppercase px-4 py-3 hidden md:table-cell">Margen</th>
-                <th className="text-center text-[#555555] text-xs tracking-widest uppercase px-4 py-3">Stock</th>
-                <th className="text-center text-[#555555] text-xs tracking-widest uppercase px-4 py-3">Estado</th>
+                <th 
+                  className="text-center text-[#555555] text-xs tracking-widest uppercase px-4 py-3 cursor-pointer hover:text-white transition-colors group"
+                  onClick={() => handleSort("stock")}
+                >
+                  <div className="flex items-center justify-center gap-2">
+                    Stock
+                    <span className={`transition-all ${sortConfig?.key === "stock" ? "opacity-100 text-[#D4AF37]" : "opacity-30 text-white"}`}>
+                      {sortConfig?.key === "stock" && sortConfig.direction === "desc" ? <ArrowDown size={12} /> : <ArrowUp size={12} />}
+                    </span>
+                  </div>
+                </th>
+                <th 
+                  className="text-center text-[#555555] text-xs tracking-widest uppercase px-4 py-3 cursor-pointer hover:text-white transition-colors group"
+                  onClick={() => handleSort("activo")}
+                >
+                  <div className="flex items-center justify-center gap-2">
+                    Estado
+                    <span className={`transition-all ${sortConfig?.key === "activo" ? "opacity-100 text-[#D4AF37]" : "opacity-30 text-white"}`}>
+                      {sortConfig?.key === "activo" && sortConfig.direction === "desc" ? <ArrowDown size={12} /> : <ArrowUp size={12} />}
+                    </span>
+                  </div>
+                </th>
                 <th className="text-center text-[#555555] text-xs tracking-widest uppercase px-4 py-3">Acciones</th>
               </tr>
             </thead>

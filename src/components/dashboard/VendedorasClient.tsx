@@ -15,6 +15,10 @@ const EMPTY_FORM = {
   apellido: "",
   telefono: "",
   email: "",
+  direccion: "",
+  ciudad: "",
+  provincia: "",
+  codigo_postal: "",
   notas: "",
   fecha_nacimiento: "",
 };
@@ -43,6 +47,10 @@ export default function VendedorasClient({ vendedoras: initial }: Props) {
       apellido: v.apellido,
       telefono: v.telefono || "",
       email: v.email || "",
+      direccion: v.direccion || "",
+      ciudad: v.ciudad || "",
+      provincia: v.provincia || "",
+      codigo_postal: v.codigo_postal || "",
       notas: v.notas || "",
       fecha_nacimiento: v.fecha_nacimiento || "",
     });
@@ -69,6 +77,10 @@ export default function VendedorasClient({ vendedoras: initial }: Props) {
       apellido: form.apellido.trim(),
       telefono: form.telefono.trim() || null,
       email: form.email.trim() || null,
+      direccion: form.direccion.trim() || null,
+      ciudad: form.ciudad.trim() || null,
+      provincia: form.provincia.trim() || null,
+      codigo_postal: form.codigo_postal.trim() || null,
       notas: form.notas.trim() || null,
       fecha_nacimiento: form.fecha_nacimiento || null,
     };
@@ -272,24 +284,56 @@ export default function VendedorasClient({ vendedoras: initial }: Props) {
                     placeholder="González" />
                 </div>
               </div>
-              <div>
-                <label className="block text-[#888888] text-xs uppercase tracking-wider mb-1.5">Teléfono</label>
-                <input value={form.telefono} onChange={(e) => setForm({ ...form, telefono: e.target.value })}
-                  className="w-full bg-black border border-[#2D2D2D] text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
-                  placeholder="2954 000000" />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[#888888] text-xs uppercase tracking-wider mb-1.5">Teléfono</label>
+                  <input value={form.telefono} onChange={(e) => setForm({ ...form, telefono: e.target.value })}
+                    className="w-full bg-black border border-[#2D2D2D] text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
+                    placeholder="2954 000000" />
+                </div>
+                <div>
+                  <label className="block text-[#888888] text-xs uppercase tracking-wider mb-1.5">Fecha de Nacimiento</label>
+                  <BirthdayPicker 
+                    value={form.fecha_nacimiento} 
+                    onChange={(val) => setForm({ ...form, fecha_nacimiento: val })} 
+                  />
+                </div>
               </div>
+
               <div>
                 <label className="block text-[#888888] text-xs uppercase tracking-wider mb-1.5">Email</label>
                 <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
                   className="w-full bg-black border border-[#2D2D2D] text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
                   placeholder="mail@ejemplo.com" />
               </div>
+
+              <div className="pt-2 border-t border-[#1A1A1A]">
+                <label className="block text-[#888888] text-xs uppercase tracking-wider mb-1.5">Dirección</label>
+                <input value={form.direccion} onChange={(e) => setForm({ ...form, direccion: e.target.value })}
+                  className="w-full bg-black border border-[#2D2D2D] text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
+                  placeholder="Calle 123" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[#888888] text-xs uppercase tracking-wider mb-1.5">Ciudad</label>
+                  <input value={form.ciudad} onChange={(e) => setForm({ ...form, ciudad: e.target.value })}
+                    className="w-full bg-black border border-[#2D2D2D] text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
+                    placeholder="Santa Rosa" />
+                </div>
+                <div>
+                  <label className="block text-[#888888] text-xs uppercase tracking-wider mb-1.5">Provincia</label>
+                  <input value={form.provincia} onChange={(e) => setForm({ ...form, provincia: e.target.value })}
+                    className="w-full bg-black border border-[#2D2D2D] text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
+                    placeholder="La Pampa" />
+                </div>
+              </div>
+
               <div>
-                <BirthdayPicker 
-                  label="Fecha de Nacimiento"
-                  value={form.fecha_nacimiento} 
-                  onChange={(val) => setForm({ ...form, fecha_nacimiento: val })} 
-                />
+                <label className="block text-[#888888] text-xs uppercase tracking-wider mb-1.5">Código Postal</label>
+                <input value={form.codigo_postal} onChange={(e) => setForm({ ...form, codigo_postal: e.target.value })}
+                  className="w-full bg-black border border-[#2D2D2D] text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors w-1/2"
+                  placeholder="6300" />
               </div>
               <div>
                 <label className="block text-[#888888] text-xs uppercase tracking-wider mb-1.5">Notas</label>

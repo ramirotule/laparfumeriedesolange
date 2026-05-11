@@ -49,6 +49,10 @@ export interface Vendedora {
   apellido: string;
   telefono?: string;
   email?: string;
+  direccion?: string;
+  ciudad?: string;
+  provincia?: string;
+  codigo_postal?: string;
   activo: boolean;
   notas?: string;
   fecha_nacimiento?: string;

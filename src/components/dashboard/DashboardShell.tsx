@@ -19,7 +19,8 @@ import {
   Cake,
   Trash2,
   ChevronRight,
-  Info
+  Info,
+  Globe
 } from "lucide-react";
 
 const NAV = [
@@ -283,6 +284,16 @@ export default function DashboardShell({ user, nombreCompleto, children }: Props
               )}
             </button>
 
+            {/* Ver mi web */}
+            <Link
+              href="/"
+              target="_blank"
+              className="flex items-center gap-2 border border-[#2D2D2D] hover:border-[#D4AF37]/50 text-[#888888] hover:text-[#D4AF37] hover:bg-[#D4AF37]/5 text-xs px-3 py-2 transition-all duration-200"
+            >
+              <Globe size={13} />
+              Ver mi web
+            </Link>
+
             {/* Logout */}
             <button
               onClick={handleLogout}
@@ -337,9 +348,14 @@ export default function DashboardShell({ user, nombreCompleto, children }: Props
                         <Cake size={12} /> Cumpleaños de hoy
                       </h3>
                       <div className="space-y-2">
-                        {birthdays.map(b => (
-                          !dismissedIds.includes(`bday-${b.id}`) && (
-                            <div key={`bday-${b.id}`} className="bg-black/40 border border-[#2D2D2D] p-4 rounded group relative">
+                        {birthdays
+                          .filter(b => !dismissedIds.includes(`bday-${b.id}`))
+                          .map(b => (
+                            <div 
+                              key={`bday-${b.id}`} 
+                              className="bg-[#D4AF37]/5 border border-[#D4AF37]/20 p-4 rounded group relative transition-all duration-300 opacity-100"
+                            >
+                              <div className="absolute top-2 right-2 w-2 h-2 bg-[#D4AF37] rounded-full shadow-[0_0_8px_rgba(212,175,55,0.6)]" />
                               <div className="flex items-start justify-between gap-4">
                                 <div className="flex gap-3">
                                   <div className="mt-1 w-8 h-8 rounded-full bg-pink-500/10 flex items-center justify-center text-pink-500">
@@ -350,17 +366,34 @@ export default function DashboardShell({ user, nombreCompleto, children }: Props
                                     <p className="text-[#888888] text-xs mt-0.5">No olvides saludar a {b.nombre} {b.apellido} en su día.</p>
                                   </div>
                                 </div>
-                                <button 
-                                  onClick={() => dismissNotification(`bday-${b.id}`)}
-                                  className="text-[#333333] hover:text-white transition-colors"
-                                  title="Ocultar"
-                                >
-                                  <X size={14} />
-                                </button>
+                                <div className="flex flex-col items-end gap-2">
+                                  <button 
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      dismissNotification(`bday-${b.id}`);
+                                    }}
+                                    className="text-[#555555] hover:text-white transition-colors p-1"
+                                    title="Marcar como leído"
+                                  >
+                                    <X size={14} />
+                                  </button>
+                                  <Link 
+                                    href="/dashboard/vendedoras"
+                                    onClick={() => {
+                                      setNotificationsOpen(false);
+                                      dismissNotification(`bday-${b.id}`);
+                                    }}
+                                    className="text-[#D4AF37] hover:text-[#E8CC6B] transition-colors"
+                                  >
+                                    <ChevronRight size={18} />
+                                  </Link>
+                                </div>
                               </div>
                             </div>
-                          )
-                        ))}
+                          ))}
+                        {birthdays.filter(b => !dismissedIds.includes(`bday-${b.id}`)).length === 0 && (
+                          <p className="text-[#333333] text-xs italic">No hay más cumpleaños hoy.</p>
+                        )}
                       </div>
                     </div>
                   )}
@@ -371,15 +404,20 @@ export default function DashboardShell({ user, nombreCompleto, children }: Props
                       <ShoppingBag size={12} /> Pedidos Pendientes
                     </h3>
                     <div className="space-y-2">
-                      {pendingOrders.length === 0 ? (
+                      {pendingOrders.filter(o => !dismissedIds.includes(o.id)).length === 0 ? (
                         <div className="bg-[#111111]/30 border border-dashed border-[#2D2D2D] p-8 text-center rounded">
                           <ShoppingBag size={24} className="mx-auto mb-2 text-[#2D2D2D]" />
                           <p className="text-[#555555] text-xs">No hay pedidos pendientes por procesar.</p>
                         </div>
                       ) : (
-                        pendingOrders.map(order => (
-                          !dismissedIds.includes(order.id) && (
-                            <div key={order.id} className="bg-black/40 border border-[#2D2D2D] p-4 rounded hover:border-[#D4AF37]/30 transition-all group relative">
+                        pendingOrders
+                          .filter(order => !dismissedIds.includes(order.id))
+                          .map(order => (
+                            <div 
+                              key={order.id} 
+                              className="bg-[#D4AF37]/5 border border-[#D4AF37]/20 p-4 rounded transition-all group relative opacity-100 hover:border-[#D4AF37]/40"
+                            >
+                              <div className="absolute top-2 right-2 w-2 h-2 bg-[#D4AF37] rounded-full shadow-[0_0_8px_rgba(212,175,55,0.6)]" />
                               <div className="flex items-start justify-between gap-4">
                                 <div className="flex gap-3">
                                   <div className="mt-1 w-8 h-8 rounded-full bg-[#D4AF37]/10 flex items-center justify-center text-[#D4AF37]">
@@ -393,24 +431,29 @@ export default function DashboardShell({ user, nombreCompleto, children }: Props
                                 </div>
                                 <div className="flex flex-col items-end gap-2">
                                   <button 
-                                    onClick={() => dismissNotification(order.id)}
-                                    className="text-[#333333] hover:text-white transition-colors"
-                                    title="Descartar aviso"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      dismissNotification(order.id);
+                                    }}
+                                    className="text-[#555555] hover:text-white transition-colors p-1"
+                                    title="Marcar como leído"
                                   >
                                     <X size={14} />
                                   </button>
                                   <Link 
                                     href="/dashboard/pedidos"
-                                    onClick={() => setNotificationsOpen(false)}
-                                    className="text-[#555555] hover:text-[#D4AF37] transition-colors"
+                                    onClick={() => {
+                                      setNotificationsOpen(false);
+                                      dismissNotification(order.id);
+                                    }}
+                                    className="text-[#D4AF37] hover:text-[#E8CC6B] transition-colors"
                                   >
                                     <ChevronRight size={18} />
                                   </Link>
                                 </div>
                               </div>
                             </div>
-                          )
-                        ))
+                          ))
                       )}
                     </div>
                   </div>

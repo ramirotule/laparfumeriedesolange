@@ -6,6 +6,19 @@ import { createClient } from "@/lib/supabase/client";
 import { Producto, FamiliaOlfativa } from "@/types";
 import CustomSelect from "@/components/ui/CustomSelect";
 
+import { 
+  Plus, 
+  Trash2, 
+  Star, 
+  ImagePlus, 
+  Loader2, 
+  X,
+  ChevronRight,
+  ChevronLeft,
+  AlertTriangle
+} from "lucide-react";
+import Image from "next/image";
+
 interface Props {
   producto?: Partial<Producto>;
   isEdit?: boolean;
@@ -35,12 +48,13 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
     precio_venta: producto.precio_venta?.toString() || "",
     stock: producto.stock?.toString() || "0",
     imagen_url: producto.imagen_url || "",
+    imagenes_adicionales: producto.imagenes_adicionales || [],
     familia_olfativa_id: producto.familia_olfativa_id?.toString() || "",
     genero: producto.genero || "Unisex",
     concentracion: producto.concentracion || "EDP",
     volumen_ml: producto.volumen_ml?.toString() || "",
     categoria_id: producto.categoria_id?.toString() || "",
-    categoria_nombre: producto.categoria || "Fragancias", // Para el select inicial
+    categoria_nombre: producto.categoria || "", 
     activo: producto.activo !== undefined ? producto.activo : true,
     destacado: producto.destacado || false,
     nuevo: producto.nuevo || false,
@@ -48,6 +62,11 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
     meta_descripcion: producto.meta_descripcion || "",
     inspired_in: producto.inspired_in || "",
   });
+
+  const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [isDeleteImagesModalOpen, setIsDeleteImagesModalOpen] = useState(false);
 
   useEffect(() => {
     async function fetchFamilias() {
@@ -72,11 +91,18 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
         console.error("Error cargando categorías de la DB:", error);
       } else if (data) {
         setCategoriasDb(data);
-        // Si estamos editando y no tenemos ID pero sí nombre, buscamos el ID
-        if (producto.categoria && !form.categoria_id) {
+        
+        // Sincronizar el nombre de la categoría si tenemos el ID (caso edición)
+        if (form.categoria_id) {
+          const found = data.find(c => c.id.toString() === form.categoria_id.toString());
+          if (found) {
+            setForm(prev => ({ ...prev, categoria_nombre: found.nombre }));
+          }
+        } else if (producto.categoria) {
+          // Fallback si vino el nombre pero no el ID
           const found = data.find(c => c.nombre.toLowerCase() === producto.categoria?.toLowerCase());
           if (found) {
-            setForm(prev => ({ ...prev, categoria_id: found.id }));
+            setForm(prev => ({ ...prev, categoria_id: found.id, categoria_nombre: found.nombre }));
           }
         }
       }
@@ -84,7 +110,7 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
 
     fetchFamilias();
     fetchCategorias();
-  }, [producto.id]);
+  }, [producto.id, form.categoria_id]);
 
   function update(key: string, value: string | boolean) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -95,6 +121,7 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
     setLoading(true);
     setError("");
 
+    const isFragancia = form.categoria_nombre.toLowerCase() === "fragancias";
     const payload = {
       nombre: form.nombre.trim(),
       marca: form.marca.trim(),
@@ -104,17 +131,18 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
       precio_venta: parseFloat(form.precio_venta),
       stock: parseInt(form.stock) || 0,
       imagen_url: form.imagen_url.trim() || null,
-      familia_olfativa_id: form.familia_olfativa_id ? parseInt(form.familia_olfativa_id) : null,
-      genero: form.genero,
-      concentracion: form.concentracion || null,
-      volumen_ml: form.volumen_ml ? parseInt(form.volumen_ml) : null,
+      familia_olfativa_id: isFragancia && form.familia_olfativa_id ? parseInt(form.familia_olfativa_id) : null,
+      genero: isFragancia ? form.genero : "Unisex",
+      concentracion: isFragancia ? (form.concentracion || null) : null,
+      volumen_ml: isFragancia && form.volumen_ml ? parseInt(form.volumen_ml) : null,
       categoria_id: form.categoria_id || null,
       activo: form.activo,
       destacado: form.destacado,
       nuevo: form.nuevo,
       meta_titulo: form.meta_titulo.trim() || null,
       meta_descripcion: form.meta_descripcion.trim() || null,
-      inspired_in: form.inspired_in.trim() || null,
+      inspired_in: isFragancia ? (form.inspired_in.trim() || null) : null,
+      imagenes_adicionales: form.imagenes_adicionales,
     };
 
     let result;
@@ -158,6 +186,18 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
             Información del Producto
           </h2>
 
+          <div className="mb-6">
+            <CustomSelect
+              label="Categoría *"
+              value={form.categoria_id}
+              onChange={(val) => {
+                const name = categoriasDb.find(c => c.id === val)?.nombre || "";
+                setForm(prev => ({ ...prev, categoria_id: val, categoria_nombre: name }));
+              }}
+              options={categoriasDb.map((c) => ({ value: c.id, label: c.nombre }))}
+            />
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="text-[#888888] text-xs uppercase tracking-widest block mb-1.5">
@@ -185,18 +225,20 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
             </div>
           </div>
 
-          <div>
-            <label className="text-[#888888] text-xs uppercase tracking-widest block mb-1.5">
-              Inspirado en (opcional)
-            </label>
-            <input
-              type="text"
-              value={form.inspired_in}
-              onChange={(e) => update("inspired_in", e.target.value)}
-              placeholder="Ej: La Vie Est Belle"
-              className="w-full bg-[#1A1A1A] border border-[#2D2D2D] text-white px-4 py-3 focus:outline-none focus:border-[#D4AF37] text-sm transition-colors"
-            />
-          </div>
+          {form.categoria_nombre.toLowerCase() === "fragancias" && (
+            <div>
+              <label className="text-[#888888] text-xs uppercase tracking-widest block mb-1.5">
+                Inspirado en (opcional)
+              </label>
+              <input
+                type="text"
+                value={form.inspired_in}
+                onChange={(e) => update("inspired_in", e.target.value)}
+                placeholder="Ej: La Vie Est Belle"
+                className="w-full bg-[#1A1A1A] border border-[#2D2D2D] text-white px-4 py-3 focus:outline-none focus:border-[#D4AF37] text-sm transition-colors"
+              />
+            </div>
+          )}
 
           <div>
             <label className="text-[#888888] text-xs uppercase tracking-widest block mb-1.5">
@@ -224,63 +266,214 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
             />
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            <CustomSelect
-              label="Género *"
-              value={form.genero}
-              onChange={(val) => update("genero", val)}
-              options={generos.map((g) => ({ value: g, label: g }))}
-            />
-            <CustomSelect
-              label="Concentración"
-              value={form.concentracion}
-              onChange={(val) => update("concentracion", val)}
-              options={concentraciones.map((c) => ({ value: c, label: c }))}
-            />
-            <div>
-              <label className="text-[#888888] text-xs uppercase tracking-widest block mb-1.5">
-                Volumen (ml)
-              </label>
-              <input
-                type="number"
-                value={form.volumen_ml}
-                onChange={(e) => update("volumen_ml", e.target.value)}
-                className="w-full bg-[#1A1A1A] border border-[#2D2D2D] text-white px-4 py-3 focus:outline-none focus:border-[#D4AF37] text-sm transition-colors"
-                placeholder="100"
-              />
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {form.categoria_nombre.toLowerCase() === "fragancias" && (
+              <>
+                <CustomSelect
+                  label="Género *"
+                  value={form.genero}
+                  onChange={(val) => update("genero", val)}
+                  options={generos.map((g) => ({ value: g, label: g }))}
+                />
+                <CustomSelect
+                  label="Concentración"
+                  value={form.concentracion}
+                  onChange={(val) => update("concentracion", val)}
+                  options={concentraciones.map((c) => ({ value: c, label: c }))}
+                />
+                <div>
+                  <label className="text-[#888888] text-xs uppercase tracking-widest block mb-1.5">
+                    Volumen (ml)
+                  </label>
+                  <input
+                    type="number"
+                    value={form.volumen_ml}
+                    onChange={(e) => update("volumen_ml", e.target.value)}
+                    className="w-full bg-[#1A1A1A] border border-[#2D2D2D] text-white px-4 py-3 focus:outline-none focus:border-[#D4AF37] text-sm transition-colors"
+                    placeholder="100"
+                  />
+                </div>
+              </>
+            )}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <CustomSelect
-              label="Familia Olfativa"
-              value={form.familia_olfativa_id}
-              loading={loadingFamilias}
-              placeholder="Seleccionar familia..."
-              onChange={(val) => update("familia_olfativa_id", val)}
-              options={familias.map((f) => ({ value: f.id.toString(), label: f.nombre }))}
-            />
-            <CustomSelect
-              label="Categoría *"
-              value={form.categoria_id}
-              onChange={(val) => {
-                const name = categoriasDb.find(c => c.id === val)?.nombre || "";
-                setForm(prev => ({ ...prev, categoria_id: val, categoria_nombre: name }));
-              }}
-              options={categoriasDb.map((c) => ({ value: c.id, label: c.nombre }))}
-            />
-            <div>
-              <label className="text-[#888888] text-xs uppercase tracking-widest block mb-1.5">
-                URL de Imagen
-              </label>
-              <input
-                type="url"
-                value={form.imagen_url}
-                onChange={(e) => update("imagen_url", e.target.value)}
-                className="w-full bg-[#1A1A1A] border border-[#2D2D2D] text-white px-4 py-3 focus:outline-none focus:border-[#D4AF37] text-sm transition-colors"
-                placeholder="https://..."
+            {form.categoria_nombre.toLowerCase() === "fragancias" && (
+              <CustomSelect
+                label="Familia Olfativa"
+                value={form.familia_olfativa_id}
+                loading={loadingFamilias}
+                placeholder="Seleccionar familia..."
+                onChange={(val) => update("familia_olfativa_id", val)}
+                options={familias.map((f) => ({ value: f.id.toString(), label: f.nombre }))}
               />
+            )}
+          </div>
+        </div>
+
+        {/* Gestión de Imágenes */}
+        <div className="bg-[#0D0D0D] border border-[#1A1A1A] p-6 space-y-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-[#D4AF37] text-xs tracking-[0.2em] uppercase">
+              Galería de Imágenes
+            </h2>
+            <div className="flex items-center gap-3">
+              {selectedImages.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setIsDeleteImagesModalOpen(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-red-500/10 text-red-500 border border-red-500/20 text-xs font-bold hover:bg-red-500/20 transition-colors"
+                >
+                  <Trash2 size={14} />
+                  Eliminar ({selectedImages.length})
+                </button>
+              )}
+              <label className={`flex items-center gap-2 px-4 py-2 text-xs font-bold transition-colors cursor-pointer ${uploading ? "bg-[#1A1A1A] text-[#555555]" : "bg-[#D4AF37] text-black hover:bg-[#E8CC6B]"}`}>
+                {uploading ? <Loader2 size={14} className="animate-spin" /> : <ImagePlus size={14} />}
+                {uploading ? "Subiendo..." : "Subir Imágenes"}
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  className="hidden"
+                  disabled={uploading}
+                  onChange={async (e) => {
+                    const files = e.target.files;
+                    if (!files || files.length === 0) return;
+                    
+                    setUploading(true);
+                    const newImages: string[] = [];
+                    
+                    for (let i = 0; i < files.length; i++) {
+                      const file = files[i];
+                      const fileExt = file.name.split('.').pop();
+                      const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+                      const filePath = `productos/${fileName}`;
+                      
+                      const { error: uploadError } = await supabase.storage
+                        .from('productos')
+                        .upload(filePath, file);
+                        
+                      if (uploadError) {
+                        console.error("Error subiendo imagen:", uploadError);
+                        continue;
+                      }
+                      
+                      const { data: { publicUrl } } = supabase.storage
+                        .from('productos')
+                        .getPublicUrl(filePath);
+                        
+                      newImages.push(publicUrl);
+                    }
+                    
+                    setForm(prev => {
+                      const updatedAdicionales = [...prev.imagenes_adicionales, ...newImages];
+                      let updatedPrincipal = prev.imagen_url;
+                      if (!updatedPrincipal && newImages.length > 0) {
+                        updatedPrincipal = newImages[0];
+                      }
+                      return { 
+                        ...prev, 
+                        imagenes_adicionales: updatedAdicionales,
+                        imagen_url: updatedPrincipal
+                      };
+                    });
+                    setUploading(false);
+                  }}
+                />
+              </label>
             </div>
+          </div>
+
+          {/* Grilla de Imágenes */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-4">
+            {/* Todas las imágenes (adicionales + principal si no está en la lista) */}
+            {Array.from(new Set([form.imagen_url, ...form.imagenes_adicionales])).filter(img => img).map((img, idx) => (
+              <div key={idx} className={`group relative aspect-square bg-[#1A1A1A] border overflow-hidden rounded-sm transition-all ${selectedImages.includes(img) ? "border-red-500 ring-1 ring-red-500" : "border-[#2D2D2D]"}`}>
+                <Image 
+                  src={img} 
+                  alt={`Imagen ${idx}`} 
+                  fill 
+                  className="object-cover"
+                />
+                
+                {/* Checkbox de Selección */}
+                <div className={`absolute top-2 right-2 z-10 transition-opacity ${selectedImages.includes(img) ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
+                  <input
+                    type="checkbox"
+                    checked={selectedImages.includes(img)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedImages(prev => [...prev, img]);
+                      } else {
+                        setSelectedImages(prev => prev.filter(i => i !== img));
+                      }
+                    }}
+                    className="w-4 h-4 rounded border-[#D4AF37] text-[#D4AF37] focus:ring-[#D4AF37] bg-black/50"
+                  />
+                </div>
+
+                {/* Overlay de Portada */}
+                {form.imagen_url === img && (
+                  <div className="absolute top-2 left-2 bg-[#D4AF37] text-black px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-tighter rounded-sm z-10">
+                    Portada
+                  </div>
+                )}
+
+                {/* Acciones Hover */}
+                {!selectedImages.includes(img) && (
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => update("imagen_url", img)}
+                      className={`p-1.5 rounded-full transition-colors ${form.imagen_url === img ? "text-[#D4AF37] bg-white" : "text-white bg-white/10 hover:bg-white/20"}`}
+                      title="Elegir como portada"
+                    >
+                      <Star size={14} fill={form.imagen_url === img ? "currentColor" : "none"} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setForm(prev => {
+                          const isPrincipal = prev.imagen_url === img;
+                          const filteredAdicionales = prev.imagenes_adicionales.filter(i => i !== img);
+                          let nextPrincipal = prev.imagen_url;
+                          
+                          if (isPrincipal) {
+                            nextPrincipal = filteredAdicionales.length > 0 ? filteredAdicionales[0] : "";
+                          }
+                          
+                          return {
+                            ...prev,
+                            imagen_url: nextPrincipal,
+                            imagenes_adicionales: filteredAdicionales
+                          };
+                        });
+                      }}
+                      className="p-1.5 rounded-full bg-red-500/20 text-red-400 hover:bg-red-500/40 transition-colors"
+                      title="Eliminar imagen"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+
+            {/* Placeholder vacío si no hay imágenes */}
+            {(!form.imagen_url && form.imagenes_adicionales.length === 0) && (
+              <div className="col-span-full py-12 flex flex-col items-center justify-center border border-dashed border-[#2D2D2D] text-[#333333]">
+                <ImagePlus size={32} className="mb-2 opacity-20" />
+                <p className="text-xs italic">No hay imágenes cargadas aún.</p>
+              </div>
+            )}
+          </div>
+
+          <div className="pt-4 border-t border-[#1A1A1A]">
+            <p className="text-[#555555] text-[10px] leading-relaxed italic">
+              * La imagen marcada con la estrella dorada será la que se muestre en el catálogo principal. <br/>
+              * Podés subir múltiples imágenes a la vez. El sistema optimizará la carga.
+            </p>
           </div>
         </div>
 
@@ -420,19 +613,87 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 bg-[#D4AF37] text-black font-bold py-4 tracking-widest text-sm uppercase hover:bg-[#E8CC6B] transition-colors disabled:opacity-70"
+            className="flex-1 bg-[#D4AF37] text-black font-bold py-4 tracking-[0.2em] text-sm uppercase hover:bg-[#E8CC6B] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? "Guardando..." : isEdit ? "Guardar Cambios" : "Crear Producto"}
+            {isEdit ? "GUARDAR CAMBIOS" : "CREAR PRODUCTO"}
           </button>
           <button
             type="button"
             onClick={() => router.push("/dashboard")}
-            className="px-6 border border-[#2D2D2D] text-[#888888] hover:text-white hover:border-[#555555] transition-colors text-sm"
+            disabled={loading}
+            className="px-8 py-4 bg-transparent border border-[#2D2D2D] text-[#888888] font-bold text-sm tracking-[0.2em] hover:text-white hover:border-white transition-all duration-300 disabled:opacity-50"
           >
-            Cancelar
+            CANCELAR
           </button>
         </div>
       </form>
+
+      {/* Overlay de Carga Full Screen */}
+      {loading && (
+        <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="flex flex-col items-center gap-4">
+            <div className="relative">
+              <div className="w-16 h-16 border-4 border-[#D4AF37]/20 border-t-[#D4AF37] rounded-full animate-spin" />
+              <Loader2 className="absolute inset-0 m-auto text-[#D4AF37] animate-pulse" size={24} />
+            </div>
+            <div className="flex flex-col items-center">
+              <p className="text-[#D4AF37] font-serif text-xl tracking-widest animate-pulse">
+                {isEdit ? "ACTUALIZANDO" : "CREANDO"}
+              </p>
+              <p className="text-[#555555] text-[10px] uppercase tracking-[0.3em] mt-1">
+                Por favor, esperá un momento
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de eliminación masiva de imágenes */}
+      {isDeleteImagesModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#0A0A0A] border border-[#2D2D2D] w-full max-w-md p-6 md:p-8">
+            <div className="flex items-center gap-3 text-red-500 mb-4">
+              <AlertTriangle size={24} />
+              <h2 className="font-serif text-xl text-white">Confirmar eliminación</h2>
+            </div>
+            <p className="text-[#888888] text-sm mb-6 leading-relaxed">
+              ¿Estás seguro que deseas eliminar <strong className="text-white">{selectedImages.length} imágenes</strong> seleccionadas? Esta acción quitará las fotos de la galería del producto.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setIsDeleteImagesModalOpen(false)}
+                className="flex-1 px-4 py-2.5 text-sm text-[#888888] hover:text-white border border-[#2D2D2D] hover:bg-[#1A1A1A] transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => {
+                  setForm(prev => {
+                    const newAdicionales = prev.imagenes_adicionales.filter(img => !selectedImages.includes(img));
+                    let newPrincipal = prev.imagen_url;
+                    
+                    if (selectedImages.includes(prev.imagen_url)) {
+                      newPrincipal = newAdicionales.length > 0 ? newAdicionales[0] : "";
+                    }
+                    
+                    return {
+                      ...prev,
+                      imagenes_adicionales: newAdicionales,
+                      imagen_url: newPrincipal
+                    };
+                  });
+                  setSelectedImages([]);
+                  setIsDeleteImagesModalOpen(false);
+                }}
+                className="flex-1 px-4 py-2.5 text-sm text-white bg-red-600/90 hover:bg-red-500 transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
+              >
+                <Trash2 size={14} />
+                Eliminar {selectedImages.length} {selectedImages.length === 1 ? 'imagen' : 'imágenes'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
