@@ -85,13 +85,8 @@ export default function OrdersClient({ initialOrders }: Props) {
       )
       .subscribe();
 
-    // Escuchar evento manual de refresco
-    const handleManualRefresh = () => fetchPending();
-    window.addEventListener('refresh-orders-count', handleManualRefresh);
-
     return () => {
       supabase.removeChannel(channel);
-      window.removeEventListener('refresh-orders-count', handleManualRefresh);
     };
   }, [supabase]);
 
