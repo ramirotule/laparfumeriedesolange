@@ -57,7 +57,7 @@ export default function QuickSearchModal() {
     });
   }, [debouncedQuery]);
 
-  // Ctrl+K global listener
+  // Ctrl+K global listener + custom event from header button
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if ((e.ctrlKey || e.metaKey) && e.key === "k") {
@@ -65,8 +65,15 @@ export default function QuickSearchModal() {
         setOpen((prev) => !prev);
       }
     }
+    function handleOpenEvent() {
+      setOpen(true);
+    }
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener("quick-search:open", handleOpenEvent);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("quick-search:open", handleOpenEvent);
+    };
   }, []);
 
   // Focus input when modal opens

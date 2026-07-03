@@ -139,12 +139,12 @@ export default function Footer() {
           <p className="text-gray-400 text-xs">
             Página web desarrollada por{" "}
             <a
-              href="https://www.rtsoftwarefactory.com.ar"
+              href="https://www.nodocore.com.ar/nodo-it"
               target="_blank"
               rel="noopener noreferrer"
               className="text-[#D4AF37] hover:font-bold transition-all"
             >
-              RT Software Factory
+              NODO Core
             </a>
           </p>
         </div>

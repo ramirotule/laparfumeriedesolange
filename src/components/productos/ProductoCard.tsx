@@ -87,7 +87,7 @@ export default function ProductoCard({ producto, isCompact = false }: Props) {
           )}
           {producto.stock === 0 && (
             <span className="bg-[#1A1A1A] border border-gray-800 text-gray-500 text-[9px] font-bold tracking-wider px-2 py-0.5 uppercase">
-              Sin stock
+              Sin stock · Se trae por pedido
             </span>
           )}
         </div>

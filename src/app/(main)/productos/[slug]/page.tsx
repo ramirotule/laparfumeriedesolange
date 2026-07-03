@@ -18,30 +18,19 @@ async function getProducto(slug: string): Promise<Producto | null> {
   try {
     const supabase = await createClient();
 
-    // Main product query without notas join (safer — avoids 404 if join table name differs)
     const { data, error } = await supabase
       .from("productos")
-      .select(`*, familia_olfativa:familias_olfativas(*), categorias(*)`)
+      .select(`*, familia_olfativa:familias_olfativas(*)`)
       .eq("slug", slug)
       .eq("activo", true)
       .single();
 
     if (error || !data) return null;
 
-    // Try notas separately — won't break the page if the relationship table is missing
-    let notas: unknown[] = [];
-    const { data: notasData } = await supabase
-      .from("perfume_notas")
-      .select(`nota:notas_aromaticas(*)`)
-      .eq("perfume_id", data.id);
-    if (notasData) {
-      notas = notasData.map((n: { nota: unknown }) => n.nota).filter(Boolean);
-    }
-
     return {
       ...data,
-      notas,
-      categoria: data.categorias?.nombre || data.categoria || "Fragancias",
+      notas: [],
+      categoria: data.categoria || "Fragancias",
     } as Producto;
   } catch {
     return null;
@@ -245,7 +234,7 @@ export default async function ProductoPage({ params }: Props) {
               ) : (
                 <span className="flex items-center gap-1.5 text-gray-500 text-sm">
                   <span className="w-2 h-2 bg-gray-400 rounded-full" />
-                  Sin stock — consultá disponibilidad
+                  Sin stock — Se trae por pedido
                 </span>
               )}
             </div>
