@@ -119,8 +119,9 @@ export default async function CatalogView({
 }) {
   const productos = await getProductos(searchParams);
 
-  const displayTitle = title || (searchParams.genero
-    ? `Productos ${searchParams.genero}s`
+  const generoLabel = searchParams.genero === "Unisex" ? "Unisex" : searchParams.genero ? `${searchParams.genero}s` : null;
+  const displayTitle = title || (generoLabel
+    ? `Productos ${generoLabel}`
     : searchParams.familia
       ? `Productos ${searchParams.familia}s`
       : searchParams.nuevo === "true"

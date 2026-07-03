@@ -77,6 +77,9 @@ export default function RootLayout({
   return (
     <html lang="es-AR" className="h-full dark" suppressHydrationWarning>
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600;700&display=swap" rel="stylesheet" />
         <script
           id="ld-json-main"
           type="application/ld+json"

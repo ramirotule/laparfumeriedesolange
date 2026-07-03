@@ -17,24 +17,32 @@ interface Props {
 async function getProducto(slug: string): Promise<Producto | null> {
   try {
     const supabase = await createClient();
-    const { data } = await supabase
+
+    // Main product query without notas join (safer — avoids 404 if join table name differs)
+    const { data, error } = await supabase
       .from("productos")
-      .select(
-        `*, familia_olfativa:familias_olfativas(*), categorias(*), notas:producto_notas(nota:notas_aromaticas(*))`
-      )
+      .select(`*, familia_olfativa:familias_olfativas(*), categorias(*)`)
       .eq("slug", slug)
       .eq("activo", true)
       .single();
 
-    if (!data) return null;
+    if (error || !data) return null;
 
-    // Flatten notas
-    const producto = {
+    // Try notas separately — won't break the page if the relationship table is missing
+    let notas: unknown[] = [];
+    const { data: notasData } = await supabase
+      .from("perfume_notas")
+      .select(`nota:notas_aromaticas(*)`)
+      .eq("perfume_id", data.id);
+    if (notasData) {
+      notas = notasData.map((n: { nota: unknown }) => n.nota).filter(Boolean);
+    }
+
+    return {
       ...data,
-      notas: data.notas?.map((n: { nota: unknown }) => n.nota) || [],
-      categoria: data.categorias?.nombre || data.categoria || "Fragancias"
-    };
-    return producto as Producto;
+      notas,
+      categoria: data.categorias?.nombre || data.categoria || "Fragancias",
+    } as Producto;
   } catch {
     return null;
   }

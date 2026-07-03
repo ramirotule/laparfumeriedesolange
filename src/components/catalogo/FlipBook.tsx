@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState } from "react";
 import HTMLFlipBook from "react-pageflip";
 import { ChevronLeft, ChevronRight, Maximize2 } from "lucide-react";
 
@@ -20,10 +20,6 @@ export default function FlipBook({ pages }: Props) {
   const bookRef = useRef<FlipBookRef>(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-
-  const handleMouseDown = useCallback(() => setIsDragging(true), []);
-  const handleMouseUp = useCallback(() => setIsDragging(false), []);
 
   const totalPages = pages.length;
 
@@ -41,17 +37,14 @@ export default function FlipBook({ pages }: Props) {
     }
   };
 
-  const width = isFullscreen ? 440 : 360;
-  const height = isFullscreen ? 620 : 510;
+  const width = isFullscreen ? 520 : 450;
+  const height = isFullscreen ? 740 : 635;
 
   return (
     <div className="flex flex-col items-center gap-6 select-none">
       <div
         id="flipbook-wrapper"
-        className={`relative flex items-center justify-center bg-black ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
+        className="relative flex items-center justify-center bg-black cursor-pointer"
       >
         <button
           onClick={goPrev}
@@ -91,12 +84,12 @@ export default function FlipBook({ pages }: Props) {
           maxShadowOpacity={0.5}
         >
           {pages.map((page, i) => (
-            <div key={i} className="w-full h-full" style={{ background: "#0D0D0D" }}>
+            <div key={i} className="w-full h-full" style={{ background: "#fff" }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={page.src}
                 alt={page.alt}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
                 draggable={false}
               />
             </div>

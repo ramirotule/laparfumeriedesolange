@@ -72,7 +72,7 @@ export default function CatalogoModal() {
       />
 
       {/* Panel del catálogo */}
-      <div className="relative z-10 flex flex-col items-center gap-6 px-4 py-8 w-full overflow-hidden">
+      <div className="relative z-10 flex flex-col items-center gap-6 px-12 py-8 w-full">
         {/* Header del modal */}
         <div className="flex items-center justify-between w-full max-w-3xl">
           <div>

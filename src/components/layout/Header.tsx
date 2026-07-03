@@ -93,6 +93,12 @@ export default function Header() {
                   <WhatsAppIcon className="w-3 h-3 transition-transform group-hover:scale-110" />
                   Emprendé con Bagués
                 </Link>
+                <button
+                  onClick={openCatalogo}
+                  className="text-[11px] tracking-[0.2em] text-[#888888] hover:text-white transition-colors font-bold uppercase"
+                >
+                  Catálogo
+                </button>
                 <Link
                   href="/quienes-somos"
                   className={`text-[11px] tracking-[0.2em] transition-colors font-bold uppercase ${
@@ -249,6 +255,21 @@ export default function Header() {
                                 className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
                               >
                                 Unisex
+                              </Link>
+                            </div>
+                          </div>
+
+                          {/* Amelie */}
+                          <div>
+                            <span className="text-[#D4AF37] text-xs font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 block">
+                              Amelie
+                            </span>
+                            <div className="flex flex-col gap-1.5">
+                              <Link
+                                href="/lesperfumsdeamelie"
+                                className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
+                              >
+                                Leer más...
                               </Link>
                             </div>
                           </div>
@@ -435,38 +456,33 @@ export default function Header() {
                       </div>
                     )}
                   </div>
-
-                  {/* Catálogo Digital */}
-                  <button
-                    onClick={openCatalogo}
-                    className="text-xs tracking-[0.2em] font-bold uppercase transition-colors text-white hover:text-[#D4AF37]"
-                  >
-                    Catálogo
-                  </button>
                 </nav>
 
                 {/* Acciones: Buscador + Carrito */}
                 <div className="flex flex-1 justify-end items-center gap-4 xl:gap-6">
                   {/* Buscador (Desktop) */}
-                  <form
-                    onSubmit={handleSearch}
-                    className="hidden md:flex w-[160px] xl:w-[220px]"
-                  >
-                    <input
-                      type="search"
-                      value={busqueda}
-                      onChange={(e) => setBusqueda(e.target.value)}
-                      placeholder="¿Qué buscás?"
-                      className="flex-1 bg-[#0D0D0D] border border-[#1A1A1A] border-r-0 text-white placeholder-[#9CA3AF] px-3 py-1.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
-                    />
-                    <button
-                      type="submit"
-                      className="bg-[#D4AF37] hover:bg-[#E8CC6B] text-black px-3 py-1.5 transition-colors"
-                      aria-label="Buscar"
-                    >
-                      <Search size={14} />
-                    </button>
-                  </form>
+                  <div className="hidden md:flex flex-col gap-0.5 w-[160px] xl:w-[220px]">
+                    <form onSubmit={handleSearch} className="flex">
+                      <input
+                        type="search"
+                        value={busqueda}
+                        onChange={(e) => setBusqueda(e.target.value)}
+                        placeholder="¿Qué buscás?"
+                        className="flex-1 bg-[#0D0D0D] border border-[#1A1A1A] border-r-0 text-white placeholder-[#9CA3AF] px-3 py-1.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
+                      />
+                      <button
+                        type="submit"
+                        className="bg-[#D4AF37] hover:bg-[#E8CC6B] text-black px-3 py-1.5 transition-colors"
+                        aria-label="Buscar"
+                      >
+                        <Search size={14} />
+                      </button>
+                    </form>
+                    <p className="hidden xl:block text-[9px] font-mono text-[#333] text-right pr-0.5">
+                      búsqueda rápida{" "}
+                      <kbd className="px-1 py-0.5 border border-[#2D2D2D] rounded">⌃K</kbd>
+                    </p>
+                  </div>
 
                   {/* Cart Button */}
                   <button

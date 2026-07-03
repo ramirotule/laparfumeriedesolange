@@ -7,6 +7,7 @@ import { CartProvider } from "@/context/CartContext";
 import { CatalogoProvider } from "@/context/CatalogoContext";
 import CatalogoModal from "@/components/catalogo/CatalogoModal";
 import WhatsAppButton from "@/components/ui/WhatsAppButton";
+import QuickSearchModal from "@/components/ui/QuickSearchModal";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -20,6 +21,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         <NewsletterModal />
         <WhatsAppButton />
         <CatalogoModal />
+        <QuickSearchModal />
       </CatalogoProvider>
     </CartProvider>
   );
