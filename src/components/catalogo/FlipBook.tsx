@@ -55,7 +55,6 @@ export default function FlipBook({ pages }: Props) {
           <ChevronLeft size={32} />
         </button>
 
-        {/* @ts-expect-error react-pageflip types */}
         <HTMLFlipBook
           ref={bookRef}
           width={width}
