@@ -37,12 +37,7 @@ interface Props {
 }
 
 export default function DashboardClient({ productos: initialProductos }: Props) {
-  const [productos, setProductos] = useState<Producto[]>(() => 
-    initialProductos.map(p => ({
-      ...p,
-      categoria: (p as any).categorias?.nombre || p.categoria || "Fragancias"
-    }))
-  );
+  const [productos, setProductos] = useState<Producto[]>(initialProductos);
   const [loading, setLoading] = useState<string | null>(null);
   const [bulkLoading, setBulkLoading] = useState(false);
   const [busqueda, setBusqueda] = useState("");

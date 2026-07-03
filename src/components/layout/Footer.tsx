@@ -49,18 +49,14 @@ export default function Footer() {
             <h4 className="text-[#D4AF37] text-xs font-bold tracking-[0.2em] uppercase mb-4">
               🕒 Horarios de Atención
             </h4>
-            <div className="space-y-2">
-              <div className="flex items-start gap-2">
-                <span className="text-gray-400 text-xs">🗓</span>
-                <div>
-                  <p className="text-[#cccccc] text-sm font-medium">
-                    Lunes a Viernes
-                  </p>
-                  <p className="text-gray-500 text-sm">9:30 a 12 hs</p>
-                  <p className="text-gray-500 text-sm">14 a 18 hs</p>
-                </div>
-              </div>
-            </div>
+            <a
+              href={`https://wa.me/542954808202?text=${encodeURIComponent("Hola, me interesa saber los días y horarios de atención de LA PARFUMERIE de Solange.")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-400 text-sm hover:text-[#D4AF37] transition-colors duration-200 underline underline-offset-2"
+            >
+              Consultanos por privado
+            </a>
           </div>
 
           {/* Contacto */}

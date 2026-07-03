@@ -159,6 +159,7 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
     }
 
     setSuccess(isEdit ? "Producto actualizado correctamente." : "Producto creado correctamente.");
+    router.refresh();
     setTimeout(() => router.push("/dashboard"), 1500);
   }
 

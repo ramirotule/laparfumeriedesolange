@@ -6,6 +6,7 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { Search, Menu, X, ChevronDown, ShoppingBag } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { useCatalogo } from "@/context/CatalogoContext";
 
 import { aromatizantes, bienestar, skincare } from "@/constants/navigation";
 import { SITE_CONFIG } from "@/constants/site";
@@ -50,6 +51,7 @@ export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const { count, openDrawer } = useCart();
+  const { open: openCatalogo } = useCatalogo();
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -273,45 +275,42 @@ export default function Header() {
                     </button>
 
                     {skincareOpen && (
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 w-[800px] pt-4 z-50">
-                        <div className="bg-[#0D0D0D] border border-[#2D2D2D] shadow-2xl shadow-black/80 p-8 grid grid-cols-5 gap-8">
-                          {/* Columna Ver Todo */}
-                          <div>
-                            <Link
-                              href="/cuidados-piel"
-                              className="text-[#D4AF37] text-xs font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
-                            >
-                              VER TODO
-                            </Link>
-                          </div>
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 w-[240px] pt-4 z-50">
+                        <div className="bg-[#0D0D0D] border border-[#2D2D2D] shadow-2xl shadow-black/80 p-6 flex flex-col gap-6">
+                          <Link
+                            href="/cuidados-piel"
+                            className="text-[#D4AF37] text-xs font-bold tracking-[0.2em] uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
+                          >
+                            VER TODO
+                          </Link>
 
-                          {skincare.filter(item => item.nombre !== "VER TODO").map((item) => (
-                            <div key={item.nombre}>
-                              {item.href ? (
-                                <Link 
-                                  href={item.href}
+                          {skincare.filter(item => item.nombre !== "VER TODO").map((item) => {
+                            const parentSlug = item.href?.split("/").pop() ?? "";
+                            return (
+                              <div key={item.nombre}>
+                                <Link
+                                  href={`/cuidados-piel?categoria=${parentSlug}`}
                                   className="text-[#D4AF37] text-xs font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
                                 >
                                   {item.nombre}
                                 </Link>
-                              ) : (
-                                <h3 className="text-[#D4AF37] text-xs font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1">
-                                  {item.nombre}
-                                </h3>
-                              )}
-                              <div className="flex flex-col gap-2">
-                                {item.sub?.map((s) => (
-                                  <Link
-                                    key={s.nombre}
-                                    href={s.href}
-                                    className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
-                                  >
-                                    {s.nombre}
-                                  </Link>
-                                ))}
+                                <div className="flex flex-col gap-1.5">
+                                  {item.sub?.map((s) => {
+                                    const subSlug = s.href.split("/").pop() ?? "";
+                                    return (
+                                      <Link
+                                        key={s.nombre}
+                                        href={`/cuidados-piel?categoria=${subSlug}`}
+                                        className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
+                                      >
+                                        {s.nombre}
+                                      </Link>
+                                    );
+                                  })}
+                                </div>
                               </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       </div>
                     )}
@@ -400,27 +399,21 @@ export default function Header() {
                     {aromatizantesOpen && (
                       <div className="absolute top-full left-1/2 -translate-x-1/2 w-[240px] pt-4 z-50">
                         <div className="bg-[#0D0D0D] border border-[#2D2D2D] shadow-2xl shadow-black/80 p-6 flex flex-col gap-6">
-                          {aromatizantes.map((item) => (
+                          {aromatizantes.filter(item => item.nombre !== "VER TODO").map((item) => (
                             <div key={item.nombre}>
                               {item.sub ? (
                                 <>
-                                  {item.href ? (
-                                    <Link
-                                      href={item.href}
-                                      className="text-[#D4AF37] text-xs font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
-                                    >
-                                      {item.nombre}
-                                    </Link>
-                                  ) : (
-                                    <h3 className="text-[#D4AF37] text-xs font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1">
-                                      {item.nombre}
-                                    </h3>
-                                  )}
+                                  <Link
+                                    href={`/aromatizantes?categoria=${item.href?.split("/").pop() ?? ""}`}
+                                    className="text-[#D4AF37] text-xs font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
+                                  >
+                                    {item.nombre}
+                                  </Link>
                                   <div className="flex flex-col gap-1.5">
                                     {item.sub.map((s) => (
                                       <Link
                                         key={s.nombre}
-                                        href={s.href}
+                                        href={`/aromatizantes?categoria=${s.href.split("/").pop() ?? ""}`}
                                         className="text-xs text-[#cccccc] hover:text-[#D4AF37] transition-colors"
                                       >
                                         {s.nombre}
@@ -430,7 +423,7 @@ export default function Header() {
                                 </>
                               ) : (
                                 <Link
-                                  href={item.href}
+                                  href={`/aromatizantes?categoria=${item.href?.split("/").pop() ?? ""}`}
                                   className="text-[#D4AF37] text-xs font-bold tracking-[0.2em] mb-3 uppercase opacity-50 border-b border-[#2D2D2D] pb-1 hover:opacity-100 transition-opacity block"
                                 >
                                   {item.nombre}
@@ -442,6 +435,14 @@ export default function Header() {
                       </div>
                     )}
                   </div>
+
+                  {/* Catálogo Digital */}
+                  <button
+                    onClick={openCatalogo}
+                    className="text-xs tracking-[0.2em] font-bold uppercase transition-colors text-white hover:text-[#D4AF37]"
+                  >
+                    Catálogo
+                  </button>
                 </nav>
 
                 {/* Acciones: Buscador + Carrito */}
@@ -456,7 +457,7 @@ export default function Header() {
                       value={busqueda}
                       onChange={(e) => setBusqueda(e.target.value)}
                       placeholder="¿Qué buscás?"
-                      className="flex-1 bg-[#0D0D0D] border border-[#1A1A1A] border-r-0 text-white placeholder-[#555555] px-3 py-1.5 text-[11px] focus:outline-none focus:border-[#D4AF37] transition-colors"
+                      className="flex-1 bg-[#0D0D0D] border border-[#1A1A1A] border-r-0 text-white placeholder-[#9CA3AF] px-3 py-1.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
                     />
                     <button
                       type="submit"
@@ -617,6 +618,13 @@ export default function Header() {
                 </div>
               ))}
             </div>
+
+            <button
+              onClick={() => { setMenuOpen(false); openCatalogo(); }}
+              className="text-sm tracking-wider text-white hover:text-[#D4AF37] transition-colors text-left"
+            >
+              CATÁLOGO
+            </button>
 
             <Link
               href="/quienes-somos"

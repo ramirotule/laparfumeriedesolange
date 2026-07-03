@@ -76,6 +76,20 @@ export default function DashboardShell({ user, nombreCompleto, children }: Props
   const router = useRouter();
   const supabase = createClient();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [avatarLightbox, setAvatarLightbox] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      setAvatarUrl(data.user?.user_metadata?.avatar_url ?? null);
+    });
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setAvatarUrl(session?.user?.user_metadata?.avatar_url ?? null);
+    });
+
+    return () => listener.subscription.unsubscribe();
+  }, [supabase]);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [pendingOrders, setPendingOrders] = useState<any[]>([]);
   const [birthdays, setBirthdays] = useState<any[]>([]);
@@ -160,17 +174,23 @@ export default function DashboardShell({ user, nombreCompleto, children }: Props
 
   const sidebarContent = (
     <div className="flex flex-col h-full">
-      {/* Logo (sin link) */}
+      {/* Avatar + Bienvenida */}
       <div className="px-5 pt-5 pb-4 border-b border-[#1A1A1A]">
-        <Image
-          src="/logo.png"
-          alt="La Parfumerie de Solange"
-          width={80}
-          height={80}
-          className="h-9 w-auto object-contain mb-4"
-        />
+        <button
+          type="button"
+          onClick={() => avatarUrl && setAvatarLightbox(true)}
+          className={`w-12 h-12 rounded-full border-2 border-[#2D2D2D] overflow-hidden bg-[#1A1A1A] flex items-center justify-center mb-3 transition-all duration-200 ${avatarUrl ? "cursor-pointer hover:border-[#D4AF37] hover:scale-110" : "cursor-default"}`}
+          aria-label={avatarUrl ? "Ver foto en grande" : undefined}
+          disabled={!avatarUrl}
+        >
+          {avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={avatarUrl} alt="Foto de perfil" className="w-full h-full object-cover" />
+          ) : (
+            <UserCircle size={28} className="text-[#444]" />
+          )}
+        </button>
 
-        {/* Bienvenida */}
         <p className="text-[#555555] text-[10px] tracking-[0.2em] uppercase">
           Bienvenida
         </p>
@@ -213,6 +233,29 @@ export default function DashboardShell({ user, nombreCompleto, children }: Props
   );
 
   return (
+    <>
+    {/* Avatar lightbox */}
+    {avatarLightbox && avatarUrl && (
+      <div
+        className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm"
+        onClick={() => setAvatarLightbox(false)}
+      >
+        <button
+          className="absolute top-4 right-4 text-white/60 hover:text-white transition-colors"
+          onClick={() => setAvatarLightbox(false)}
+          aria-label="Cerrar"
+        >
+          <X size={28} />
+        </button>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={avatarUrl}
+          alt="Foto de perfil"
+          className="max-w-[90vw] max-h-[90vh] rounded-full object-cover shadow-2xl"
+          onClick={(e) => e.stopPropagation()}
+        />
+      </div>
+    )}
     <div className="min-h-screen bg-[#050505] flex">
       {/* Sidebar desktop */}
       <aside className="hidden md:flex flex-col w-56 shrink-0 bg-black border-r border-[#1A1A1A] fixed top-0 left-0 h-full z-30">
@@ -481,5 +524,6 @@ export default function DashboardShell({ user, nombreCompleto, children }: Props
         )}
       </div>
     </div>
+    </>
   );
 }

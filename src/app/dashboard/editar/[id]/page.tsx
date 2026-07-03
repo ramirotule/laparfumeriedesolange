@@ -18,7 +18,7 @@ export default async function EditarProductoPage({ params }: Props) {
 
   const { data: producto } = await supabase
     .from("productos")
-    .select("*, categorias(*)")
+    .select("*")
     .eq("id", id)
     .single();
 

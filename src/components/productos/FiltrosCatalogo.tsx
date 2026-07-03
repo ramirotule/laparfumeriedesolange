@@ -85,7 +85,7 @@ export default function FiltrosCatalogo({ activeParams }: Props) {
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             placeholder="¿Qué estás buscando?..."
-            className="w-full bg-black border border-[#2D2D2D] text-white text-[10px] uppercase tracking-widest px-10 py-3 focus:outline-none focus:border-[#D4AF37] transition-colors rounded-sm placeholder:text-gray-600 h-[46px]"
+            className="w-full bg-black border border-[#2D2D2D] text-white text-sm px-10 py-3 focus:outline-none focus:border-[#D4AF37] transition-colors rounded-sm placeholder:text-gray-400 h-[46px]"
           />
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={14} />
           {searchValue && (
@@ -173,53 +173,107 @@ export default function FiltrosCatalogo({ activeParams }: Props) {
       {(activeParams.seccion === "bienestar" || 
         activeParams.seccion === "aromatizantes" || 
         activeParams.seccion === "cuidados-piel") && (
-        <div className="flex flex-wrap gap-2 pt-2">
-          <Link
-            href={`/${activeParams.seccion}`}
-            className={`px-4 py-2 text-[9px] uppercase tracking-widest border transition-all rounded-sm ${
-              !activeParams.categoria
-                ? "bg-[#D4AF37] border-[#D4AF37] text-black font-bold"
-                : "bg-black/40 border-[#2D2D2D] text-gray-500 hover:border-[#D4AF37] hover:text-white"
-            }`}
-          >
-            VER TODO
-          </Link>
-          {(activeParams.seccion === "bienestar" 
-             ? bienestar 
-             : activeParams.seccion === "cuidados-piel" 
-               ? skincare 
-               : aromatizantes)
-            .filter(item => item.nombre !== "VER TODO")
-            .map((item) => (
-              <div key={item.nombre} className="flex gap-2">
-                {/* Categoría Principal */}
-                <Link
-                  href={item.href || "#"}
-                  className={`px-4 py-2 text-[9px] uppercase tracking-widest border transition-all rounded-sm ${
-                    activeParams.categoria === item.href?.split("/").pop()
-                      ? "bg-[#D4AF37] border-[#D4AF37] text-black font-bold"
-                      : "bg-black/40 border-[#2D2D2D] text-gray-500 hover:border-[#D4AF37] hover:text-white"
-                  }`}
-                >
-                  {item.nombre}
-                </Link>
+        <div className="flex flex-col gap-2 pt-2">
+          {/* Fila 1: VER TODO + categorías padre */}
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href={`/${activeParams.seccion}`}
+              className={`px-4 py-2 text-[11px] uppercase tracking-widest border transition-all rounded-sm ${
+                !activeParams.categoria
+                  ? "bg-[#D4AF37] border-[#D4AF37] text-black font-bold"
+                  : "bg-black/40 border-[#2D2D2D] text-gray-300 hover:border-[#D4AF37] hover:text-white"
+              }`}
+            >
+              VER TODO
+            </Link>
+            {(activeParams.seccion === "bienestar"
+               ? bienestar
+               : activeParams.seccion === "cuidados-piel"
+                 ? skincare
+                 : aromatizantes)
+              .filter(item => item.nombre !== "VER TODO")
+              .map((item) => {
+                const parentSlug = item.href?.split("/").pop() ?? "";
+                const currentCat = activeParams.categoria;
+                const isParentActive =
+                  currentCat === parentSlug ||
+                  (item.sub?.some(s => s.href.split("/").pop() === currentCat) ?? false);
 
-                {/* Subcategorías si existen */}
-                {item.sub && item.sub.map(s => (
+                const buildCatUrl = (slug: string) => {
+                  const params = new URLSearchParams(searchParams.toString());
+                  if (currentCat === slug) {
+                    params.delete("categoria");
+                  } else {
+                    params.set("categoria", slug);
+                  }
+                  return `${pathname}?${params.toString()}`;
+                };
+
+                return (
                   <Link
-                    key={s.nombre}
-                    href={s.href}
-                    className={`px-4 py-2 text-[9px] uppercase tracking-widest border transition-all rounded-sm ${
-                      activeParams.categoria === s.href.split("/").pop()
+                    key={item.nombre}
+                    href={buildCatUrl(parentSlug)}
+                    className={`px-4 py-2 text-[11px] uppercase tracking-widest border transition-all rounded-sm ${
+                      isParentActive
                         ? "bg-[#D4AF37] border-[#D4AF37] text-black font-bold"
-                        : "bg-black/40 border-[#2D2D2D] text-gray-500 hover:border-[#D4AF37] hover:text-white"
+                        : "bg-black/40 border-[#2D2D2D] text-gray-300 hover:border-[#D4AF37] hover:text-white"
                     }`}
                   >
-                    {s.nombre}
+                    {item.nombre}
                   </Link>
-                ))}
+                );
+              })}
+          </div>
+
+          {/* Fila 2: subcategorías del padre activo */}
+          {(() => {
+            const navItems = activeParams.seccion === "bienestar"
+              ? bienestar
+              : activeParams.seccion === "cuidados-piel"
+                ? skincare
+                : aromatizantes;
+            const currentCat = activeParams.categoria;
+            const activeParent = navItems.find(item => {
+              const parentSlug = item.href?.split("/").pop() ?? "";
+              return (
+                currentCat === parentSlug ||
+                (item.sub?.some(s => s.href.split("/").pop() === currentCat) ?? false)
+              );
+            });
+
+            if (!activeParent?.sub) return null;
+
+            const buildCatUrl = (slug: string) => {
+              const params = new URLSearchParams(searchParams.toString());
+              if (currentCat === slug) {
+                params.delete("categoria");
+              } else {
+                params.set("categoria", slug);
+              }
+              return `${pathname}?${params.toString()}`;
+            };
+
+            return (
+              <div className="flex flex-wrap gap-2 pl-2 border-l border-[#D4AF37]/30">
+                {activeParent.sub.map(s => {
+                  const subSlug = s.href.split("/").pop() ?? "";
+                  return (
+                    <Link
+                      key={s.nombre}
+                      href={buildCatUrl(subSlug)}
+                      className={`px-4 py-2 text-[11px] uppercase tracking-widest border transition-all rounded-sm ${
+                        currentCat === subSlug
+                          ? "bg-[#D4AF37] border-[#D4AF37] text-black font-bold"
+                          : "bg-black/40 border-[#2D2D2D] text-gray-300 hover:border-[#D4AF37] hover:text-white"
+                      }`}
+                    >
+                      {s.nombre}
+                    </Link>
+                  );
+                })}
               </div>
-            ))}
+            );
+          })()}
         </div>
       )}
     </div>
