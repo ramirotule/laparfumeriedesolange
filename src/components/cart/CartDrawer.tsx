@@ -125,9 +125,16 @@ export default function CartDrawer() {
                     <p className="text-[#888888] text-[10px] tracking-wider uppercase truncate">
                       {item.marca}
                     </p>
-                    <p className="text-white text-sm font-medium leading-snug truncate">
-                      {item.nombre}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-white text-sm font-medium leading-snug truncate">
+                        {item.nombre}
+                      </p>
+                      {item.por_pedido && (
+                        <span className="shrink-0 text-[9px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-400 border border-amber-500/40 px-1.5 py-0.5">
+                          Por pedido
+                        </span>
+                      )}
+                    </div>
                     <p className="text-[#D4AF37] text-sm font-bold mt-0.5">
                       {formatPrice(item.precio_venta)}
                       <span className="text-[10px] ml-1 font-normal text-gray-500 italic">contado/transf.</span>

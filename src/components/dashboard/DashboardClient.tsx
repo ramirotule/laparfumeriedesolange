@@ -18,6 +18,7 @@ import {
   FileSpreadsheet,
   ArrowDown,
   ArrowUp,
+  X,
 } from "lucide-react";
 import BulkImportModal from "./BulkImportModal";
 import * as XLSX from "xlsx";
@@ -577,7 +578,7 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
                     </td>
                     {(!categoriaFiltrada || categoriaFiltrada === "Fragancias") && (
                       <td className="px-4 py-3 text-[#888888] text-xs hidden sm:table-cell">
-                        {producto.genero || "—"}
+                        {(producto.categoria?.toLowerCase() === "fragancias" && producto.genero && producto.genero !== "No aplica") ? producto.genero : "—"}
                       </td>
                     )}
                     <td className="px-4 py-3 text-right text-[#888888]">
@@ -653,9 +654,9 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
       {/* Bulk Actions Bar */}
       {selectedIds.size > 0 && (
         <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[90] bg-[#1A1A1A] border border-[#D4AF37]/30 shadow-2xl px-6 py-4 flex items-center gap-6 animate-fade-in-up">
-          <div className="flex flex-col">
+          <div className="flex items-center gap-3">
             <span className="text-white font-bold text-sm">{selectedIds.size} seleccionados</span>
-            <button onClick={() => setSelectedIds(new Set())} className="text-[#D4AF37] text-[10px] uppercase tracking-wider hover:underline text-left">Desmarcar todos</button>
+            <button onClick={() => setSelectedIds(new Set())} className="text-[#D4AF37] text-[10px] uppercase tracking-wider hover:underline">Desmarcar todos</button>
           </div>
           <div className="h-8 w-px bg-[#2D2D2D]" />
           <div className="flex items-center gap-3">
@@ -765,7 +766,7 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
                 <>
                   <div className="fixed inset-0 z-[-1]" onClick={() => setMenuBulkAbierto(null)} />
                   <div className="absolute bottom-full left-0 mb-2 bg-[#111111] border border-[#2D2D2D] shadow-2xl p-2 min-w-[120px] animate-fade-in-up">
-                    {["Femenino", "Masculino", "Unisex"].map(gen => (
+                    {["Femenino", "Masculino", "Unisex", "No aplica"].map(gen => (
                       <button
                         key={gen}
                         onClick={() => {
@@ -796,6 +797,14 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
               Eliminar
             </button>
           </div>
+          <div className="h-8 w-px bg-[#2D2D2D]" />
+          <button
+            onClick={() => setSelectedIds(new Set())}
+            className="text-[#555555] hover:text-white transition-colors p-1"
+            title="Cerrar"
+          >
+            <X size={16} />
+          </button>
           {bulkLoading && (
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-[1px]">
               <div className="w-5 h-5 border-2 border-[#D4AF37]/20 border-t-[#D4AF37] rounded-full animate-spin" />

@@ -97,8 +97,8 @@ export default function ProductoCard({ producto, isCompact = false }: Props) {
         {/* Sin stock badge — bottom, full width */}
         {producto.stock === 0 && (
           <div className="absolute bottom-0 left-0 right-0">
-            <span className="block w-full bg-black/70 text-gray-400 text-[9px] font-bold tracking-wider px-2 py-1 uppercase text-center backdrop-blur-sm">
-              Sin stock · Se trae por pedido
+            <span className="block w-full bg-black/70 text-amber-400 text-[9px] font-bold tracking-wider px-2 py-1.5 uppercase text-center backdrop-blur-sm">
+              Se trae por pedido
             </span>
           </div>
         )}

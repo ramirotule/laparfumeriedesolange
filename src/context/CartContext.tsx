@@ -17,6 +17,7 @@ export interface CartItem {
   precio_venta: number;
   imagen_url?: string;
   cantidad: number;
+  por_pedido?: boolean;
 }
 
 interface CartContextValue {
