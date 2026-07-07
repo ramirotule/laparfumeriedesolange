@@ -8,6 +8,7 @@ import { Producto } from "@/types";
 import { ChevronRight, MapPin } from "lucide-react";
 import InstagramIcon from "@/components/ui/InstagramIcon";
 import AddToCartButton from "@/components/cart/AddToCartButton";
+import ProductoGaleria from "@/components/productos/ProductoGaleria";
 import { calculateListPrice, calculateInstallment, formatPrice } from "@/lib/price-utils";
 
 interface Props {
@@ -133,40 +134,15 @@ export default async function ProductoPage({ params }: Props) {
         </nav>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-20">
-          {/* Imagen */}
-          <div className="relative aspect-square bg-[#0D0D0D] border border-[#1A1A1A]">
-            {producto.imagen_url ? (
-              <Image
-                src={producto.imagen_url}
-                alt={`Producto ${producto.nombre} ${producto.marca} - ${producto.genero} - La Parfumerie Santa Rosa La Pampa`}
-                fill
-                sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-cover"
-                priority
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <div className="text-center">
-                  <div className="text-7xl text-gray-50 mb-4">✦</div>
-                  <p className="text-gray-300 text-sm tracking-wider uppercase">{producto.marca}</p>
-                </div>
-              </div>
-            )}
-
-            {/* Badges */}
-            <div className="absolute top-4 left-4 flex flex-col gap-2">
-              {producto.nuevo && (
-                <span className="bg-[#D4AF37] text-black text-xs font-bold tracking-wider px-3 py-1 uppercase">
-                  Nuevo
-                </span>
-              )}
-              {producto.genero === "Árabe" && (
-                <span className="bg-black/90 border border-[#D4AF37]/60 text-[#D4AF37] text-xs font-bold tracking-wider px-3 py-1 uppercase">
-                  Árabe
-                </span>
-              )}
-            </div>
-          </div>
+          {/* Galería */}
+          <ProductoGaleria
+            imagenPrincipal={producto.imagen_url}
+            imagenesAdicionales={producto.imagenes_adicionales}
+            nombre={producto.nombre}
+            marca={producto.marca}
+            genero={producto.genero}
+            nuevo={producto.nuevo}
+          />
 
           {/* Info */}
           <div className="flex flex-col">

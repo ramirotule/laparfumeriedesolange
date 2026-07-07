@@ -12,11 +12,14 @@ interface Props {
 
 type ViewMode = "large" | "standard" | "compact";
 
+const PAGE_SIZE = 24;
+
 export default function ProductoGrid({
   productos,
   emptyMessage = "No se encontraron productos.",
 }: Props) {
   const [viewMode, setViewMode] = useState<ViewMode>("standard");
+  const [visible, setVisible] = useState(PAGE_SIZE);
 
   if (productos.length === 0) {
     return (
@@ -82,14 +85,26 @@ export default function ProductoGrid({
 
       {/* Grid */}
       <div className={`grid transition-all duration-300 ${getGridClasses()}`}>
-        {productos.map((producto) => (
-          <ProductoCard 
-            key={producto.id} 
-            producto={producto} 
-            isCompact={viewMode === "compact"} 
+        {productos.slice(0, visible).map((producto, i) => (
+          <ProductoCard
+            key={producto.id}
+            producto={producto}
+            isCompact={viewMode === "compact"}
+            priority={i < 8}
           />
         ))}
       </div>
+
+      {visible < productos.length && (
+        <div className="flex flex-col items-center gap-2 pt-4">
+          <button
+            onClick={() => setVisible((v) => v + PAGE_SIZE)}
+            className="px-8 py-3 border border-[#D4AF37]/40 text-[#D4AF37] text-sm font-bold tracking-widest uppercase hover:bg-[#D4AF37]/10 transition-colors"
+          >
+            Ver más productos ({productos.length - visible} restantes)
+          </button>
+        </div>
+      )}
     </div>
   );
 }

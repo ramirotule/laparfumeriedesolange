@@ -7,9 +7,10 @@ import { calculateListPrice, calculateInstallment, formatPrice } from "@/lib/pri
 interface Props {
   producto: Producto;
   isCompact?: boolean;
+  priority?: boolean;
 }
 
-export default function ProductoCard({ producto, isCompact = false }: Props) {
+export default function ProductoCard({ producto, isCompact = false, priority = false }: Props) {
 
   if (isCompact) {
     return (
@@ -60,6 +61,7 @@ export default function ProductoCard({ producto, isCompact = false }: Props) {
             alt={`Producto ${producto.nombre} ${producto.marca} - ${producto.genero} - La Parfumerie Santa Rosa La Pampa`}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            priority={priority}
             className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
           />
         ) : (

@@ -27,7 +27,7 @@ async function searchProducts(query: string): Promise<Producto[]> {
     .from("productos")
     .select("id, nombre, marca, slug, precio_venta, imagen_url, genero, destacado")
     .eq("activo", true)
-    .or(`nombre.ilike.%${query}%,marca.ilike.%${query}%`)
+    .or(`nombre.ilike.%${query}%,marca.ilike.%${query}%,inspired_in.ilike.%${query}%`)
     .order("destacado", { ascending: false })
     .limit(MAX_RESULTS);
   return (data as Producto[]) || [];
@@ -63,6 +63,9 @@ export default function QuickSearchModal() {
       if ((e.ctrlKey || e.metaKey) && e.key === "k") {
         e.preventDefault();
         setOpen((prev) => !prev);
+      }
+      if (e.key === "Escape") {
+        setOpen(false);
       }
     }
     function handleOpenEvent() {

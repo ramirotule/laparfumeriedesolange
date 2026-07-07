@@ -431,11 +431,11 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
             {/* Todas las imágenes (adicionales + principal si no está en la lista) */}
             {Array.from(new Set([form.imagen_url, ...form.imagenes_adicionales])).filter(img => img).map((img, idx) => (
               <div key={idx} className={`group relative aspect-square bg-[#1A1A1A] border overflow-hidden rounded-sm transition-all ${selectedImages.includes(img) ? "border-red-500 ring-1 ring-red-500" : "border-[#2D2D2D]"}`}>
-                <Image 
-                  src={img} 
-                  alt={`Imagen ${idx}`} 
-                  fill 
-                  className="object-cover"
+                <Image
+                  src={img}
+                  alt={`Imagen ${idx}`}
+                  fill
+                  className="object-contain p-2"
                 />
                 
                 {/* Checkbox de Selección */}

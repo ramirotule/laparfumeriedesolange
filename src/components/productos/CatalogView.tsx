@@ -86,7 +86,7 @@ async function getProductos(params: SearchParams): Promise<Producto[]> {
     if (params.busqueda || params.q) {
       const term = params.busqueda || params.q || "";
       query = query.or(
-        `nombre.ilike.%${term}%,marca.ilike.%${term}%,descripcion.ilike.%${term}%`,
+        `nombre.ilike.%${term}%,marca.ilike.%${term}%,descripcion.ilike.%${term}%,inspired_in.ilike.%${term}%`,
       );
     }
 
