@@ -21,7 +21,7 @@ export default function ProductoCard({ producto, isCompact = false }: Props) {
               alt={`Producto ${producto.nombre} ${producto.marca}`}
               fill
               sizes="(max-width: 640px) 33vw, (max-width: 1024px) 20vw, 15vw"
-              className="object-cover group-hover:scale-110 transition-transform duration-500"
+              className="object-contain p-3 group-hover:scale-105 transition-transform duration-500"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
@@ -60,7 +60,7 @@ export default function ProductoCard({ producto, isCompact = false }: Props) {
             alt={`Producto ${producto.nombre} ${producto.marca} - ${producto.genero} - La Parfumerie Santa Rosa La Pampa`}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="object-cover group-hover:scale-105 transition-transform duration-500"
+            className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
@@ -73,7 +73,7 @@ export default function ProductoCard({ producto, isCompact = false }: Props) {
           </div>
         )}
 
-        {/* Badges */}
+        {/* Badges — top left: Nuevo / Destacado only */}
         <div className="absolute top-2 left-2 flex flex-col gap-1">
           {producto.nuevo && (
             <span className="bg-[#D4AF37] text-black text-[9px] font-bold tracking-wider px-2 py-0.5 uppercase">
@@ -85,19 +85,23 @@ export default function ProductoCard({ producto, isCompact = false }: Props) {
               Destacado
             </span>
           )}
-          {producto.stock === 0 && (
-            <span className="bg-[#1A1A1A] border border-gray-800 text-gray-500 text-[9px] font-bold tracking-wider px-2 py-0.5 uppercase">
-              Sin stock · Se trae por pedido
-            </span>
-          )}
         </div>
 
-        {/* Género badge */}
+        {/* Género badge — top right */}
         <div className="absolute top-2 right-2">
           <span className="bg-black/60 border border-[#1A1A1A] text-gray-300 text-[9px] tracking-wider px-2 py-0.5 uppercase backdrop-blur-sm">
             {(producto.categoria?.toLowerCase() === "fragancias" || !producto.categoria) ? producto.genero : "—"}
           </span>
         </div>
+
+        {/* Sin stock badge — bottom, full width */}
+        {producto.stock === 0 && (
+          <div className="absolute bottom-0 left-0 right-0">
+            <span className="block w-full bg-black/70 text-gray-400 text-[9px] font-bold tracking-wider px-2 py-1 uppercase text-center backdrop-blur-sm">
+              Sin stock · Se trae por pedido
+            </span>
+          </div>
+        )}
       </Link>
 
       {/* Content */}

@@ -38,6 +38,8 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
   const [familias, setFamilias] = useState<FamiliaOlfativa[]>([]);
   const [loadingFamilias, setLoadingFamilias] = useState(true);
   const [categoriasDb, setCategoriasDb] = useState<{id: string, nombre: string}[]>([]);
+  const [subcategoriasDb, setSubcategoriasDb] = useState<{id: string, nombre: string}[]>([]);
+  const [loadingSubcategorias, setLoadingSubcategorias] = useState(false);
 
   const [form, setForm] = useState({
     nombre: producto.nombre || "",
@@ -54,7 +56,8 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
     concentracion: producto.concentracion || "EDP",
     volumen_ml: producto.volumen_ml?.toString() || "",
     categoria_id: producto.categoria_id?.toString() || "",
-    categoria_nombre: producto.categoria || "", 
+    categoria_nombre: producto.categoria || "",
+    subcategoria_id: producto.subcategoria_id?.toString() || "",
     activo: producto.activo !== undefined ? producto.activo : true,
     destacado: producto.destacado || false,
     nuevo: producto.nuevo || false,
@@ -112,6 +115,29 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
     fetchCategorias();
   }, [producto.id, form.categoria_id]);
 
+  useEffect(() => {
+    if (!form.categoria_id) {
+      setSubcategoriasDb([]);
+      return;
+    }
+    async function fetchSubcategorias() {
+      setLoadingSubcategorias(true);
+      const { data, error } = await supabase
+        .from("subcategorias")
+        .select("id, nombre")
+        .eq("categoria_id", form.categoria_id)
+        .eq("activo", true)
+        .order("orden");
+      if (error) {
+        console.error("Error cargando subcategorías:", error);
+      } else {
+        setSubcategoriasDb(data || []);
+      }
+      setLoadingSubcategorias(false);
+    }
+    fetchSubcategorias();
+  }, [form.categoria_id]);
+
   function update(key: string, value: string | boolean) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
@@ -136,6 +162,7 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
       concentracion: isFragancia ? (form.concentracion || null) : null,
       volumen_ml: isFragancia && form.volumen_ml ? parseInt(form.volumen_ml) : null,
       categoria_id: form.categoria_id || null,
+      subcategoria_id: form.subcategoria_id || null,
       activo: form.activo,
       destacado: form.destacado,
       nuevo: form.nuevo,
@@ -187,17 +214,30 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
             Información del Producto
           </h2>
 
-          <div className="mb-6">
+          <div className="mb-4">
             <CustomSelect
               label="Categoría *"
               value={form.categoria_id}
               onChange={(val) => {
                 const name = categoriasDb.find(c => c.id === val)?.nombre || "";
-                setForm(prev => ({ ...prev, categoria_id: val, categoria_nombre: name }));
+                setForm(prev => ({ ...prev, categoria_id: val, categoria_nombre: name, subcategoria_id: "" }));
               }}
               options={categoriasDb.map((c) => ({ value: c.id, label: c.nombre }))}
             />
           </div>
+
+          {form.categoria_id && subcategoriasDb.length > 0 && (
+            <div className="mb-6">
+              <CustomSelect
+                label="Subcategoría"
+                value={form.subcategoria_id}
+                loading={loadingSubcategorias}
+                placeholder="Seleccionar subcategoría..."
+                onChange={(val) => setForm(prev => ({ ...prev, subcategoria_id: val }))}
+                options={subcategoriasDb.map((s) => ({ value: s.id, label: s.nombre }))}
+              />
+            </div>
+          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>

@@ -104,9 +104,10 @@ export default function FiltrosCatalogo({ activeParams }: Props) {
 
         {/* Grupo de Dropdowns Custom */}
         <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-          {!(activeParams.seccion === "bienestar" || 
-             activeParams.seccion === "aromatizantes" || 
-             activeParams.seccion === "cuidados-piel") && (
+          {!(activeParams.seccion === "bienestar" ||
+             activeParams.seccion === "aromatizantes" ||
+             activeParams.seccion === "cuidados-piel") &&
+           (!activeParams.categoria || activeParams.categoria === "fragancias") && (
             <>
               <div className="min-w-[140px] flex-1 lg:flex-none">
                 <CustomSelect

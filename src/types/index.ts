@@ -30,6 +30,7 @@ export interface Producto {
   categoria?: string;
   categorias?: { nombre: string };
   subcategoria_id?: string;
+  subcategorias?: { nombre: string };
   genero: "Femenino" | "Masculino" | "Unisex" | "Árabe";
   concentracion?: string;
   volumen_ml?: number;

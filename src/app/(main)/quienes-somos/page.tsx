@@ -101,11 +101,6 @@ export default function QuienesSomosPage() {
             <p className="text-[#D4AF37] font-serif text-lg italic leading-relaxed border-l-2 border-[#D4AF37]/40 pl-4">
               ¡Gracias por ser parte de este camino, quiero seguir creciendo con vos!
             </p>
-
-            <div className="flex items-center gap-2 text-[#555555] text-sm pt-2">
-              <MapPin size={14} className="text-[#D4AF37] shrink-0" />
-              Ayala 604, Santa Rosa, La Pampa
-            </div>
           </div>
         </div>
       </section>

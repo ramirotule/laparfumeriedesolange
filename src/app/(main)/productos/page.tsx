@@ -13,6 +13,7 @@ interface SearchParams {
   notas?: string;
   marca?: string;
   categoria?: string;
+  subcategoria?: string;
   seccion?: string;
 }
 

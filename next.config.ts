@@ -22,6 +22,10 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "www.bagues.com.ar",
+      },
+      {
+        protocol: "https",
         hostname: "**.cloudinary.com",
       },
     ],

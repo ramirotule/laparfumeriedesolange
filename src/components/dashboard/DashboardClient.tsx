@@ -46,10 +46,12 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
   const [bulkDeleteModal, setBulkDeleteModal] = useState(false);
   
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-  const [categoriaFiltrada, setCategoriaFiltrada] = useState<string>("Fragancias");
-  const [listarTodo, setListarTodo] = useState<boolean>(false);
-  const [menuBulkAbierto, setMenuBulkAbierto] = useState<"categoria" | "genero" | null>(null);
+  const [categoriaFiltrada, setCategoriaFiltrada] = useState<string>("");
+  const [subcategoriaFiltrada, setSubcategoriaFiltrada] = useState<string>("");
+  const [menuBulkAbierto, setMenuBulkAbierto] = useState<"categoria" | "genero" | "subcategoria" | null>(null);
+  const [precioModal, setPrecioModal] = useState<{ open: boolean; venta: string; costo: string }>({ open: false, venta: "", costo: "" });
   const [categoriasDb, setCategoriasDb] = useState<{id: string, nombre: string}[]>([]);
+  const [subcategoriasDb, setSubcategoriasDb] = useState<{id: string, nombre: string, slug: string, categoria_id: string}[]>([]);
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
   const router = useRouter();
   const supabase = createClient();
@@ -81,8 +83,12 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
   }
 
   const fetchCategorias = async () => {
-    const { data } = await supabase.from("categorias").select("id, nombre");
-    if (data) setCategoriasDb(data);
+    const [{ data: cats }, { data: subs }] = await Promise.all([
+      supabase.from("categorias").select("id, nombre"),
+      supabase.from("subcategorias").select("id, nombre, slug, categoria_id").eq("activo", true).order("orden"),
+    ]);
+    if (cats) setCategoriasDb(cats);
+    if (subs) setSubcategoriasDb(subs);
   };
 
   useEffect(() => {
@@ -190,6 +196,45 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
     setBulkLoading(false);
   }
 
+  async function bulkUpdateSubcategoria(subId: string, catId: string) {
+    setBulkLoading(true);
+    const ids = Array.from(selectedIds);
+    const { error } = await supabase
+      .from("productos")
+      .update({ subcategoria_id: subId, categoria_id: catId })
+      .in("id", ids);
+    if (error) {
+      toast.error("Error al actualizar subcategoría.");
+    } else {
+      setProductos((prev) =>
+        prev.map((p) => selectedIds.has(p.id) ? { ...p, subcategoria_id: subId, categoria_id: catId } : p)
+      );
+      setSelectedIds(new Set());
+      toast.success("Subcategoría actualizada correctamente.");
+    }
+    setBulkLoading(false);
+  }
+
+  async function bulkUpdatePrecios() {
+    const { venta, costo } = precioModal;
+    if (!venta && !costo) return;
+    setBulkLoading(true);
+    const ids = Array.from(selectedIds);
+    const payload: Record<string, number> = {};
+    if (venta) payload.precio_venta = Number(venta.replace(/\D/g, ""));
+    if (costo) payload.precio_costo = Number(costo.replace(/\D/g, ""));
+    const { error } = await supabase.from("productos").update(payload).in("id", ids);
+    if (error) {
+      toast.error("Error al actualizar precios.");
+    } else {
+      setProductos((prev) => prev.map((p) => selectedIds.has(p.id) ? { ...p, ...payload } : p));
+      setSelectedIds(new Set());
+      setPrecioModal({ open: false, venta: "", costo: "" });
+      toast.success(`Precios actualizados en ${ids.length} productos.`);
+    }
+    setBulkLoading(false);
+  }
+
   async function ejecutarEliminarBulk() {
     setBulkLoading(true);
     const ids = Array.from(selectedIds);
@@ -251,17 +296,25 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
     toast.success("Producto eliminado.");
   }
 
+  const catSeleccionada = categoriasDb.find(c => c.nombre === categoriaFiltrada);
+  const subcategoriasParaCategoria = catSeleccionada
+    ? subcategoriasDb.filter(s => s.categoria_id === catSeleccionada.id)
+    : [];
+
   const productosFiltrados = productos.filter((p) => {
     // 1. Filtro por búsqueda
-    const matchesBusqueda = !busqueda || 
+    const matchesBusqueda = !busqueda ||
       p.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
       p.marca.toLowerCase().includes(busqueda.toLowerCase());
-    
+
     // 2. Filtro por categoría
     const cat = p.categoria || "Fragancias";
-    const matchesCategoria = listarTodo || cat === categoriaFiltrada;
+    const matchesCategoria = !categoriaFiltrada || cat === categoriaFiltrada;
 
-    return matchesBusqueda && matchesCategoria;
+    // 3. Filtro por subcategoría
+    const matchesSubcategoria = !subcategoriaFiltrada || (p as any).subcategoria_id === subcategoriaFiltrada;
+
+    return matchesBusqueda && matchesCategoria && matchesSubcategoria;
   }).sort((a, b) => {
     if (!sortConfig) return 0;
     
@@ -326,52 +379,50 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
         </div>
       </div>
 
-      {/* Toolbar */}
-      <div className="flex flex-col lg:flex-row gap-4 mb-6 items-start lg:items-center justify-between">
-        <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+      {/* Toolbar — fila 1: filtros + importar/exportar */}
+      <div className="flex flex-col sm:flex-row gap-3 mb-3 items-start sm:items-center justify-between">
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
           <input
             type="search"
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
             placeholder="Buscar por nombre o marca..."
-            className="bg-[#0D0D0D] border border-[#2D2D2D] text-white placeholder-[#555555] px-4 py-2.5 focus:outline-none focus:border-[#D4AF37] transition-colors text-sm w-full sm:w-80"
+            className="bg-[#0D0D0D] border border-[#2D2D2D] text-white placeholder-[#555555] px-4 py-2.5 focus:outline-none focus:border-[#D4AF37] transition-colors text-sm w-full sm:w-72"
           />
-          <div className="w-full sm:w-48">
+          <div className="w-full sm:w-44">
             <CustomSelect
               value={categoriaFiltrada}
-              onChange={(val) => setCategoriaFiltrada(val)}
+              onChange={(val) => { setCategoriaFiltrada(val); setSubcategoriaFiltrada(""); }}
               options={[
-                { value: "Fragancias", label: "Fragancias" },
-                { value: "Cuidados de la Piel", label: "Cuidados de la Piel" },
-                { value: "Bienestar", label: "Bienestar" },
-                { value: "Aromatizantes", label: "Aromatizantes" },
+                { value: "", label: "Ver Todo" },
+                ...categoriasDb.map(c => ({ value: c.nombre, label: c.nombre })),
               ]}
               placeholder="Categoría"
             />
           </div>
-
-          <label className="flex items-center gap-2 cursor-pointer group whitespace-nowrap pt-2 sm:pt-0 sm:ml-2">
-            <div className="relative">
-              <input
-                type="checkbox"
-                checked={listarTodo}
-                onChange={(e) => setListarTodo(e.target.checked)}
-                className="sr-only peer"
+          {subcategoriasParaCategoria.length > 0 && (
+            <div className="w-full sm:w-40">
+              <CustomSelect
+                value={subcategoriaFiltrada}
+                onChange={(val) => setSubcategoriaFiltrada(val)}
+                options={[
+                  { value: "", label: "Todas" },
+                  ...subcategoriasParaCategoria.map(s => ({ value: s.id, label: s.nombre })),
+                ]}
+                placeholder="Subcategoría"
               />
-              <div className="w-10 h-5 bg-[#1A1A1A] border border-[#2D2D2D] rounded-full peer peer-checked:bg-[#D4AF37] transition-all duration-300"></div>
-              <div className="absolute left-1 top-1 w-3 h-3 bg-[#555555] peer-checked:bg-black rounded-full transition-all duration-300 peer-checked:translate-x-5"></div>
             </div>
-            <span className="text-xs text-[#888888] group-hover:text-white transition-colors uppercase tracking-widest font-bold">
-              Listar todo
-            </span>
-          </label>
+          )}
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-
-
-          <div className="h-8 w-px bg-[#1A1A1A] hidden md:block mx-2" />
-
+        <div className="flex items-center gap-3 shrink-0">
+          <Link
+            href="/dashboard/nuevo"
+            className="flex items-center gap-2 bg-[#D4AF37] text-black font-bold px-5 py-2.5 text-sm tracking-wider hover:bg-[#E8CC6B] transition-colors whitespace-nowrap"
+          >
+            <Plus size={16} />
+            Nuevo
+          </Link>
           <button
             onClick={() => setIsImportModalOpen(true)}
             className="flex items-center gap-2 bg-[#1A1A1A] text-white border border-[#2D2D2D] font-bold px-4 py-2.5 text-sm tracking-wider hover:bg-[#252525] transition-colors whitespace-nowrap group"
@@ -382,7 +433,6 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
             </div>
             Importar
           </button>
-          
           <button
             onClick={() => downloadExcel(productosFiltrados)}
             className="flex items-center gap-2 bg-[#1A1A1A] text-white border border-[#2D2D2D] font-bold px-4 py-2.5 text-sm tracking-wider hover:bg-[#252525] transition-colors whitespace-nowrap group"
@@ -393,14 +443,6 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
             </div>
             Exportar
           </button>
-
-          <Link
-            href="/dashboard/nuevo"
-            className="flex items-center gap-2 bg-[#D4AF37] text-black font-bold px-5 py-2.5 text-sm tracking-wider hover:bg-[#E8CC6B] transition-colors whitespace-nowrap"
-          >
-            <Plus size={16} />
-            Nuevo
-          </Link>
         </div>
       </div>
 
@@ -440,7 +482,9 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
                     </span>
                   </div>
                 </th>
-                <th className="text-left text-[#555555] text-xs tracking-widest uppercase px-4 py-3 hidden sm:table-cell">Género</th>
+                {(!categoriaFiltrada || categoriaFiltrada === "Fragancias") && (
+                  <th className="text-left text-[#555555] text-xs tracking-widest uppercase px-4 py-3 hidden sm:table-cell">Género</th>
+                )}
                 <th 
                   className="text-right text-[#555555] text-xs tracking-widest uppercase px-4 py-3 cursor-pointer hover:text-white transition-colors group"
                   onClick={() => handleSort("precio_costo")}
@@ -531,9 +575,11 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
                     <td className="px-4 py-3 text-[#888888] text-xs hidden lg:table-cell">
                       {producto.categoria || "Fragancias"}
                     </td>
-                    <td className="px-4 py-3 text-[#888888] text-xs hidden sm:table-cell">
-                      {(producto.categoria?.toLowerCase() === "fragancias" || !producto.categoria) ? producto.genero : "—"}
-                    </td>
+                    {(!categoriaFiltrada || categoriaFiltrada === "Fragancias") && (
+                      <td className="px-4 py-3 text-[#888888] text-xs hidden sm:table-cell">
+                        {producto.genero || "—"}
+                      </td>
+                    )}
                     <td className="px-4 py-3 text-right text-[#888888]">
                       {producto.precio_costo ? `$${producto.precio_costo.toLocaleString("es-AR")}` : "—"}
                     </td>
@@ -669,6 +715,44 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
               )}
             </div>
 
+            {/* Subcategoría Masiva */}
+            <div className="relative">
+              <button
+                onClick={() => setMenuBulkAbierto(menuBulkAbierto === "subcategoria" ? null : "subcategoria")}
+                className={`px-3 py-1.5 text-xs font-bold border transition-colors ${menuBulkAbierto === "subcategoria" ? "bg-[#D4AF37] text-black border-[#D4AF37]" : "text-[#D4AF37] border-[#D4AF37]/20 hover:bg-[#D4AF37]/10"}`}
+              >
+                Subcategoría
+              </button>
+              {menuBulkAbierto === "subcategoria" && (
+                <>
+                  <div className="fixed inset-0 z-[-1]" onClick={() => setMenuBulkAbierto(null)} />
+                  <div className="absolute bottom-full left-0 mb-2 bg-[#111111] border border-[#2D2D2D] shadow-2xl p-2 min-w-[200px] animate-fade-in-up max-h-72 overflow-y-auto">
+                    {categoriasDb.map(cat => {
+                      const subs = subcategoriasDb.filter(s => s.categoria_id === cat.id);
+                      if (!subs.length) return null;
+                      return (
+                        <div key={cat.id}>
+                          <p className="px-3 py-1 text-[9px] text-[#555555] uppercase tracking-widest font-bold">{cat.nombre}</p>
+                          {subs.map(sub => (
+                            <button
+                              key={sub.id}
+                              onClick={() => {
+                                bulkUpdateSubcategoria(sub.id, sub.categoria_id);
+                                setMenuBulkAbierto(null);
+                              }}
+                              className="w-full text-left px-3 py-2 text-[10px] text-[#888888] hover:text-white hover:bg-[#1A1A1A] transition-colors pl-5"
+                            >
+                              {sub.nombre}
+                            </button>
+                          ))}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+            </div>
+
             {/* Género Masivo */}
             <div className="relative">
               <button 
@@ -697,7 +781,13 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
                 </>
               )}
             </div>
-            <button 
+            <button
+              onClick={() => setPrecioModal({ open: true, venta: "", costo: "" })}
+              className="px-3 py-1.5 text-xs font-bold text-blue-400 border border-blue-400/20 hover:bg-blue-400/10 transition-colors"
+            >
+              Precio
+            </button>
+            <button
               onClick={() => setBulkDeleteModal(true)}
               disabled={bulkLoading}
               className="px-3 py-1.5 text-xs font-bold text-red-400 border border-red-400/20 hover:bg-red-400/10 transition-colors flex items-center gap-2"
@@ -786,14 +876,65 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
           </div>
         </div>
       )}
+      {/* Modal Actualización Masiva de Precios */}
+      {precioModal.open && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#0A0A0A] border border-[#2D2D2D] w-full max-w-sm p-6 md:p-8">
+            <h2 className="font-serif text-xl text-white mb-1">Actualizar precios</h2>
+            <p className="text-[#555555] text-xs mb-6">
+              {selectedIds.size} producto{selectedIds.size !== 1 ? "s" : ""} seleccionado{selectedIds.size !== 1 ? "s" : ""}. Dejá en blanco el campo que no querés modificar.
+            </p>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-[#888888] text-xs uppercase tracking-widest mb-1.5">Precio de Venta</label>
+                <input
+                  type="number"
+                  value={precioModal.venta}
+                  onChange={(e) => setPrecioModal(prev => ({ ...prev, venta: e.target.value }))}
+                  placeholder="Precio nuevo..."
+                  className="w-full bg-[#111] border border-[#2D2D2D] text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
+                />
+              </div>
+              <div>
+                <label className="block text-[#888888] text-xs uppercase tracking-widest mb-1.5">Precio de Costo</label>
+                <input
+                  type="number"
+                  value={precioModal.costo}
+                  onChange={(e) => setPrecioModal(prev => ({ ...prev, costo: e.target.value }))}
+                  placeholder="Precio nuevo..."
+                  className="w-full bg-[#111] border border-[#2D2D2D] text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
+                />
+              </div>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setPrecioModal({ open: false, venta: "", costo: "" })}
+                className="flex-1 px-4 py-2.5 text-sm text-[#888888] hover:text-white border border-[#2D2D2D] hover:bg-[#1A1A1A] transition-colors"
+                disabled={bulkLoading}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={bulkUpdatePrecios}
+                disabled={bulkLoading || (!precioModal.venta && !precioModal.costo)}
+                className="flex-1 px-4 py-2.5 text-sm font-bold bg-[#D4AF37] text-black hover:bg-[#E8CC6B] transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {bulkLoading ? <span className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" /> : null}
+                Aplicar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Modal Importación Excel */}
-      <BulkImportModal 
-        isOpen={isImportModalOpen} 
-        onClose={() => setIsImportModalOpen(false)} 
+      <BulkImportModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
         onSuccess={() => {
           fetchProductos();
           router.refresh();
-        }} 
+        }}
       />
     </>
   );

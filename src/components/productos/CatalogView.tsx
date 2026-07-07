@@ -16,6 +16,7 @@ interface SearchParams {
   notas?: string;
   marca?: string;
   categoria?: string;
+  subcategoria?: string;
   seccion?: string;
   tipo?: string;
 }
@@ -32,18 +33,43 @@ async function getProductos(params: SearchParams): Promise<Producto[]> {
       if (params.genero === "Internacional") {
         query = query.neq("genero", "Árabe");
       } else {
-        query = query.eq("genero", params.genero);
+        // Normalize: "femenino" → "Femenino"
+        const generoNorm = params.genero.charAt(0).toUpperCase() + params.genero.slice(1).toLowerCase();
+        query = query.ilike("genero", generoNorm);
       }
     }
-    
+
     if (params.tipo === "internacional") {
       query = query.neq("genero", "Árabe");
     }
 
     if (params.nuevo === "true") query = query.eq("nuevo", true);
     if (params.destacado === "true") query = query.eq("destacado", true);
-    if (params.categoria) query = query.eq("categoria", params.categoria);
     if (params.marca) query = query.eq("marca", params.marca);
+
+    // Filtro por subcategoría (via slug → id)
+    if (params.subcategoria) {
+      const { data: sub } = await supabase
+        .from("subcategorias")
+        .select("id")
+        .eq("slug", params.subcategoria)
+        .single();
+      if (sub) {
+        query = query.eq("subcategoria_id", sub.id);
+      }
+    } else if (params.categoria) {
+      // Sin subcategoría específica: filtrar por todos los productos de esa categoría
+      const { data: subs } = await supabase
+        .from("subcategorias")
+        .select("id, categorias!inner(slug)")
+        .eq("categorias.slug", params.categoria);
+      if (subs && subs.length > 0) {
+        query = query.in("subcategoria_id", subs.map(s => s.id));
+      } else {
+        // Fallback: filtro por texto (productos sin subcategoria_id asignado)
+        query = query.ilike("categoria", `%${params.categoria.replace(/-/g, " ")}%`);
+      }
+    }
     
     if (params.seccion === "bienestar") {
       query = query.ilike("categoria", "%bienestar%");

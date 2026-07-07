@@ -20,7 +20,9 @@ import {
   Trash2,
   ChevronRight,
   Info,
-  Globe
+  Globe,
+  Layers,
+  GalleryHorizontal,
 } from "lucide-react";
 
 const NAV = [
@@ -34,6 +36,12 @@ const NAV = [
       p.startsWith("/dashboard/editar"),
   },
   {
+    href: "/dashboard/carrousel",
+    label: "Carrusel",
+    icon: GalleryHorizontal,
+    match: (p: string) => p.startsWith("/dashboard/carrousel"),
+  },
+  {
     href: "/dashboard/pedidos",
     label: "Pedidos",
     icon: ShoppingBag,
@@ -44,6 +52,12 @@ const NAV = [
     label: "Vendedoras",
     icon: Users,
     match: (p: string) => p.startsWith("/dashboard/vendedoras"),
+  },
+  {
+    href: "/dashboard/categorias",
+    label: "Categorías",
+    icon: Layers,
+    match: (p: string) => p.startsWith("/dashboard/categorias"),
   },
   {
     href: "/dashboard/notas",
