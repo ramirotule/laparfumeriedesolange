@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { Plus, Trash2, Save, Upload, Loader2 } from "lucide-react";
+import { Plus, Trash2, Save, Upload, Loader2, GripVertical } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import toast from "react-hot-toast";
 
@@ -22,6 +22,8 @@ export default function SliderConfig() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState<number | null>(null);
   const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const dragIndex = useRef<number | null>(null);
+  const [dragOver, setDragOver] = useState<number | null>(null);
 
   const supabase = createClient();
 
@@ -52,6 +54,35 @@ export default function SliderConfig() {
 
   function removeSlide(index: number) {
     setSlides((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function handleDragStart(e: React.DragEvent, index: number) {
+    dragIndex.current = index;
+    e.dataTransfer.effectAllowed = "move";
+  }
+
+  function handleDragOver(e: React.DragEvent, index: number) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setDragOver(index);
+  }
+
+  function handleDrop(e: React.DragEvent, index: number) {
+    e.preventDefault();
+    if (dragIndex.current === null || dragIndex.current === index) return;
+    setSlides((prev) => {
+      const next = [...prev];
+      const [moved] = next.splice(dragIndex.current!, 1);
+      next.splice(index, 0, moved);
+      return next;
+    });
+    dragIndex.current = null;
+    setDragOver(null);
+  }
+
+  function handleDragEnd() {
+    dragIndex.current = null;
+    setDragOver(null);
   }
 
   function addSlide() {
@@ -149,8 +180,19 @@ export default function SliderConfig() {
           {slides.map((slide, i) => (
             <div
               key={i}
-              className="flex gap-4 items-start border border-[#1A1A1A] bg-[#0A0A0A] p-4"
+              draggable
+              onDragStart={(e) => handleDragStart(e, i)}
+              onDragOver={(e) => handleDragOver(e, i)}
+              onDrop={(e) => handleDrop(e, i)}
+              onDragEnd={handleDragEnd}
+              className={`flex gap-4 items-start border bg-[#0A0A0A] p-4 transition-all ${
+                dragOver === i ? "border-[#D4AF37] opacity-70" : "border-[#1A1A1A]"
+              }`}
             >
+              {/* Drag handle */}
+              <div className="flex-shrink-0 flex items-center self-stretch cursor-grab active:cursor-grabbing text-[#333] hover:text-[#555] transition-colors pr-1">
+                <GripVertical size={16} />
+              </div>
               {/* Thumbnail */}
               <div className="flex-shrink-0 w-20 h-14 bg-[#1A1A1A] border border-[#2D2D2D] overflow-hidden relative rounded-sm">
                 {slide.imagen_url ? (
