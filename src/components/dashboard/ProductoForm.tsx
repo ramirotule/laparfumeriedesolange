@@ -408,13 +408,17 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
                     }
                     
                     setForm(prev => {
-                      const updatedAdicionales = [...prev.imagenes_adicionales, ...newImages];
                       let updatedPrincipal = prev.imagen_url;
+                      let imagesToAdd = newImages;
+
                       if (!updatedPrincipal && newImages.length > 0) {
                         updatedPrincipal = newImages[0];
+                        imagesToAdd = newImages.slice(1);
                       }
-                      return { 
-                        ...prev, 
+
+                      const updatedAdicionales = [...prev.imagenes_adicionales, ...imagesToAdd];
+                      return {
+                        ...prev,
                         imagenes_adicionales: updatedAdicionales,
                         imagen_url: updatedPrincipal
                       };

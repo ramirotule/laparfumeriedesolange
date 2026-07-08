@@ -578,7 +578,7 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
                     </td>
                     {(!categoriaFiltrada || categoriaFiltrada === "Fragancias") && (
                       <td className="px-4 py-3 text-[#888888] text-xs hidden sm:table-cell">
-                        {(producto.categoria?.toLowerCase() === "fragancias" && producto.genero && producto.genero !== "No aplica") ? producto.genero : "—"}
+                        {(producto.categoria?.toLowerCase() === "fragancias" && producto.genero) ? producto.genero : "—"}
                       </td>
                     )}
                     <td className="px-4 py-3 text-right text-[#888888]">

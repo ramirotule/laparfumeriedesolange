@@ -21,7 +21,7 @@ export default function ProductoGaleria({
   genero,
   nuevo,
 }: Props) {
-  const todas = [imagenPrincipal, ...imagenesAdicionales].filter(Boolean) as string[];
+  const todas = [...new Set([imagenPrincipal, ...imagenesAdicionales].filter(Boolean))] as string[];
   const [current, setCurrent] = useState(0);
 
   const prev = () => setCurrent((i) => (i - 1 + todas.length) % todas.length);
