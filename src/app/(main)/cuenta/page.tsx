@@ -1,16 +1,15 @@
 import { redirect } from "next/navigation";
-import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
-import CheckoutClient from "@/components/checkout/CheckoutClient";
+import CuentaClient from "@/components/cuenta/CuentaClient";
 
 export const dynamic = "force-dynamic";
 
-export default async function CheckoutPage() {
+export default async function CuentaPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/cuenta/ingresar?redirect=/checkout");
+    redirect("/cuenta/ingresar?redirect=/cuenta");
   }
 
   const { data: perfil } = await supabase
@@ -23,12 +22,18 @@ export default async function CheckoutPage() {
     redirect("/dashboard");
   }
 
+  const { data: pedidos } = await supabase
+    .from("pedidos")
+    .select("id, numero_pedido, total, estado, tipo_entrega, created_at")
+    .eq("cliente_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(20);
+
   return (
-    <Suspense>
-      <CheckoutClient
-        userEmail={user.email || ""}
-        perfil={perfil}
-      />
-    </Suspense>
+    <CuentaClient
+      email={user.email || ""}
+      perfil={perfil}
+      pedidos={pedidos || []}
+    />
   );
 }

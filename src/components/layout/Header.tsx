@@ -8,6 +8,7 @@ import { Search, Menu, X, ChevronDown, ShoppingBag } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useCatalogo } from "@/context/CatalogoContext";
 import { SITE_CONFIG } from "@/constants/site";
+import HeaderAccountLink from "@/components/layout/HeaderAccountLink";
 
 const SKINCARE_SUBITEMS: Record<string, string[]> = {
   "cuidado-facial": ["Limpieza", "Serum", "Crema", "Tratamiento", "Suncare", "Rutinas"],
@@ -131,6 +132,7 @@ export default function Header({ navCategorias }: Props) {
               >
                 Preguntas Frecuentes
               </Link>
+              <HeaderAccountLink />
               <Link
                 href="/login"
                 className="text-[11px] tracking-[0.2em] text-[#D4AF37] border border-[#D4AF37]/50 px-3 py-1 rounded hover:bg-[#D4AF37] hover:text-black transition-all font-bold uppercase"
@@ -402,6 +404,13 @@ export default function Header({ navCategorias }: Props) {
               className={`text-sm tracking-wider transition-colors ${pathname === "/preguntas-frecuentes" ? "text-[#D4AF37]" : "text-white hover:text-[#D4AF37]"}`}
             >
               FAQ
+            </Link>
+            <Link
+              href="/cuenta/ingresar"
+              onClick={() => setMenuOpen(false)}
+              className="text-sm tracking-wider text-white hover:text-[#D4AF37] transition-colors"
+            >
+              MI CUENTA
             </Link>
             <Link
               href="/login"

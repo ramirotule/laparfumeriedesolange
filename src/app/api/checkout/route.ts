@@ -1,5 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
+import {
+  calculateShipping,
+  isTipoEntrega,
+  type TipoEntrega,
+} from "@/lib/shipping";
 
 interface CartItem {
   id: string;
@@ -18,17 +25,39 @@ interface CheckoutBody {
   telefono: string;
   email?: string;
   direccion?: string;
+  localidad?: string;
+  provincia?: string;
+  tipo_entrega: TipoEntrega;
   notas?: string;
   metodo_pago: "efectivo" | "transferencia" | "mercadopago";
+  subtotal?: number;
 }
 
-function getSupabase() {
+function getServiceSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key =
     process.env.SUPABASE_SERVICE_ROLE_KEY ||
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!url || !key) throw new Error("Supabase env vars faltantes");
-  return createClient(url, key, { auth: { persistSession: false } });
+  return createSupabaseClient(url, key, { auth: { persistSession: false } });
+}
+
+async function getAuthenticatedUser() {
+  const cookieStore = await cookies();
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll() {},
+      },
+    }
+  );
+  const { data: { user } } = await supabase.auth.getUser();
+  return user;
 }
 
 function generarNumeroPedido(): string {
@@ -38,28 +67,93 @@ function generarNumeroPedido(): string {
   return `LP-${fecha}-${rand}`;
 }
 
+function buildDireccionCompleta(
+  body: CheckoutBody
+): string | null {
+  const base = body.direccion?.trim();
+  if (!base) return null;
+
+  if (body.tipo_entrega === "domicilio_interior") {
+    const parts = [base, body.localidad?.trim(), body.provincia?.trim()].filter(Boolean);
+    return parts.join(", ");
+  }
+
+  return base;
+}
+
 export async function POST(req: NextRequest) {
   try {
-    const body: CheckoutBody = await req.json();
-    const { items, nombre, apellido, telefono, email, direccion, notas, metodo_pago } = body;
+    const user = await getAuthenticatedUser();
+    if (!user) {
+      return NextResponse.json({ error: "Debés iniciar sesión para comprar." }, { status: 401 });
+    }
 
-    if (!items?.length || !nombre?.trim() || !apellido?.trim() || !telefono?.trim() || !metodo_pago) {
+    const body: CheckoutBody = await req.json();
+    const {
+      items,
+      nombre,
+      apellido,
+      telefono,
+      email,
+      direccion,
+      notas,
+      metodo_pago,
+      tipo_entrega,
+    } = body;
+
+    if (
+      !items?.length ||
+      !nombre?.trim() ||
+      !apellido?.trim() ||
+      !telefono?.trim() ||
+      !metodo_pago ||
+      !tipo_entrega ||
+      !isTipoEntrega(tipo_entrega)
+    ) {
       return NextResponse.json({ error: "Datos incompletos" }, { status: 400 });
     }
 
+    const needsAddress =
+      tipo_entrega === "domicilio_santa_rosa" ||
+      tipo_entrega === "domicilio_toay" ||
+      tipo_entrega === "domicilio_interior";
+
+    if (needsAddress && !direccion?.trim()) {
+      return NextResponse.json({ error: "La dirección es obligatoria." }, { status: 400 });
+    }
+
+    if (
+      tipo_entrega === "domicilio_interior" &&
+      (!body.localidad?.trim() || !body.provincia?.trim())
+    ) {
+      return NextResponse.json(
+        { error: "Localidad y provincia son obligatorias para envíos al interior." },
+        { status: 400 }
+      );
+    }
+
     const subtotal = items.reduce((s, i) => s + i.precio_venta * i.cantidad, 0);
-    const supabase = getSupabase();
+    const shipping = calculateShipping(subtotal, tipo_entrega);
+    const costoEnvio = shipping.costo;
+    const total = subtotal + (costoEnvio ?? 0);
+
+    const supabase = getServiceSupabase();
+    const direccionCompleta = buildDireccionCompleta(body);
 
     const { data: pedido, error } = await supabase
       .from("pedidos")
       .insert({
         numero_pedido: generarNumeroPedido(),
+        cliente_id: user.id,
         cliente_nombre: nombre.trim(),
         cliente_apellido: apellido.trim(),
         cliente_telefono: telefono.trim(),
-        cliente_email: email?.trim() || null,
-        cliente_direccion: direccion?.trim() || null,
+        cliente_email: email?.trim() || user.email || null,
+        cliente_direccion: direccionCompleta,
         cliente_notas: notas?.trim() || null,
+        tipo_entrega,
+        costo_envio: costoEnvio,
+        envio_pendiente_cotizacion: shipping.pendienteCotizacion,
         items: items.map((i) => ({
           id: i.id,
           nombre: i.nombre,
@@ -70,7 +164,7 @@ export async function POST(req: NextRequest) {
           cantidad: i.cantidad,
         })),
         subtotal,
-        total: subtotal,
+        total,
         metodo_pago,
         estado: "pendiente",
       })
@@ -88,14 +182,43 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No se pudo crear el pedido" }, { status: 500 });
     }
 
+    // Actualizar perfil del cliente con datos del checkout
+    await supabase.from("perfiles").upsert({
+      id: user.id,
+      nombre: nombre.trim(),
+      apellido: apellido.trim(),
+      telefono: telefono.trim(),
+      direccion: needsAddress ? direccion?.trim() || null : null,
+      localidad: body.localidad?.trim() || null,
+      provincia: body.provincia?.trim() || null,
+      rol: "cliente",
+    });
+
     const orderId = pedido.id as string;
     const baseUrl = req.headers.get("origin") ?? process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
-    // --- MercadoPago ---
     if (metodo_pago === "mercadopago") {
       const mpToken = process.env.MP_ACCESS_TOKEN;
       if (!mpToken) {
         return NextResponse.json({ error: "MercadoPago no está configurado aún." }, { status: 500 });
+      }
+
+      const mpItems = items.map((i) => ({
+        id: i.id,
+        title: `${i.nombre} — ${i.marca}`,
+        quantity: i.cantidad,
+        unit_price: i.precio_venta,
+        currency_id: "ARS",
+      }));
+
+      if (costoEnvio && costoEnvio > 0) {
+        mpItems.push({
+          id: "envio",
+          title: "Envío a domicilio",
+          quantity: 1,
+          unit_price: costoEnvio,
+          currency_id: "ARS",
+        });
       }
 
       const mpRes = await fetch("https://api.mercadopago.com/checkout/preferences", {
@@ -105,17 +228,11 @@ export async function POST(req: NextRequest) {
           Authorization: `Bearer ${mpToken}`,
         },
         body: JSON.stringify({
-          items: items.map((i) => ({
-            id: i.id,
-            title: `${i.nombre} — ${i.marca}`,
-            quantity: i.cantidad,
-            unit_price: i.precio_venta,
-            currency_id: "ARS",
-          })),
+          items: mpItems,
           payer: {
             name: nombre,
             surname: apellido,
-            email: email || "comprador@laparfumerie.com.ar",
+            email: email || user.email || "comprador@laparfumerie.com.ar",
           },
           back_urls: {
             success: `${baseUrl}/checkout/confirmacion?id=${orderId}&mp=success`,
@@ -143,7 +260,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ orderId, redirectUrl: initPoint });
     }
 
-    // Efectivo o transferencia
     return NextResponse.json({
       orderId,
       redirectUrl: `${baseUrl}/checkout/confirmacion?id=${orderId}`,

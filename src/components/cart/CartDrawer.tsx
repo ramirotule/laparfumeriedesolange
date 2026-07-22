@@ -7,6 +7,7 @@ import { X, ShoppingBag, Plus, Minus, Trash2, ArrowRight } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { calculateInstallment, formatPrice } from "@/lib/price-utils";
 import { SITE_CONFIG } from "@/constants/site";
+import { FREE_SHIPPING_THRESHOLD } from "@/lib/shipping";
 
 export default function CartDrawer() {
   const { items, count, total, drawerOpen, closeDrawer, removeItem, updateCantidad } =
@@ -61,25 +62,28 @@ export default function CartDrawer() {
           </button>
         </div>
 
-        {/* Shipping Progress Bar */}
+        {/* Shipping Progress Bar — envío gratis SR/Toay */}
         {count > 0 && (
           <div className="px-5 py-3 bg-[#111111] border-b border-[#1A1A1A]">
             <div className="flex justify-between items-center mb-1.5">
               <span className="text-[10px] uppercase tracking-widest text-[#888888]">
-                {total >= SITE_CONFIG.shipping.freeThreshold 
-                  ? "¡Tenés envío gratis!" 
-                  : `Te faltan ${formatPrice(SITE_CONFIG.shipping.freeThreshold - total)} para el envío gratis`}
+                {total > FREE_SHIPPING_THRESHOLD
+                  ? "¡Envío gratis en Santa Rosa y Toay!"
+                  : `Te faltan ${formatPrice(FREE_SHIPPING_THRESHOLD - total)} para envío gratis (SR/Toay)`}
               </span>
               <span className="text-[10px] font-bold text-[#D4AF37]">
-                {Math.min(100, Math.round((total / SITE_CONFIG.shipping.freeThreshold) * 100))}%
+                {Math.min(100, Math.round((total / FREE_SHIPPING_THRESHOLD) * 100))}%
               </span>
             </div>
             <div className="h-1 w-full bg-[#1A1A1A] rounded-full overflow-hidden">
-              <div 
+              <div
                 className="h-full bg-[#D4AF37] transition-all duration-500 ease-out"
-                style={{ width: `${Math.min(100, (total / SITE_CONFIG.shipping.freeThreshold) * 100)}%` }}
+                style={{ width: `${Math.min(100, (total / FREE_SHIPPING_THRESHOLD) * 100)}%` }}
               />
             </div>
+            <p className="text-[#555555] text-[9px] mt-2 leading-relaxed">
+              SR ${SITE_CONFIG.shipping.santaRosa.toLocaleString("es-AR")} · Toay ${SITE_CONFIG.shipping.toay.toLocaleString("es-AR")} · Retiro gratis · Interior a consultar
+            </p>
           </div>
         )}
 

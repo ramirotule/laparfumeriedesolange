@@ -31,7 +31,7 @@ async function getProductos(params: SearchParams): Promise<Producto[]> {
 
     if (params.genero) {
       if (params.genero === "Internacional") {
-        query = query.neq("genero", "Árabe");
+        query = query.neq("genero", "Árabe").neq("marca", "Unlock");
       } else {
         // Normalize: "femenino" → "Femenino"
         const generoNorm = params.genero.charAt(0).toUpperCase() + params.genero.slice(1).toLowerCase();
@@ -40,7 +40,7 @@ async function getProductos(params: SearchParams): Promise<Producto[]> {
     }
 
     if (params.tipo === "internacional") {
-      query = query.neq("genero", "Árabe");
+      query = query.neq("genero", "Árabe").neq("marca", "Unlock");
     }
 
     if (params.nuevo === "true") query = query.eq("nuevo", true);
@@ -85,8 +85,13 @@ async function getProductos(params: SearchParams): Promise<Producto[]> {
 
     if (params.busqueda || params.q) {
       const term = params.busqueda || params.q || "";
+      const normalizedTerm = term
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/\s+/g, "%");
       query = query.or(
-        `nombre.ilike.%${term}%,marca.ilike.%${term}%,descripcion.ilike.%${term}%,inspired_in.ilike.%${term}%`,
+        `nombre.ilike.%${term}%,marca.ilike.%${term}%,descripcion.ilike.%${term}%,inspired_in.ilike.%${term}%,slug.ilike.%${normalizedTerm}%`,
       );
     }
 

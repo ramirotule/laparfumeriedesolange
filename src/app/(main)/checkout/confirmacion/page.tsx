@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { CheckCircle, Clock, Banknote, Building2, CreditCard, ArrowRight } from "lucide-react";
+import { CheckCircle, Clock, Banknote, Building2, CreditCard, ArrowRight, Truck } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
+import { TIPO_ENTREGA_LABELS, type TipoEntrega } from "@/lib/shipping";
 
 export const dynamic = "force-dynamic";
 
@@ -150,12 +151,44 @@ export default async function ConfirmacionPage({ searchParams }: Props) {
             )
           )}
         </ul>
-        <div className="flex justify-between font-bold border-t border-[#1A1A1A] pt-3">
-          <span className="text-white">Total</span>
-          <span className="text-[#D4AF37]">
-            ${pedido.total.toLocaleString("es-AR")}
-          </span>
+        <div className="space-y-2 text-sm border-t border-[#1A1A1A] pt-3">
+          <div className="flex justify-between">
+            <span className="text-[#888888]">Subtotal productos</span>
+            <span className="text-white">
+              ${(pedido.subtotal as number).toLocaleString("es-AR")}
+            </span>
+          </div>
+          {pedido.tipo_entrega && (
+            <div className="flex justify-between items-start gap-4">
+              <div>
+                <span className="text-[#888888] flex items-center gap-1">
+                  <Truck size={12} /> Envío
+                </span>
+                <span className="text-[#555555] text-[10px] block mt-0.5">
+                  {TIPO_ENTREGA_LABELS[pedido.tipo_entrega as TipoEntrega]}
+                </span>
+              </div>
+              <span className="text-white shrink-0">
+                {pedido.envio_pendiente_cotizacion
+                  ? "A consultar"
+                  : pedido.costo_envio === 0
+                    ? "Gratis"
+                    : `$${(pedido.costo_envio as number).toLocaleString("es-AR")}`}
+              </span>
+            </div>
+          )}
+          <div className="flex justify-between font-bold pt-2 border-t border-[#1A1A1A]">
+            <span className="text-white">Total</span>
+            <span className="text-[#D4AF37]">
+              ${pedido.total.toLocaleString("es-AR")}
+            </span>
+          </div>
         </div>
+        {pedido.envio_pendiente_cotizacion && (
+          <p className="text-[#555555] text-xs mt-3">
+            El costo de envío al interior se te informará por WhatsApp antes del despacho.
+          </p>
+        )}
         {pedido.cliente_direccion && (
           <p className="text-[#555555] text-xs mt-3">
             Entrega: {pedido.cliente_direccion}

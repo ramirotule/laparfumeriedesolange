@@ -16,6 +16,8 @@ export const SITE_CONFIG = {
   },
   shipping: {
     freeThreshold: 60000,
+    santaRosa: 4000,
+    toay: 5000,
   },
   bank: {
     name: "Banco Nación / Santander / Mercado Pago",

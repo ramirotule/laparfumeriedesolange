@@ -23,11 +23,16 @@ function useDebounce<T>(value: T, delay: number): T {
 async function searchProducts(query: string): Promise<Producto[]> {
   if (query.length < 2) return [];
   const supabase = createClient();
+  const normalizedQuery = query
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/\s+/g, "%");
   const { data } = await supabase
     .from("productos")
     .select("id, nombre, marca, slug, precio_venta, imagen_url, genero, destacado")
     .eq("activo", true)
-    .or(`nombre.ilike.%${query}%,marca.ilike.%${query}%,inspired_in.ilike.%${query}%`)
+    .or(`nombre.ilike.%${query}%,marca.ilike.%${query}%,inspired_in.ilike.%${query}%,slug.ilike.%${normalizedQuery}%`)
     .order("destacado", { ascending: false })
     .limit(MAX_RESULTS);
   return (data as Producto[]) || [];

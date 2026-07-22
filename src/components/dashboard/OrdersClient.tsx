@@ -21,12 +21,14 @@ import {
 } from "lucide-react";
 import CustomSelect from "@/components/ui/CustomSelect";
 import toast from "react-hot-toast";
+import { TIPO_ENTREGA_LABELS, type TipoEntrega } from "@/lib/shipping";
 
 interface OrderItem {
   id: string;
   nombre: string;
   cantidad: number;
-  precio: number;
+  precio_venta: number;
+  precio?: number;
 }
 
 interface Order {
@@ -39,6 +41,10 @@ interface Order {
   cliente_direccion: string;
   cliente_notas: string;
   items: OrderItem[];
+  subtotal: number;
+  costo_envio: number | null;
+  tipo_entrega: TipoEntrega | null;
+  envio_pendiente_cotizacion: boolean;
   total: number;
   metodo_pago: string;
   estado: string;
@@ -272,6 +278,22 @@ export default function OrdersClient({ initialOrders }: Props) {
                           <p className="text-[#888888]">{order.cliente_direccion}</p>
                         </div>
                       )}
+                      {order.tipo_entrega && (
+                        <div className="flex items-start gap-3 text-sm">
+                          <Truck size={16} className="text-[#D4AF37] mt-0.5 shrink-0" />
+                          <div>
+                            <p className="text-[#888888]">{TIPO_ENTREGA_LABELS[order.tipo_entrega]}</p>
+                            <p className="text-[#555555] text-xs mt-0.5">
+                              Envío:{" "}
+                              {order.envio_pendiente_cotizacion
+                                ? "A consultar"
+                                : order.costo_envio === 0
+                                  ? "Gratis"
+                                  : `$${(order.costo_envio ?? 0).toLocaleString("es-AR")}`}
+                            </p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -285,7 +307,9 @@ export default function OrdersClient({ initialOrders }: Props) {
                             <span className="text-[#D4AF37] font-mono text-xs bg-[#D4AF37]/10 px-1.5 rounded">{item.cantidad}x</span>
                             <span className="text-gray-200 truncate max-w-[150px]">{item.nombre}</span>
                           </div>
-                          <span className="text-[#555555] font-mono text-xs">${(item.precio * item.cantidad).toLocaleString('es-AR')}</span>
+                          <span className="text-[#555555] font-mono text-xs">
+                            ${((item.precio_venta ?? item.precio ?? 0) * item.cantidad).toLocaleString("es-AR")}
+                          </span>
                         </div>
                       ))}
                     </div>

@@ -19,6 +19,7 @@ import {
   ArrowDown,
   ArrowUp,
   X,
+  RefreshCw,
 } from "lucide-react";
 import BulkImportModal from "./BulkImportModal";
 import * as XLSX from "xlsx";
@@ -47,6 +48,7 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
   const [bulkDeleteModal, setBulkDeleteModal] = useState(false);
   
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [regeneratingSlug, setRegeneratingSlug] = useState(false);
   const [categoriaFiltrada, setCategoriaFiltrada] = useState<string>("");
   const [subcategoriaFiltrada, setSubcategoriaFiltrada] = useState<string>("");
   const [menuBulkAbierto, setMenuBulkAbierto] = useState<"categoria" | "genero" | "subcategoria" | null>(null);
@@ -247,6 +249,21 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
     toast.success("Productos eliminados correctamente.");
   }
 
+  const regenerateSlugs = async () => {
+    setRegeneratingSlug(true);
+    try {
+      const res = await fetch("/api/admin/regenerate-slugs", { method: "POST" });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error);
+      const msg = `${json.updated} slug${json.updated !== 1 ? "s" : ""} corregido${json.updated !== 1 ? "s" : ""}${json.skipped ? ` · ${json.skipped} omitido${json.skipped !== 1 ? "s" : ""} por duplicado` : ""}.`;
+      toast.success(msg);
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Error al regenerar slugs");
+    } finally {
+      setRegeneratingSlug(false);
+    }
+  };
+
   const downloadExcel = (data?: Producto[]) => {
     const toExport = data || productos.filter((p) => selectedIds.has(p.id));
     if (toExport.length === 0) return;
@@ -443,6 +460,15 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
               <ArrowUp size={10} className="text-white absolute -right-1 -bottom-1 bg-[#1A1A1A] rounded-full group-hover:-translate-y-0.5 transition-transform" />
             </div>
             Exportar
+          </button>
+          <button
+            onClick={regenerateSlugs}
+            disabled={regeneratingSlug}
+            title="Regenerar slugs de todos los productos"
+            className="flex items-center gap-2 bg-[#1A1A1A] text-white border border-[#2D2D2D] font-bold px-4 py-2.5 text-sm tracking-wider hover:bg-[#252525] transition-colors whitespace-nowrap disabled:opacity-50"
+          >
+            <RefreshCw size={16} className={`text-[#D4AF37] ${regeneratingSlug ? "animate-spin" : ""}`} />
+            Slugs
           </button>
         </div>
       </div>

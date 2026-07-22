@@ -30,6 +30,15 @@ const categorias = ["Fragancias", "Cuidados de la Piel", "Bienestar", "Aromatiza
 
 const supabase = createClient();
 
+function generateSlug(nombre: string, marca: string) {
+  return `${nombre}-${marca}`
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)+/g, "");
+}
+
 export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -148,9 +157,12 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
     setError("");
 
     const isFragancia = form.categoria_nombre.toLowerCase() === "fragancias";
+    const nombreTrimmed = form.nombre.trim();
+    const marcaTrimmed = form.marca.trim();
     const payload = {
-      nombre: form.nombre.trim(),
-      marca: form.marca.trim(),
+      nombre: nombreTrimmed,
+      marca: marcaTrimmed,
+      slug: generateSlug(nombreTrimmed, marcaTrimmed),
       descripcion: form.descripcion.trim(),
       descripcion_corta: form.descripcion_corta.trim() || null,
       precio_costo: form.precio_costo ? parseFloat(form.precio_costo) : null,

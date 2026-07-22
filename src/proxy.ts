@@ -36,9 +36,18 @@ export async function proxy(request: NextRequest) {
     }
   }
 
+  // Checkout requiere sesión de cliente
+  if (request.nextUrl.pathname === "/checkout") {
+    if (!user) {
+      const loginUrl = new URL("/cuenta/ingresar", request.url);
+      loginUrl.searchParams.set("redirect", "/checkout");
+      return NextResponse.redirect(loginUrl);
+    }
+  }
+
   return supabaseResponse;
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/login"],
+  matcher: ["/dashboard/:path*", "/login", "/checkout"],
 };
