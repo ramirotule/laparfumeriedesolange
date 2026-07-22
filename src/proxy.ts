@@ -2,6 +2,18 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function proxy(request: NextRequest) {
+  const { pathname, searchParams } = request.nextUrl;
+
+  // Supabase a veces redirige a "/?code=..." en lugar de "/auth/callback"
+  const authCode = searchParams.get("code");
+  if (authCode && pathname !== "/auth/callback") {
+    const callbackUrl = new URL("/auth/callback", request.url);
+    callbackUrl.searchParams.set("code", authCode);
+    const next = searchParams.get("next");
+    if (next) callbackUrl.searchParams.set("next", next);
+    return NextResponse.redirect(callbackUrl);
+  }
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -49,5 +61,12 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/login", "/checkout"],
+  matcher: [
+    "/",
+    "/dashboard/:path*",
+    "/login",
+    "/checkout",
+    "/cuenta/:path*",
+    "/auth/callback",
+  ],
 };

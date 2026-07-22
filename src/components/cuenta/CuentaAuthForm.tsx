@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { authCallbackUrl } from "@/lib/site-url";
 
 function GoogleIcon() {
   return (
@@ -59,7 +60,7 @@ export default function CuentaAuthForm({ mode }: Props) {
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirect)}`,
+        redirectTo: authCallbackUrl(redirect),
       },
     });
 
@@ -91,7 +92,7 @@ export default function CuentaAuthForm({ mode }: Props) {
             nombre: nombre.trim(),
             apellido: apellido.trim(),
           },
-          emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirect)}`,
+          emailRedirectTo: authCallbackUrl(redirect),
         },
       });
 
