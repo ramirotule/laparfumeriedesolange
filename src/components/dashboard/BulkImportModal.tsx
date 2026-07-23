@@ -5,6 +5,7 @@ import * as XLSX from "xlsx";
 import { createClient } from "@/lib/supabase/client";
 import { Download, Upload, X, Check, AlertCircle, FileText } from "lucide-react";
 import toast from "react-hot-toast";
+import { DEFAULT_RECARGO_LISTA } from "@/lib/price-utils";
 
 interface Props {
   isOpen: boolean;
@@ -28,8 +29,8 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: Props) {
         nombre: "Ejemplo Producto",
         marca: "Bagués",
         descripcion: "Descripción larga del producto...",
-        precio_costo: 5000,
         precio_venta: 8500,
+        porcentaje_recargo_lista: 22.36,
         stock: 10,
         genero: "Femenino",
         concentracion: "EDP",
@@ -43,8 +44,8 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: Props) {
         nombre: "Ejemplo Crema Facial",
         marca: "Bioétape",
         descripcion: "Descripción de la crema...",
-        precio_costo: 3000,
         precio_venta: 5500,
+        porcentaje_recargo_lista: 22.36,
         stock: 15,
         genero: "Unisex",
         categoria: "Cuidados de la Piel",
@@ -174,8 +175,8 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: Props) {
             item.marca
           ),
           descripcion: item.descripcion || "",
-          precio_costo: Number(item.precio_costo) || 0,
           precio_venta: Number(item.precio_venta) || 0,
+          porcentaje_recargo_lista: Number(item.porcentaje_recargo_lista) || DEFAULT_RECARGO_LISTA,
           stock: Number(item.stock) || 0,
           genero: item.genero || "Unisex",
           concentracion: item.concentracion || "EDP",

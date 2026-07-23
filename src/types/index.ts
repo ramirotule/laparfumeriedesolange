@@ -19,8 +19,8 @@ export interface Producto {
   slug: string;
   descripcion: string;
   descripcion_corta?: string;
-  precio_costo?: number;
   precio_venta: number;
+  porcentaje_recargo_lista?: number;
   stock: number;
   imagen_url?: string;
   imagenes_adicionales?: string[];

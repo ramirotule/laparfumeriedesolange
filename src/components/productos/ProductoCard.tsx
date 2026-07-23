@@ -127,10 +127,10 @@ export default function ProductoCard({ producto, isCompact = false, priority = f
         <div className="mt-auto pt-4">
           <div className="mb-3 flex flex-col">
             <span className="text-gray-400 text-[10px] uppercase tracking-wider">
-              Precio de lista: {formatPrice(calculateListPrice(producto.precio_venta))}
+              Precio de lista: {formatPrice(calculateListPrice(producto.precio_venta, producto.porcentaje_recargo_lista))}
             </span>
             <span className="text-gray-600 text-xs font-medium">
-              3 cuotas sin interés de {formatPrice(calculateInstallment(producto.precio_venta))}
+              3 cuotas sin interés de {formatPrice(calculateInstallment(producto.precio_venta, producto.porcentaje_recargo_lista))}
             </span>
             <div className="mt-1">
               <span className="text-white font-bold text-xl">

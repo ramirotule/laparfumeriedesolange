@@ -182,13 +182,13 @@ export default async function ProductoPage({ params }: Props) {
                   Precio de lista
                 </span>
                 <span className="text-[#cccccc] font-medium text-2xl">
-                  {formatPrice(calculateListPrice(producto.precio_venta))}
+                  {formatPrice(calculateListPrice(producto.precio_venta, producto.porcentaje_recargo_lista))}
                 </span>
               </div>
-              
+
               <div className="flex items-center gap-2 text-[#888888] mt-1">
                 <span className="font-semibold text-lg">
-                  3 cuotas sin interés de {formatPrice(calculateInstallment(producto.precio_venta))}
+                  3 cuotas sin interés de {formatPrice(calculateInstallment(producto.precio_venta, producto.porcentaje_recargo_lista))}
                 </span>
               </div>
 

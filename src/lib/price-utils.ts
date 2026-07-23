@@ -1,11 +1,18 @@
-export const LIST_PRICE_FACTOR = 1.2236;
+export const DEFAULT_RECARGO_LISTA = 22.36;
 
-export function calculateListPrice(price: number): number {
-  return price * LIST_PRICE_FACTOR;
+export function calculateListPrice(
+  precioContado: number,
+  porcentajeRecargo: number = DEFAULT_RECARGO_LISTA
+): number {
+  return precioContado * (1 + porcentajeRecargo / 100);
 }
 
-export function calculateInstallment(price: number, installments: number = 3): number {
-  return (price * LIST_PRICE_FACTOR) / installments;
+export function calculateInstallment(
+  precioContado: number,
+  porcentajeRecargo: number = DEFAULT_RECARGO_LISTA,
+  installments: number = 3
+): number {
+  return calculateListPrice(precioContado, porcentajeRecargo) / installments;
 }
 
 export function formatPrice(price: number): string {

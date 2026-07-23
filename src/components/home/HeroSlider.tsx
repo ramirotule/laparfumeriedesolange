@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Great_Vibes, Cinzel } from "next/font/google";
 import { createClient } from "@/lib/supabase/client";
@@ -82,13 +83,8 @@ export default function HeroSlider() {
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Slide images — no overlay, fill container */}
-      {slides.map((s, i) => (
-        <div
-          key={i}
-          className={`absolute inset-0 transition-opacity duration-700 ${
-            i === current ? "opacity-100" : "opacity-0"
-          }`}
-        >
+      {slides.map((s, i) => {
+        const image = (
           <Image
             src={s.imagen_url}
             alt={s.titulo ?? `Slide ${i + 1} — La Parfumerie`}
@@ -97,8 +93,25 @@ export default function HeroSlider() {
             priority={i === 0}
             sizes="100vw"
           />
-        </div>
-      ))}
+        );
+
+        return (
+          <div
+            key={i}
+            className={`absolute inset-0 transition-opacity duration-700 ${
+              i === current ? "opacity-100" : "opacity-0 pointer-events-none"
+            }`}
+          >
+            {s.href ? (
+              <Link href={s.href} className="relative block w-full h-full cursor-pointer">
+                {image}
+              </Link>
+            ) : (
+              image
+            )}
+          </div>
+        );
+      })}
 
 
 
@@ -140,6 +153,5 @@ export default function HeroSlider() {
     </section>
   );
 
-  // If the current slide has a link, wrap the image layer only (not the whole section)
   return content;
 }

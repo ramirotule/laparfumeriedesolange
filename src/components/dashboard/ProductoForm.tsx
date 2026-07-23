@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Producto, FamiliaOlfativa } from "@/types";
 import CustomSelect from "@/components/ui/CustomSelect";
+import { calculateListPrice, formatPrice, DEFAULT_RECARGO_LISTA } from "@/lib/price-utils";
 
 import { 
   Plus, 
@@ -55,8 +56,8 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
     marca: producto.marca || "",
     descripcion: producto.descripcion || "",
     descripcion_corta: producto.descripcion_corta || "",
-    precio_costo: producto.precio_costo?.toString() || "",
     precio_venta: producto.precio_venta?.toString() || "",
+    porcentaje_recargo_lista: producto.porcentaje_recargo_lista?.toString() || DEFAULT_RECARGO_LISTA.toString(),
     stock: producto.stock?.toString() || "0",
     imagen_url: producto.imagen_url || "",
     imagenes_adicionales: producto.imagenes_adicionales || [],
@@ -170,10 +171,10 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
       ),
       descripcion: form.descripcion.trim(),
       descripcion_corta: form.descripcion_corta.trim() || null,
-      precio_costo: form.precio_costo ? parseFloat(form.precio_costo) : null,
       precio_venta: parseFloat(form.precio_venta),
       stock: parseInt(form.stock) || 0,
       imagen_url: form.imagen_url.trim() || null,
+      porcentaje_recargo_lista: parseFloat(form.porcentaje_recargo_lista) || DEFAULT_RECARGO_LISTA,
       familia_olfativa_id: isFragancia && form.familia_olfativa_id ? parseInt(form.familia_olfativa_id) : null,
       genero: generoFinal,
       concentracion: isFragancia ? (form.concentracion || null) : null,
@@ -211,12 +212,11 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
     setTimeout(() => router.push("/dashboard"), 1500);
   }
 
-  const margen =
-    form.precio_costo && form.precio_venta
-      ? Math.round(
-          ((parseFloat(form.precio_venta) - parseFloat(form.precio_costo)) /
-            parseFloat(form.precio_venta)) *
-            100
+  const precioLista =
+    form.precio_venta && parseFloat(form.precio_venta) > 0
+      ? calculateListPrice(
+          parseFloat(form.precio_venta),
+          parseFloat(form.porcentaje_recargo_lista) || DEFAULT_RECARGO_LISTA
         )
       : null;
 
@@ -552,20 +552,7 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="text-[#888888] text-xs uppercase tracking-widest block mb-1.5">
-                Precio Costo ($)
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                value={form.precio_costo}
-                onChange={(e) => update("precio_costo", e.target.value)}
-                className="w-full bg-[#1A1A1A] border border-[#2D2D2D] text-white px-4 py-3 focus:outline-none focus:border-[#D4AF37] text-sm transition-colors"
-                placeholder="0.00"
-              />
-            </div>
-            <div>
-              <label className="text-[#888888] text-xs uppercase tracking-widest block mb-1.5">
-                Precio Venta ($) *
+                Precio Contado ($) *
               </label>
               <input
                 type="number"
@@ -575,6 +562,21 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
                 required
                 className="w-full bg-[#1A1A1A] border border-[#2D2D2D] text-white px-4 py-3 focus:outline-none focus:border-[#D4AF37] text-sm transition-colors"
                 placeholder="0.00"
+              />
+              <p className="text-[#555555] text-[10px] mt-1">Efectivo o transferencia bancaria</p>
+            </div>
+            <div>
+              <label className="text-[#888888] text-xs uppercase tracking-widest block mb-1.5">
+                Recargo 3 Cuotas (%) *
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                value={form.porcentaje_recargo_lista}
+                onChange={(e) => update("porcentaje_recargo_lista", e.target.value)}
+                required
+                className="w-full bg-[#1A1A1A] border border-[#2D2D2D] text-white px-4 py-3 focus:outline-none focus:border-[#D4AF37] text-sm transition-colors"
+                placeholder={DEFAULT_RECARGO_LISTA.toString()}
               />
             </div>
             <div>
@@ -592,19 +594,9 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
             </div>
           </div>
 
-          {margen !== null && (
-            <div
-              className={`text-sm px-4 py-2.5 border ${
-                margen >= 40
-                  ? "border-green-400/30 text-green-400 bg-green-400/5"
-                  : margen >= 25
-                  ? "border-yellow-400/30 text-yellow-400 bg-yellow-400/5"
-                  : "border-red-400/30 text-red-400 bg-red-400/5"
-              }`}
-            >
-              Margen de ganancia: <strong>{margen}%</strong>
-              {margen < 25 && " — ¡Revisar precio!"}
-              {margen >= 40 && " — Excelente margen"}
+          {precioLista !== null && (
+            <div className="text-sm px-4 py-2.5 border border-[#D4AF37]/30 text-[#D4AF37] bg-[#D4AF37]/5">
+              Precio de lista (3 cuotas sin interés): <strong>{formatPrice(precioLista)}</strong>
             </div>
           )}
         </div>

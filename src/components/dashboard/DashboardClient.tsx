@@ -8,9 +8,7 @@ import Link from "next/link";
 import Image from "next/image";
 import {
   Package,
-  TrendingUp,
   AlertTriangle,
-  DollarSign,
   Plus,
   Edit2,
   Trash2,
@@ -25,13 +23,12 @@ import BulkImportModal from "./BulkImportModal";
 import * as XLSX from "xlsx";
 import CustomSelect from "@/components/ui/CustomSelect";
 import toast from "react-hot-toast";
+import { calculateListPrice, DEFAULT_RECARGO_LISTA } from "@/lib/price-utils";
 
 interface Stats {
   total: number;
   activos: number;
   sinStock: number;
-  valorInventario: number;
-  margenPromedio: number;
 }
 
 interface Props {
@@ -52,7 +49,7 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
   const [categoriaFiltrada, setCategoriaFiltrada] = useState<string>("");
   const [subcategoriaFiltrada, setSubcategoriaFiltrada] = useState<string>("");
   const [menuBulkAbierto, setMenuBulkAbierto] = useState<"categoria" | "genero" | "subcategoria" | null>(null);
-  const [precioModal, setPrecioModal] = useState<{ open: boolean; venta: string; costo: string }>({ open: false, venta: "", costo: "" });
+  const [precioModal, setPrecioModal] = useState<{ open: boolean; venta: string; porcentajeRecargo: string }>({ open: false, venta: "", porcentajeRecargo: "" });
   const [categoriasDb, setCategoriasDb] = useState<{id: string, nombre: string}[]>([]);
   const [subcategoriasDb, setSubcategoriasDb] = useState<{id: string, nombre: string, slug: string, categoria_id: string}[]>([]);
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
@@ -104,16 +101,6 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
     total: productos.length,
     activos: productos.filter((p) => p.activo).length,
     sinStock: productos.filter((p) => p.stock === 0).length,
-    valorInventario: productos.reduce((sum, p) => sum + (p.precio_costo || 0) * p.stock, 0),
-    margenPromedio: (() => {
-      const conCosto = productos.filter((p) => p.precio_costo && p.precio_costo > 0);
-      if (conCosto.length === 0) return 0;
-      const total = conCosto.reduce(
-        (sum, p) => sum + ((p.precio_venta - (p.precio_costo || 0)) / p.precio_venta) * 100,
-        0
-      );
-      return Math.round(total / conCosto.length);
-    })(),
   };
 
   // Multi-select logic
@@ -219,20 +206,20 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
   }
 
   async function bulkUpdatePrecios() {
-    const { venta, costo } = precioModal;
-    if (!venta && !costo) return;
+    const { venta, porcentajeRecargo } = precioModal;
+    if (!venta && !porcentajeRecargo) return;
     setBulkLoading(true);
     const ids = Array.from(selectedIds);
     const payload: Record<string, number> = {};
     if (venta) payload.precio_venta = Number(venta.replace(/\D/g, ""));
-    if (costo) payload.precio_costo = Number(costo.replace(/\D/g, ""));
+    if (porcentajeRecargo) payload.porcentaje_recargo_lista = parseFloat(porcentajeRecargo);
     const { error } = await supabase.from("productos").update(payload).in("id", ids);
     if (error) {
       toast.error("Error al actualizar precios.");
     } else {
       setProductos((prev) => prev.map((p) => selectedIds.has(p.id) ? { ...p, ...payload } : p));
       setSelectedIds(new Set());
-      setPrecioModal({ open: false, venta: "", costo: "" });
+      setPrecioModal({ open: false, venta: "", porcentajeRecargo: "" });
       toast.success(`Precios actualizados en ${ids.length} productos.`);
     }
     setBulkLoading(false);
@@ -272,8 +259,8 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
       nombre: p.nombre,
       marca: p.marca,
       categoria: p.categoria || "Fragancias",
-      precio_costo: p.precio_costo || 0,
       precio_venta: p.precio_venta || 0,
+      porcentaje_recargo_lista: p.porcentaje_recargo_lista || DEFAULT_RECARGO_LISTA,
       stock: p.stock || 0,
       genero: p.genero || "Unisex",
       concentracion: p.concentracion || "EDP",
@@ -318,6 +305,7 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
   const subcategoriasParaCategoria = catSeleccionada
     ? subcategoriasDb.filter(s => s.categoria_id === catSeleccionada.id)
     : [];
+  const subcategoriaNombreMap = new Map(subcategoriasDb.map(s => [s.id, s.nombre]));
 
   const productosFiltrados = productos.filter((p) => {
     // 1. Filtro por búsqueda
@@ -358,7 +346,7 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
   return (
     <>
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         <div className="bg-[#0D0D0D] border border-[#1A1A1A] p-5">
           <div className="flex items-center gap-2 text-[#888888] text-xs mb-2">
             <Package size={14} /> TOTAL
@@ -379,22 +367,6 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
           </div>
           <p className="text-white font-bold text-2xl">{currentStats.sinStock}</p>
           <p className="text-[#555555] text-xs">para reponer</p>
-        </div>
-        <div className="bg-[#0D0D0D] border border-[#1A1A1A] p-5">
-          <div className="flex items-center gap-2 text-green-400 text-xs mb-2">
-            <DollarSign size={14} /> INVENTARIO
-          </div>
-          <p className="text-white font-bold text-2xl">
-            ${currentStats.valorInventario.toLocaleString("es-AR")}
-          </p>
-          <p className="text-[#555555] text-xs">valor costo</p>
-        </div>
-        <div className="bg-[#0D0D0D] border border-[#1A1A1A] p-5">
-          <div className="flex items-center gap-2 text-[#D4AF37] text-xs mb-2">
-            <TrendingUp size={14} /> MARGEN
-          </div>
-          <p className="text-white font-bold text-2xl">{currentStats.margenPromedio}%</p>
-          <p className="text-[#555555] text-xs">promedio</p>
         </div>
       </div>
 
@@ -513,29 +485,18 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
                 {(!categoriaFiltrada || categoriaFiltrada === "Fragancias") && (
                   <th className="text-left text-[#555555] text-xs tracking-widest uppercase px-4 py-3 hidden sm:table-cell">Género</th>
                 )}
-                <th 
-                  className="text-right text-[#555555] text-xs tracking-widest uppercase px-4 py-3 cursor-pointer hover:text-white transition-colors group"
-                  onClick={() => handleSort("precio_costo")}
-                >
-                  <div className="flex items-center justify-end gap-2">
-                    Costo
-                    <span className={`transition-all ${sortConfig?.key === "precio_costo" ? "opacity-100 text-[#D4AF37]" : "opacity-30 text-white"}`}>
-                      {sortConfig?.key === "precio_costo" && sortConfig.direction === "desc" ? <ArrowDown size={12} /> : <ArrowUp size={12} />}
-                    </span>
-                  </div>
-                </th>
-                <th 
+                <th
                   className="text-right text-[#555555] text-xs tracking-widest uppercase px-4 py-3 cursor-pointer hover:text-white transition-colors group"
                   onClick={() => handleSort("precio_venta")}
                 >
                   <div className="flex items-center justify-end gap-2">
-                    Venta
+                    Contado
                     <span className={`transition-all ${sortConfig?.key === "precio_venta" ? "opacity-100 text-[#D4AF37]" : "opacity-30 text-white"}`}>
                       {sortConfig?.key === "precio_venta" && sortConfig.direction === "desc" ? <ArrowDown size={12} /> : <ArrowUp size={12} />}
                     </span>
                   </div>
                 </th>
-                <th className="text-right text-[#555555] text-xs tracking-widest uppercase px-4 py-3 hidden md:table-cell">Margen</th>
+                <th className="text-right text-[#555555] text-xs tracking-widest uppercase px-4 py-3 hidden md:table-cell">Lista (3 cuotas)</th>
                 <th 
                   className="text-center text-[#555555] text-xs tracking-widest uppercase px-4 py-3 cursor-pointer hover:text-white transition-colors group"
                   onClick={() => handleSort("stock")}
@@ -563,12 +524,7 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
             </thead>
             <tbody className="divide-y divide-[#111111]">
               {productosFiltrados.map((producto) => {
-                const margen =
-                  producto.precio_costo && producto.precio_costo > 0
-                    ? Math.round(
-                        ((producto.precio_venta - producto.precio_costo) / producto.precio_venta) * 100
-                      )
-                    : null;
+                const precioLista = calculateListPrice(producto.precio_venta, producto.porcentaje_recargo_lista);
 
                 return (
                   <tr
@@ -602,26 +558,22 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
                     </td>
                     <td className="px-4 py-3 text-[#888888] text-xs hidden lg:table-cell">
                       {producto.categoria || "Fragancias"}
+                      {producto.subcategoria_id && subcategoriaNombreMap.get(producto.subcategoria_id) && (
+                        <p className="text-[#555555] text-[10px]">
+                          {subcategoriaNombreMap.get(producto.subcategoria_id)}
+                        </p>
+                      )}
                     </td>
                     {(!categoriaFiltrada || categoriaFiltrada === "Fragancias") && (
                       <td className="px-4 py-3 text-[#888888] text-xs hidden sm:table-cell">
                         {(producto.categoria?.toLowerCase() === "fragancias" && producto.genero) ? producto.genero : "—"}
                       </td>
                     )}
-                    <td className="px-4 py-3 text-right text-[#888888]">
-                      {producto.precio_costo ? `$${producto.precio_costo.toLocaleString("es-AR")}` : "—"}
-                    </td>
                     <td className="px-4 py-3 text-right text-[#D4AF37] font-semibold">
                       ${producto.precio_venta.toLocaleString("es-AR")}
                     </td>
-                    <td className="px-4 py-3 text-right hidden md:table-cell">
-                      {margen !== null ? (
-                        <span className={`text-xs font-bold ${margen >= 40 ? "text-green-400" : margen >= 25 ? "text-yellow-400" : "text-red-400"}`}>
-                          {margen}%
-                        </span>
-                      ) : (
-                        <span className="text-[#333333]">—</span>
-                      )}
+                    <td className="px-4 py-3 text-right text-[#888888] hidden md:table-cell">
+                      ${Math.round(precioLista).toLocaleString("es-AR")}
                     </td>
                     <td className="px-4 py-3 text-center">
                       <span className={`text-xs font-bold ${producto.stock > 5 ? "text-green-400" : producto.stock > 0 ? "text-yellow-400" : "text-red-400"}`}>
@@ -810,7 +762,7 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
               )}
             </div>
             <button
-              onClick={() => setPrecioModal({ open: true, venta: "", costo: "" })}
+              onClick={() => setPrecioModal({ open: true, venta: "", porcentajeRecargo: "" })}
               className="px-3 py-1.5 text-xs font-bold text-blue-400 border border-blue-400/20 hover:bg-blue-400/10 transition-colors"
             >
               Precio
@@ -922,7 +874,7 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
             </p>
             <div className="space-y-4">
               <div>
-                <label className="block text-[#888888] text-xs uppercase tracking-widest mb-1.5">Precio de Venta</label>
+                <label className="block text-[#888888] text-xs uppercase tracking-widest mb-1.5">Precio Contado (Efectivo/Transferencia)</label>
                 <input
                   type="number"
                   value={precioModal.venta}
@@ -932,19 +884,30 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
                 />
               </div>
               <div>
-                <label className="block text-[#888888] text-xs uppercase tracking-widest mb-1.5">Precio de Costo</label>
+                <label className="block text-[#888888] text-xs uppercase tracking-widest mb-1.5">Recargo 3 Cuotas (%)</label>
                 <input
                   type="number"
-                  value={precioModal.costo}
-                  onChange={(e) => setPrecioModal(prev => ({ ...prev, costo: e.target.value }))}
-                  placeholder="Precio nuevo..."
+                  value={precioModal.porcentajeRecargo}
+                  onChange={(e) => setPrecioModal(prev => ({ ...prev, porcentajeRecargo: e.target.value }))}
+                  placeholder={DEFAULT_RECARGO_LISTA.toString()}
                   className="w-full bg-[#111] border border-[#2D2D2D] text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
                 />
               </div>
+              {precioModal.venta && (
+                <p className="text-[#D4AF37] text-xs">
+                  Precio de lista: $
+                  {Math.round(
+                    calculateListPrice(
+                      Number(precioModal.venta),
+                      precioModal.porcentajeRecargo ? parseFloat(precioModal.porcentajeRecargo) : undefined
+                    )
+                  ).toLocaleString("es-AR")}
+                </p>
+              )}
             </div>
             <div className="flex gap-3 mt-6">
               <button
-                onClick={() => setPrecioModal({ open: false, venta: "", costo: "" })}
+                onClick={() => setPrecioModal({ open: false, venta: "", porcentajeRecargo: "" })}
                 className="flex-1 px-4 py-2.5 text-sm text-[#888888] hover:text-white border border-[#2D2D2D] hover:bg-[#1A1A1A] transition-colors"
                 disabled={bulkLoading}
               >
@@ -952,7 +915,7 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
               </button>
               <button
                 onClick={bulkUpdatePrecios}
-                disabled={bulkLoading || (!precioModal.venta && !precioModal.costo)}
+                disabled={bulkLoading || (!precioModal.venta && !precioModal.porcentajeRecargo)}
                 className="flex-1 px-4 py-2.5 text-sm font-bold bg-[#D4AF37] text-black hover:bg-[#E8CC6B] transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {bulkLoading ? <span className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" /> : null}
