@@ -36,6 +36,7 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: Props) {
         volumen_ml: 100,
         familia: "Floral",
         categoria: "Fragancias",
+        subcategoria: "Internacionales",
         activo: "SI"
       },
       {
@@ -95,6 +96,15 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: Props) {
       .replace(/(^-|-$)+/g, "");
   };
 
+  const slugify = (texto: string) => {
+    return texto
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)+/g, "");
+  };
+
   const processImport = async () => {
     if (data.length === 0) return;
     setLoading(true);
@@ -104,24 +114,65 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: Props) {
       // 1. Obtener familias olfativas, categorías y subcategorías para mapeo
       const [
         { data: familias },
-        { data: categoriasDb }
+        { data: categoriasDb },
+        { data: subcategoriasDb }
       ] = await Promise.all([
         supabase.from("familias_olfativas").select("id, nombre"),
-        supabase.from("categorias").select("id, nombre")
+        supabase.from("categorias").select("id, nombre"),
+        supabase.from("subcategorias").select("id, nombre, categoria_id")
       ]);
 
       const familiaMap = new Map(familias?.map(f => [f.nombre.toLowerCase(), f.id]));
       const categoriaMap = new Map(categoriasDb?.map(c => [c.nombre.toLowerCase(), c.id]));
+      const subcategoriaMap = new Map(
+        subcategoriasDb?.map(s => [`${s.categoria_id}::${s.nombre.toLowerCase()}`, s.id])
+      );
 
-      // 2. Preparar datos para inserción
-      const productosToInsert = data.map(item => {
-        const catNombre = String(item.categoria || "Fragancias").toLowerCase();
+      // 2. Resolver categoría de cada fila
+      const itemsConCategoria = data.map(item => {
+        const catNombre = String(item.categoria || "Fragancias").trim().toLowerCase();
         const catId = categoriaMap.get(catNombre) || categoriaMap.get("fragancias");
+        return { item, catId };
+      });
+
+      // 3. Crear en subcategorias las que vengan en el Excel y todavía no existan
+      const subcategoriasFaltantes = new Map<string, { categoria_id: string; nombre: string; slug: string }>();
+      itemsConCategoria.forEach(({ item, catId }) => {
+        const subNombre = String(item.subcategoria || "").trim();
+        if (!subNombre || !catId) return;
+        const key = `${catId}::${subNombre.toLowerCase()}`;
+        if (!subcategoriaMap.has(key) && !subcategoriasFaltantes.has(key)) {
+          subcategoriasFaltantes.set(key, {
+            categoria_id: catId,
+            nombre: subNombre,
+            slug: slugify(subNombre),
+          });
+        }
+      });
+
+      if (subcategoriasFaltantes.size > 0) {
+        const { data: nuevasSubcategorias, error: subError } = await supabase
+          .from("subcategorias")
+          .insert(Array.from(subcategoriasFaltantes.values()))
+          .select("id, nombre, categoria_id");
+        if (subError) throw subError;
+        nuevasSubcategorias?.forEach(s => {
+          subcategoriaMap.set(`${s.categoria_id}::${s.nombre.toLowerCase()}`, s.id);
+        });
+      }
+
+      // 4. Preparar datos para inserción
+      const productosToInsert = itemsConCategoria.map(({ item, catId }) => {
+        const subNombre = String(item.subcategoria || "").trim().toLowerCase();
+        const subcategoriaId = subNombre ? subcategoriaMap.get(`${catId}::${subNombre}`) || null : null;
 
         return {
           nombre: item.nombre,
           marca: item.marca,
-          slug: generateSlug(item.nombre, item.marca),
+          slug: generateSlug(
+            `${item.nombre} ${item.genero || ""} ${item.volumen_ml || ""}ml`,
+            item.marca
+          ),
           descripcion: item.descripcion || "",
           precio_costo: Number(item.precio_costo) || 0,
           precio_venta: Number(item.precio_venta) || 0,
@@ -129,10 +180,15 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: Props) {
           genero: item.genero || "Unisex",
           concentracion: item.concentracion || "EDP",
           volumen_ml: Number(item.volumen_ml) || 0,
-          familia_olfativa_id: familiaMap.get(String(item.familia || "").toLowerCase()) || null,
+          familia_olfativa_id: familiaMap.get(String(item.familia || "").trim().toLowerCase()) || null,
           inspired_in: item.inspired_in || "",
-          imagen_url: item.imagen_url || null,
+          imagen_url: item["Imagen 1"] || item.imagen_url || item["Imagen 2"] || null,
+          imagenes_adicionales:
+            item["Imagen 2"] && item["Imagen 2"] !== (item["Imagen 1"] || item.imagen_url)
+              ? [item["Imagen 2"]]
+              : [],
           categoria_id: catId,
+          subcategoria_id: subcategoriaId,
           activo: item.activo === "SI" || item.activo === true,
           destacado: item.destacado === "SI" || item.destacado === true,
           nuevo: item.nuevo === "SI" || item.nuevo === true,

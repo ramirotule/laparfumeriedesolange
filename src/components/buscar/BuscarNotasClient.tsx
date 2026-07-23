@@ -131,9 +131,9 @@ export default function BuscarNotasClient({ notas }: Props) {
                   className="group bg-[#0D0D0D] border border-[#1A1A1A] hover:border-[#D4AF37]/40 transition-all duration-200 flex flex-col"
                 >
                   <div className="relative aspect-square overflow-hidden bg-[#111111]">
-                    {p.imagen_url ? (
+                    {(p.imagen_url || p.imagenes_adicionales?.[0]) ? (
                       <Image
-                        src={p.imagen_url}
+                        src={p.imagen_url || p.imagenes_adicionales![0]}
                         alt={p.nombre}
                         fill
                         sizes="(max-width: 640px) 50vw, 20vw"

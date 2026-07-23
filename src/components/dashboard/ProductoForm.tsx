@@ -159,10 +159,15 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
     const isFragancia = form.categoria_nombre.toLowerCase() === "fragancias";
     const nombreTrimmed = form.nombre.trim();
     const marcaTrimmed = form.marca.trim();
+    const generoFinal = isFragancia ? form.genero : "Unisex";
+    const volumenFinal = isFragancia && form.volumen_ml ? parseInt(form.volumen_ml) : null;
     const payload = {
       nombre: nombreTrimmed,
       marca: marcaTrimmed,
-      slug: generateSlug(nombreTrimmed, marcaTrimmed),
+      slug: generateSlug(
+        `${nombreTrimmed} ${generoFinal} ${volumenFinal || ""}ml`,
+        marcaTrimmed
+      ),
       descripcion: form.descripcion.trim(),
       descripcion_corta: form.descripcion_corta.trim() || null,
       precio_costo: form.precio_costo ? parseFloat(form.precio_costo) : null,
@@ -170,9 +175,9 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
       stock: parseInt(form.stock) || 0,
       imagen_url: form.imagen_url.trim() || null,
       familia_olfativa_id: isFragancia && form.familia_olfativa_id ? parseInt(form.familia_olfativa_id) : null,
-      genero: isFragancia ? form.genero : "Unisex",
+      genero: generoFinal,
       concentracion: isFragancia ? (form.concentracion || null) : null,
-      volumen_ml: isFragancia && form.volumen_ml ? parseInt(form.volumen_ml) : null,
+      volumen_ml: volumenFinal,
       categoria_id: form.categoria_id || null,
       subcategoria_id: form.subcategoria_id || null,
       activo: form.activo,
@@ -192,7 +197,11 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
     }
 
     if (result.error) {
-      setError(result.error.message);
+      setError(
+        result.error.code === "23505"
+          ? "Ya existe un producto con el mismo nombre, marca, género y volumen. Cambiá alguno de esos datos para diferenciarlo."
+          : result.error.message
+      );
       setLoading(false);
       return;
     }

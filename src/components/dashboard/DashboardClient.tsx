@@ -323,7 +323,8 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
     // 1. Filtro por búsqueda
     const matchesBusqueda = !busqueda ||
       p.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-      p.marca.toLowerCase().includes(busqueda.toLowerCase());
+      p.marca.toLowerCase().includes(busqueda.toLowerCase()) ||
+      (p.inspired_in || "").toLowerCase().includes(busqueda.toLowerCase());
 
     // 2. Filtro por categoría
     const cat = p.categoria || "Fragancias";
@@ -584,9 +585,9 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        {producto.imagen_url && (
+                        {(producto.imagen_url || producto.imagenes_adicionales?.[0]) && (
                           <Image
-                            src={producto.imagen_url}
+                            src={producto.imagen_url || producto.imagenes_adicionales![0]}
                             alt={producto.nombre}
                             width={32}
                             height={32}

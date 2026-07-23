@@ -11,14 +11,15 @@ interface Props {
 }
 
 export default function ProductoCard({ producto, isCompact = false, priority = false }: Props) {
+  const imagenPortada = producto.imagen_url || producto.imagenes_adicionales?.[0] || undefined;
 
   if (isCompact) {
     return (
       <article className="group relative bg-[#0D0D0D] border border-[#1A1A1A] hover:border-[#D4AF37]/40 transition-all duration-300 hover:shadow-lg flex flex-col overflow-hidden">
         <Link href={`/productos/${producto.slug}`} className="block relative aspect-square bg-black/40">
-          {producto.imagen_url ? (
+          {imagenPortada ? (
             <Image
-              src={producto.imagen_url}
+              src={imagenPortada}
               alt={`Producto ${producto.nombre} ${producto.marca}`}
               fill
               sizes="(max-width: 640px) 33vw, (max-width: 1024px) 20vw, 15vw"
@@ -55,9 +56,9 @@ export default function ProductoCard({ producto, isCompact = false, priority = f
     <article className="group bg-[#0D0D0D] border border-[#1A1A1A] hover:border-[#D4AF37]/40 transition-all duration-300 hover:shadow-xl hover:shadow-black/50 flex flex-col h-full">
       {/* Image */}
       <Link href={`/productos/${producto.slug}`} className="block relative overflow-hidden aspect-square bg-black/40">
-        {producto.imagen_url ? (
+        {imagenPortada ? (
           <Image
-            src={producto.imagen_url}
+            src={imagenPortada}
             alt={`Producto ${producto.nombre} ${producto.marca} - ${producto.genero} - La Parfumerie Santa Rosa La Pampa`}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
@@ -149,7 +150,7 @@ export default function ProductoCard({ producto, isCompact = false, priority = f
                 marca: producto.marca,
                 slug: producto.slug,
                 precio_venta: producto.precio_venta,
-                imagen_url: producto.imagen_url,
+                imagen_url: imagenPortada,
               }}
               inStock={producto.stock > 0}
               variant="card"

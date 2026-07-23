@@ -30,7 +30,7 @@ async function searchProducts(query: string): Promise<Producto[]> {
     .replace(/\s+/g, "%");
   const { data } = await supabase
     .from("productos")
-    .select("id, nombre, marca, slug, precio_venta, imagen_url, genero, destacado")
+    .select("id, nombre, marca, slug, precio_venta, imagen_url, imagenes_adicionales, genero, destacado")
     .eq("activo", true)
     .or(`nombre.ilike.%${query}%,marca.ilike.%${query}%,inspired_in.ilike.%${query}%,slug.ilike.%${normalizedQuery}%`)
     .order("destacado", { ascending: false })
@@ -195,9 +195,9 @@ export default function QuickSearchModal() {
                 >
                   {/* Thumbnail */}
                   <div className="w-12 h-12 shrink-0 bg-[#0A0A0A] rounded-md overflow-hidden border border-[#2D2D2D]">
-                    {product.imagen_url ? (
+                    {(product.imagen_url || product.imagenes_adicionales?.[0]) ? (
                       <Image
-                        src={product.imagen_url}
+                        src={product.imagen_url || product.imagenes_adicionales![0]}
                         alt={product.nombre}
                         width={48}
                         height={48}
