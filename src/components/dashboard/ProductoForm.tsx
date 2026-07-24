@@ -3,16 +3,17 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Producto, FamiliaOlfativa } from "@/types";
+import { Producto, FamiliaOlfativa, Linea } from "@/types";
 import CustomSelect from "@/components/ui/CustomSelect";
+import PriceInput from "@/components/ui/PriceInput";
 import { calculateListPrice, formatPrice, DEFAULT_RECARGO_LISTA } from "@/lib/price-utils";
 
-import { 
-  Plus, 
-  Trash2, 
-  Star, 
-  ImagePlus, 
-  Loader2, 
+import {
+  Plus,
+  Trash2,
+  Star,
+  ImagePlus,
+  Loader2,
   X,
   ChevronRight,
   ChevronLeft,
@@ -50,6 +51,10 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
   const [categoriasDb, setCategoriasDb] = useState<{id: string, nombre: string}[]>([]);
   const [subcategoriasDb, setSubcategoriasDb] = useState<{id: string, nombre: string}[]>([]);
   const [loadingSubcategorias, setLoadingSubcategorias] = useState(false);
+  const [lineasDb, setLineasDb] = useState<Linea[]>([]);
+  const [loadingLineas, setLoadingLineas] = useState(true);
+  const [nuevaLineaNombre, setNuevaLineaNombre] = useState("");
+  const [savingLinea, setSavingLinea] = useState(false);
 
   const [form, setForm] = useState({
     nombre: producto.nombre || "",
@@ -68,6 +73,7 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
     categoria_id: producto.categoria_id?.toString() || "",
     categoria_nombre: producto.categoria || "",
     subcategoria_id: producto.subcategoria_id?.toString() || "",
+    linea_id: producto.linea_id?.toString() || "",
     activo: producto.activo !== undefined ? producto.activo : true,
     destacado: producto.destacado || false,
     nuevo: producto.nuevo || false,
@@ -80,6 +86,8 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
   const [saving, setSaving] = useState(false);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [isDeleteImagesModalOpen, setIsDeleteImagesModalOpen] = useState(false);
+  const [draggedImage, setDraggedImage] = useState<string | null>(null);
+  const [dragOverImage, setDragOverImage] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchFamilias() {
@@ -121,9 +129,45 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
       }
     }
 
+    async function fetchLineas() {
+      setLoadingLineas(true);
+      const { data, error } = await supabase.from("lineas").select("id, nombre").order("nombre");
+
+      if (error) {
+        console.error("Error cargando líneas:", error);
+      } else {
+        setLineasDb(data || []);
+      }
+      setLoadingLineas(false);
+    }
+
     fetchFamilias();
     fetchCategorias();
+    fetchLineas();
   }, [producto.id, form.categoria_id]);
+
+  async function handleAddLinea() {
+    const nombre = nuevaLineaNombre.trim();
+    if (!nombre) return;
+
+    setSavingLinea(true);
+    const { data, error } = await supabase
+      .from("lineas")
+      .insert({ nombre })
+      .select("id, nombre")
+      .single();
+
+    if (error) {
+      setError(error.message);
+      setSavingLinea(false);
+      return;
+    }
+
+    setLineasDb((prev) => [...prev, data].sort((a, b) => a.nombre.localeCompare(b.nombre)));
+    setForm((prev) => ({ ...prev, linea_id: data.id }));
+    setNuevaLineaNombre("");
+    setSavingLinea(false);
+  }
 
   useEffect(() => {
     if (!form.categoria_id) {
@@ -181,6 +225,7 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
       volumen_ml: volumenFinal,
       categoria_id: form.categoria_id || null,
       subcategoria_id: form.subcategoria_id || null,
+      linea_id: form.linea_id || null,
       activo: form.activo,
       destacado: form.destacado,
       nuevo: form.nuevo,
@@ -219,6 +264,34 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
           parseFloat(form.porcentaje_recargo_lista) || DEFAULT_RECARGO_LISTA
         )
       : null;
+
+  const orderedImages = Array.from(
+    new Set([form.imagen_url, ...form.imagenes_adicionales])
+  ).filter((img): img is string => Boolean(img));
+
+  const reorderImages = (newOrder: string[]) => {
+    setForm(prev => ({
+      ...prev,
+      imagen_url: newOrder[0] || "",
+      imagenes_adicionales: newOrder.slice(1),
+    }));
+  };
+
+  const setAsPortada = (img: string) => {
+    reorderImages([img, ...orderedImages.filter(i => i !== img)]);
+  };
+
+  const moveImage = (fromImg: string, toImg: string) => {
+    if (fromImg === toImg) return;
+    const fromIdx = orderedImages.indexOf(fromImg);
+    const toIdx = orderedImages.indexOf(toImg);
+    if (fromIdx === -1 || toIdx === -1) return;
+
+    const newOrder = [...orderedImages];
+    newOrder.splice(fromIdx, 1);
+    newOrder.splice(toIdx, 0, fromImg);
+    reorderImages(newOrder);
+  };
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -284,6 +357,43 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
                 required
                 className="w-full bg-[#1A1A1A] border border-[#2D2D2D] text-white px-4 py-3 focus:outline-none focus:border-[#D4AF37] text-sm transition-colors"
               />
+            </div>
+          </div>
+
+          <div>
+            <CustomSelect
+              label="Línea (opcional)"
+              value={form.linea_id}
+              loading={loadingLineas}
+              placeholder="Seleccionar línea..."
+              onChange={(val) => setForm((prev) => ({ ...prev, linea_id: val }))}
+              options={lineasDb.map((l) => ({ value: l.id.toString(), label: l.nombre }))}
+            />
+            <p className="text-[#555555] text-[10px] mt-1.5">
+              Agrupa variantes del mismo perfume (ej: distinta marca o body splash de la misma línea).
+            </p>
+            <div className="flex gap-2 mt-2">
+              <input
+                type="text"
+                value={nuevaLineaNombre}
+                onChange={(e) => setNuevaLineaNombre(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleAddLinea();
+                  }
+                }}
+                placeholder="Crear nueva línea..."
+                className="flex-1 bg-[#1A1A1A] border border-[#2D2D2D] text-white placeholder-[#555555] px-4 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
+              />
+              <button
+                type="button"
+                onClick={handleAddLinea}
+                disabled={savingLinea || !nuevaLineaNombre.trim()}
+                className="px-3 py-2.5 bg-[#D4AF37] text-black hover:bg-[#E8CC6B] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                <Plus size={16} />
+              </button>
             </div>
           </div>
 
@@ -454,8 +564,28 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
           {/* Grilla de Imágenes */}
           <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-4">
             {/* Todas las imágenes (adicionales + principal si no está en la lista) */}
-            {Array.from(new Set([form.imagen_url, ...form.imagenes_adicionales])).filter(img => img).map((img, idx) => (
-              <div key={idx} className={`group relative aspect-square bg-[#1A1A1A] border overflow-hidden rounded-sm transition-all ${selectedImages.includes(img) ? "border-red-500 ring-1 ring-red-500" : "border-[#2D2D2D]"}`}>
+            {orderedImages.map((img, idx) => (
+              <div
+                key={img}
+                draggable
+                onDragStart={() => setDraggedImage(img)}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  if (draggedImage && draggedImage !== img) setDragOverImage(img);
+                }}
+                onDragLeave={() => setDragOverImage(prev => (prev === img ? null : prev))}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  if (draggedImage) moveImage(draggedImage, img);
+                  setDraggedImage(null);
+                  setDragOverImage(null);
+                }}
+                onDragEnd={() => {
+                  setDraggedImage(null);
+                  setDragOverImage(null);
+                }}
+                className={`group relative aspect-square bg-[#1A1A1A] border overflow-hidden rounded-sm transition-all cursor-move ${selectedImages.includes(img) ? "border-red-500 ring-1 ring-red-500" : dragOverImage === img ? "border-[#D4AF37] ring-1 ring-[#D4AF37]" : "border-[#2D2D2D]"} ${draggedImage === img ? "opacity-40" : ""}`}
+              >
                 <Image
                   src={img}
                   alt={`Imagen ${idx}`}
@@ -491,7 +621,7 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                     <button
                       type="button"
-                      onClick={() => update("imagen_url", img)}
+                      onClick={() => setAsPortada(img)}
                       className={`p-1.5 rounded-full transition-colors ${form.imagen_url === img ? "text-[#D4AF37] bg-white" : "text-white bg-white/10 hover:bg-white/20"}`}
                       title="Elegir como portada"
                     >
@@ -537,7 +667,8 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
 
           <div className="pt-4 border-t border-[#1A1A1A]">
             <p className="text-[#555555] text-[10px] leading-relaxed italic">
-              * La imagen marcada con la estrella dorada será la que se muestre en el catálogo principal. <br/>
+              * La imagen marcada con la estrella dorada será la que se muestre en el catálogo principal (primera posición). <br/>
+              * Arrastrá las imágenes para cambiar el orden en que aparecen en la página. <br/>
               * Podés subir múltiples imágenes a la vez. El sistema optimizará la carga.
             </p>
           </div>
@@ -552,16 +683,14 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="text-[#888888] text-xs uppercase tracking-widest block mb-1.5">
-                Precio Contado ($) *
+                Precio Contado *
               </label>
-              <input
-                type="number"
-                step="0.01"
+              <PriceInput
                 value={form.precio_venta}
-                onChange={(e) => update("precio_venta", e.target.value)}
+                onChange={(val) => update("precio_venta", val)}
                 required
                 className="w-full bg-[#1A1A1A] border border-[#2D2D2D] text-white px-4 py-3 focus:outline-none focus:border-[#D4AF37] text-sm transition-colors"
-                placeholder="0.00"
+                placeholder="0"
               />
               <p className="text-[#555555] text-[10px] mt-1">Efectivo o transferencia bancaria</p>
             </div>

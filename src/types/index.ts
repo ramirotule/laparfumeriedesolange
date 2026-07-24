@@ -12,6 +12,11 @@ export interface NotaAromatica {
   descripcion?: string;
 }
 
+export interface Linea {
+  id: string;
+  nombre: string;
+}
+
 export interface Producto {
   id: string;
   nombre: string;
@@ -31,6 +36,8 @@ export interface Producto {
   categorias?: { nombre: string };
   subcategoria_id?: string;
   subcategorias?: { nombre: string };
+  linea_id?: string | number | null;
+  lineas?: { nombre: string };
   genero: "Femenino" | "Masculino" | "Unisex" | "Árabe";
   concentracion?: string;
   volumen_ml?: number;

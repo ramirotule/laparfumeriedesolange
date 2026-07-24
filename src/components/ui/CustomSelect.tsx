@@ -30,7 +30,7 @@ export default function CustomSelect({
   const containerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  const selectedOption = options.find((opt) => opt.value === value);
+  const selectedOption = value ? options.find((opt) => opt.value === value) : undefined;
 
   // Filtrar opciones basado en la búsqueda
   const filteredOptions = options.filter(opt => 

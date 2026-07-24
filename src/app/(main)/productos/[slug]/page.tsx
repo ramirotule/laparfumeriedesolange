@@ -9,6 +9,7 @@ import { ChevronRight, MapPin } from "lucide-react";
 import InstagramIcon from "@/components/ui/InstagramIcon";
 import AddToCartButton from "@/components/cart/AddToCartButton";
 import ProductoGaleria from "@/components/productos/ProductoGaleria";
+import ProductosRelacionados from "@/components/productos/ProductosRelacionados";
 import { calculateListPrice, calculateInstallment, formatPrice } from "@/lib/price-utils";
 
 interface Props {
@@ -315,6 +316,8 @@ export default async function ProductoPage({ params }: Props) {
             </div>
           )}
         </div>
+
+        <ProductosRelacionados productoId={producto.id} lineaId={producto.linea_id} />
       </div>
     </>
   );

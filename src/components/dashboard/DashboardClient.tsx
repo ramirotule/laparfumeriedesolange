@@ -22,6 +22,7 @@ import {
 import BulkImportModal from "./BulkImportModal";
 import * as XLSX from "xlsx";
 import CustomSelect from "@/components/ui/CustomSelect";
+import PriceInput from "@/components/ui/PriceInput";
 import toast from "react-hot-toast";
 import { calculateListPrice, DEFAULT_RECARGO_LISTA } from "@/lib/price-utils";
 
@@ -48,6 +49,7 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
   const [regeneratingSlug, setRegeneratingSlug] = useState(false);
   const [categoriaFiltrada, setCategoriaFiltrada] = useState<string>("");
   const [subcategoriaFiltrada, setSubcategoriaFiltrada] = useState<string>("");
+  const [generoFiltrado, setGeneroFiltrado] = useState<string>("");
   const [menuBulkAbierto, setMenuBulkAbierto] = useState<"categoria" | "genero" | "subcategoria" | null>(null);
   const [precioModal, setPrecioModal] = useState<{ open: boolean; venta: string; porcentajeRecargo: string }>({ open: false, venta: "", porcentajeRecargo: "" });
   const [categoriasDb, setCategoriasDb] = useState<{id: string, nombre: string}[]>([]);
@@ -321,7 +323,10 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
     // 3. Filtro por subcategoría
     const matchesSubcategoria = !subcategoriaFiltrada || (p as any).subcategoria_id === subcategoriaFiltrada;
 
-    return matchesBusqueda && matchesCategoria && matchesSubcategoria;
+    // 4. Filtro por género
+    const matchesGenero = !generoFiltrado || p.genero === generoFiltrado;
+
+    return matchesBusqueda && matchesCategoria && matchesSubcategoria && matchesGenero;
   }).sort((a, b) => {
     if (!sortConfig) return 0;
     
@@ -332,6 +337,11 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
     if (sortConfig.key === "categoria") {
       aValue = a.categoria || "Fragancias";
       bValue = b.categoria || "Fragancias";
+    }
+
+    if (sortConfig.key === "subcategoria") {
+      aValue = (a.subcategoria_id && subcategoriaNombreMap.get(a.subcategoria_id)) || "";
+      bValue = (b.subcategoria_id && subcategoriaNombreMap.get(b.subcategoria_id)) || "";
     }
 
     if (aValue < bValue) {
@@ -383,12 +393,12 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
           <div className="w-full sm:w-44">
             <CustomSelect
               value={categoriaFiltrada}
-              onChange={(val) => { setCategoriaFiltrada(val); setSubcategoriaFiltrada(""); }}
+              onChange={(val) => { setCategoriaFiltrada(val); setSubcategoriaFiltrada(""); setGeneroFiltrado(""); }}
               options={[
-                { value: "", label: "Ver Todo" },
+                { value: "", label: "Todas" },
                 ...categoriasDb.map(c => ({ value: c.nombre, label: c.nombre })),
               ]}
-              placeholder="Categoría"
+              placeholder="CATEGORIAS"
             />
           </div>
           {subcategoriasParaCategoria.length > 0 && (
@@ -400,7 +410,23 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
                   { value: "", label: "Todas" },
                   ...subcategoriasParaCategoria.map(s => ({ value: s.id, label: s.nombre })),
                 ]}
-                placeholder="Subcategoría"
+                placeholder="SUBCATEGORIAS"
+              />
+            </div>
+          )}
+          {categoriaFiltrada === "Fragancias" && (
+            <div className="w-full sm:w-36">
+              <CustomSelect
+                value={generoFiltrado}
+                onChange={(val) => setGeneroFiltrado(val)}
+                options={[
+                  { value: "", label: "Todos" },
+                  { value: "Femenino", label: "Femenino" },
+                  { value: "Masculino", label: "Masculino" },
+                  { value: "Unisex", label: "Unisex" },
+                  { value: "Árabe", label: "Árabe" },
+                ]}
+                placeholder="GENERO"
               />
             </div>
           )}
@@ -482,6 +508,17 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
                     </span>
                   </div>
                 </th>
+                <th
+                  className="text-left text-[#555555] text-xs tracking-widest uppercase px-4 py-3 hidden lg:table-cell cursor-pointer hover:text-white transition-colors group"
+                  onClick={() => handleSort("subcategoria")}
+                >
+                  <div className="flex items-center gap-2">
+                    Subcategoría
+                    <span className={`transition-all ${sortConfig?.key === "subcategoria" ? "opacity-100 text-[#D4AF37]" : "opacity-30 text-white"}`}>
+                      {sortConfig?.key === "subcategoria" && sortConfig.direction === "desc" ? <ArrowDown size={12} /> : <ArrowUp size={12} />}
+                    </span>
+                  </div>
+                </th>
                 {(!categoriaFiltrada || categoriaFiltrada === "Fragancias") && (
                   <th className="text-left text-[#555555] text-xs tracking-widest uppercase px-4 py-3 hidden sm:table-cell">Género</th>
                 )}
@@ -558,11 +595,9 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
                     </td>
                     <td className="px-4 py-3 text-[#888888] text-xs hidden lg:table-cell">
                       {producto.categoria || "Fragancias"}
-                      {producto.subcategoria_id && subcategoriaNombreMap.get(producto.subcategoria_id) && (
-                        <p className="text-[#555555] text-[10px]">
-                          {subcategoriaNombreMap.get(producto.subcategoria_id)}
-                        </p>
-                      )}
+                    </td>
+                    <td className="px-4 py-3 text-[#888888] text-xs hidden lg:table-cell">
+                      {(producto.subcategoria_id && subcategoriaNombreMap.get(producto.subcategoria_id)) || "—"}
                     </td>
                     {(!categoriaFiltrada || categoriaFiltrada === "Fragancias") && (
                       <td className="px-4 py-3 text-[#888888] text-xs hidden sm:table-cell">
@@ -875,10 +910,9 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
             <div className="space-y-4">
               <div>
                 <label className="block text-[#888888] text-xs uppercase tracking-widest mb-1.5">Precio Contado (Efectivo/Transferencia)</label>
-                <input
-                  type="number"
+                <PriceInput
                   value={precioModal.venta}
-                  onChange={(e) => setPrecioModal(prev => ({ ...prev, venta: e.target.value }))}
+                  onChange={(val) => setPrecioModal(prev => ({ ...prev, venta: val }))}
                   placeholder="Precio nuevo..."
                   className="w-full bg-[#111] border border-[#2D2D2D] text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors"
                 />
