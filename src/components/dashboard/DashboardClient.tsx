@@ -257,23 +257,27 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
     const toExport = data || productos.filter((p) => selectedIds.has(p.id));
     if (toExport.length === 0) return;
 
-    const exportData = toExport.map((p) => ({
-      nombre: p.nombre,
-      marca: p.marca,
-      categoria: p.categoria || "Fragancias",
-      precio_venta: p.precio_venta || 0,
-      porcentaje_recargo_lista: p.porcentaje_recargo_lista || DEFAULT_RECARGO_LISTA,
-      stock: p.stock || 0,
-      genero: p.genero || "Unisex",
-      concentracion: p.concentracion || "EDP",
-      volumen_ml: p.volumen_ml || 0,
-      familia: p.familia_olfativa?.nombre || "",
-      inspired_in: p.inspired_in || "",
-      imagen_url: p.imagen_url || "",
-      activo: p.activo ? "SI" : "NO",
-      destacado: p.destacado ? "SI" : "NO",
-      nuevo: p.nuevo ? "SI" : "NO",
-    }));
+    const exportData = toExport.map((p) => {
+      const porcentajeRecargo = p.porcentaje_recargo_lista || DEFAULT_RECARGO_LISTA;
+      return {
+        nombre: p.nombre,
+        marca: p.marca,
+        categoria: p.categoria || "Fragancias",
+        precio_venta: p.precio_venta || 0,
+        porcentaje_recargo_lista: porcentajeRecargo,
+        precio_lista: Math.round(calculateListPrice(p.precio_venta || 0, porcentajeRecargo)),
+        stock: p.stock || 0,
+        genero: p.genero || "Unisex",
+        concentracion: p.concentracion || "EDP",
+        volumen_ml: p.volumen_ml || 0,
+        familia: p.familia_olfativa?.nombre || "",
+        inspired_in: p.inspired_in || "",
+        imagen_url: p.imagen_url || "",
+        activo: p.activo ? "SI" : "NO",
+        destacado: p.destacado ? "SI" : "NO",
+        nuevo: p.nuevo ? "SI" : "NO",
+      };
+    });
 
     const ws = XLSX.utils.json_to_sheet(exportData);
     const wb = XLSX.utils.book_new();

@@ -5,7 +5,7 @@ import * as XLSX from "xlsx";
 import { createClient } from "@/lib/supabase/client";
 import { Download, Upload, X, Check, AlertCircle, FileText } from "lucide-react";
 import toast from "react-hot-toast";
-import { DEFAULT_RECARGO_LISTA } from "@/lib/price-utils";
+import { DEFAULT_RECARGO_LISTA, calculateListPrice } from "@/lib/price-utils";
 
 interface Props {
   isOpen: boolean;
@@ -31,6 +31,7 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: Props) {
         descripcion: "Descripción larga del producto...",
         precio_venta: 8500,
         porcentaje_recargo_lista: 22.36,
+        precio_lista: Math.round(calculateListPrice(8500, 22.36)),
         stock: 10,
         genero: "Femenino",
         concentracion: "EDP",
@@ -46,6 +47,7 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: Props) {
         descripcion: "Descripción de la crema...",
         precio_venta: 5500,
         porcentaje_recargo_lista: 22.36,
+        precio_lista: Math.round(calculateListPrice(5500, 22.36)),
         stock: 15,
         genero: "Unisex",
         categoria: "Cuidados de la Piel",
@@ -167,6 +169,13 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: Props) {
         const subNombre = String(item.subcategoria || "").trim().toLowerCase();
         const subcategoriaId = subNombre ? subcategoriaMap.get(`${catId}::${subNombre}`) || null : null;
 
+        const precioContado = Number(item.precio_venta) || 0;
+        const precioLista = Number(item.precio_lista) || 0;
+        const porcentajeRecargo =
+          precioContado > 0 && precioLista > 0
+            ? ((precioLista / precioContado) - 1) * 100
+            : Number(item.porcentaje_recargo_lista) || DEFAULT_RECARGO_LISTA;
+
         return {
           nombre: item.nombre,
           marca: item.marca,
@@ -175,8 +184,8 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: Props) {
             item.marca
           ),
           descripcion: item.descripcion || "",
-          precio_venta: Number(item.precio_venta) || 0,
-          porcentaje_recargo_lista: Number(item.porcentaje_recargo_lista) || DEFAULT_RECARGO_LISTA,
+          precio_venta: precioContado,
+          porcentaje_recargo_lista: porcentajeRecargo,
           stock: Number(item.stock) || 0,
           genero: item.genero || "Unisex",
           concentracion: item.concentracion || "EDP",
@@ -304,7 +313,8 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: Props) {
                       <th className="px-3 py-2">Nombre</th>
                       <th className="px-3 py-2">Categoría</th>
                       <th className="px-3 py-2">Marca</th>
-                      <th className="px-3 py-2 text-right">Precio</th>
+                      <th className="px-3 py-2 text-right">Contado</th>
+                      <th className="px-3 py-2 text-right">Lista</th>
                       <th className="px-3 py-2">Género</th>
                     </tr>
                   </thead>
@@ -315,6 +325,16 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: Props) {
                         <td className="px-3 py-2 text-[#D4AF37]">{item.categoria || "Fragancias"}</td>
                         <td className="px-3 py-2">{item.marca}</td>
                         <td className="px-3 py-2 text-right">${item.precio_venta}</td>
+                        <td className="px-3 py-2 text-right">
+                          $
+                          {item.precio_lista ||
+                            Math.round(
+                              calculateListPrice(
+                                Number(item.precio_venta) || 0,
+                                Number(item.porcentaje_recargo_lista) || DEFAULT_RECARGO_LISTA
+                              )
+                            )}
+                        </td>
                         <td className="px-3 py-2">
                           {(String(item.categoria || "Fragancias").toLowerCase() === "fragancias") ? item.genero : "—"}
                         </td>
