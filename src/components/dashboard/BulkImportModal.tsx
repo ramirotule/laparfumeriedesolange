@@ -28,6 +28,7 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: Props) {
       {
         nombre: "Ejemplo Producto",
         marca: "Bagués",
+        codigo_interno: "FRA-001",
         descripcion: "Descripción larga del producto...",
         precio_venta: 8500,
         porcentaje_recargo_lista: 22.36,
@@ -44,6 +45,7 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: Props) {
       {
         nombre: "Ejemplo Crema Facial",
         marca: "Bioétape",
+        codigo_interno: "CUI-001",
         descripcion: "Descripción de la crema...",
         precio_venta: 5500,
         porcentaje_recargo_lista: 22.36,
@@ -164,8 +166,24 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: Props) {
         });
       }
 
-      // 4. Preparar datos para inserción
-      const productosToInsert = itemsConCategoria.map(({ item, catId }) => {
+      // 4. Buscar productos existentes por codigo_interno para decidir actualizar vs crear
+      const codigosEnArchivo = itemsConCategoria
+        .map(({ item }) => String(item.codigo_interno || "").trim())
+        .filter(Boolean);
+
+      const { data: existentesPorCodigo } =
+        codigosEnArchivo.length > 0
+          ? await supabase.from("productos").select("id, codigo_interno").in("codigo_interno", codigosEnArchivo)
+          : { data: [] as { id: string; codigo_interno: string }[] };
+
+      const existenteMap = new Map((existentesPorCodigo || []).map(p => [p.codigo_interno, p.id]));
+
+      // 5. Preparar datos: los que matchean por codigo_interno se actualizan (sin tocar
+      // imagen_url, imagenes_adicionales, slug ni descripcion), el resto se crea como nuevo.
+      const productosToInsert: Record<string, unknown>[] = [];
+      const productosToUpdate: { id: string; payload: Record<string, unknown> }[] = [];
+
+      itemsConCategoria.forEach(({ item, catId }) => {
         const subNombre = String(item.subcategoria || "").trim().toLowerCase();
         const subcategoriaId = subNombre ? subcategoriaMap.get(`${catId}::${subNombre}`) || null : null;
 
@@ -176,14 +194,13 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: Props) {
             ? ((precioLista / precioContado) - 1) * 100
             : Number(item.porcentaje_recargo_lista) || DEFAULT_RECARGO_LISTA;
 
-        return {
+        const codigoInterno = String(item.codigo_interno || "").trim() || null;
+        const existenteId = codigoInterno ? existenteMap.get(codigoInterno) : undefined;
+
+        const camposComunes = {
           nombre: item.nombre,
           marca: item.marca,
-          slug: generateSlug(
-            `${item.nombre} ${item.genero || ""} ${item.volumen_ml || ""}ml`,
-            item.marca
-          ),
-          descripcion: item.descripcion || "",
+          codigo_interno: codigoInterno,
           precio_venta: precioContado,
           porcentaje_recargo_lista: porcentajeRecargo,
           stock: Number(item.stock) || 0,
@@ -192,20 +209,35 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: Props) {
           volumen_ml: Number(item.volumen_ml) || 0,
           familia_olfativa_id: familiaMap.get(String(item.familia || "").trim().toLowerCase()) || null,
           inspired_in: item.inspired_in || "",
-          imagen_url: item["Imagen 1"] || item.imagen_url || item["Imagen 2"] || null,
-          imagenes_adicionales:
-            item["Imagen 2"] && item["Imagen 2"] !== (item["Imagen 1"] || item.imagen_url)
-              ? [item["Imagen 2"]]
-              : [],
           categoria_id: catId,
           subcategoria_id: subcategoriaId,
           activo: item.activo === "SI" || item.activo === true,
           destacado: item.destacado === "SI" || item.destacado === true,
           nuevo: item.nuevo === "SI" || item.nuevo === true,
         };
+
+        if (existenteId) {
+          // Producto ya existe (matcheado por codigo_interno): actualiza todo menos
+          // imagen_url / imagenes_adicionales / slug / descripcion.
+          productosToUpdate.push({ id: existenteId, payload: camposComunes });
+        } else {
+          productosToInsert.push({
+            ...camposComunes,
+            slug: generateSlug(
+              `${item.nombre} ${item.genero || ""} ${item.volumen_ml || ""}ml`,
+              item.marca
+            ),
+            descripcion: item.descripcion || "",
+            imagen_url: item["Imagen 1"] || item.imagen_url || item["Imagen 2"] || null,
+            imagenes_adicionales:
+              item["Imagen 2"] && item["Imagen 2"] !== (item["Imagen 1"] || item.imagen_url)
+                ? [item["Imagen 2"]]
+                : [],
+          });
+        }
       });
 
-      // 3. Insertar en lotes de 20 para seguridad
+      // 6. Insertar productos nuevos en lotes de 20 para seguridad
       const batchSize = 20;
       for (let i = 0; i < productosToInsert.length; i += batchSize) {
         const batch = productosToInsert.slice(i, i + batchSize);
@@ -213,7 +245,20 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: Props) {
         if (insertError) throw insertError;
       }
 
-      toast.success(`Se importaron ${productosToInsert.length} productos correctamente.`);
+      // 7. Actualizar productos existentes de a 10 en paralelo (cada uno con su propio payload)
+      const updateBatchSize = 10;
+      for (let i = 0; i < productosToUpdate.length; i += updateBatchSize) {
+        const batch = productosToUpdate.slice(i, i + updateBatchSize);
+        const resultados = await Promise.all(
+          batch.map(({ id, payload }) => supabase.from("productos").update(payload).eq("id", id))
+        );
+        const conError = resultados.find(r => r.error);
+        if (conError?.error) throw conError.error;
+      }
+
+      toast.success(
+        `Listo: ${productosToUpdate.length} productos actualizados, ${productosToInsert.length} nuevos creados.`
+      );
       onSuccess();
       onClose();
     } catch (err: any) {
@@ -313,6 +358,7 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: Props) {
                       <th className="px-3 py-2">Nombre</th>
                       <th className="px-3 py-2">Categoría</th>
                       <th className="px-3 py-2">Marca</th>
+                      <th className="px-3 py-2">Código</th>
                       <th className="px-3 py-2 text-right">Contado</th>
                       <th className="px-3 py-2 text-right">Lista</th>
                       <th className="px-3 py-2">Género</th>
@@ -324,6 +370,7 @@ export default function BulkImportModal({ isOpen, onClose, onSuccess }: Props) {
                         <td className="px-3 py-2 text-white">{item.nombre}</td>
                         <td className="px-3 py-2 text-[#D4AF37]">{item.categoria || "Fragancias"}</td>
                         <td className="px-3 py-2">{item.marca}</td>
+                        <td className="px-3 py-2">{item.codigo_interno || "—"}</td>
                         <td className="px-3 py-2 text-right">${item.precio_venta}</td>
                         <td className="px-3 py-2 text-right">
                           $

@@ -59,6 +59,7 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
   const [form, setForm] = useState({
     nombre: producto.nombre || "",
     marca: producto.marca || "",
+    codigo_interno: producto.codigo_interno || "",
     descripcion: producto.descripcion || "",
     descripcion_corta: producto.descripcion_corta || "",
     precio_venta: producto.precio_venta?.toString() || "",
@@ -213,6 +214,7 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
         `${nombreTrimmed} ${generoFinal} ${volumenFinal || ""}ml`,
         marcaTrimmed
       ),
+      codigo_interno: form.codigo_interno.trim() || null,
       descripcion: form.descripcion.trim(),
       descripcion_corta: form.descripcion_corta.trim() || null,
       precio_venta: parseFloat(form.precio_venta),
@@ -358,6 +360,19 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
                 className="w-full bg-[#1A1A1A] border border-[#2D2D2D] text-white px-4 py-3 focus:outline-none focus:border-[#D4AF37] text-sm transition-colors"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="text-[#888888] text-xs uppercase tracking-widest block mb-1.5">
+              Código Interno (opcional)
+            </label>
+            <input
+              type="text"
+              value={form.codigo_interno}
+              onChange={(e) => update("codigo_interno", e.target.value)}
+              placeholder="Ej: FRA-001"
+              className="w-full bg-[#1A1A1A] border border-[#2D2D2D] text-white px-4 py-3 focus:outline-none focus:border-[#D4AF37] text-sm transition-colors"
+            />
           </div>
 
           <div>

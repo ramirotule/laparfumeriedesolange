@@ -20,6 +20,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import BulkImportModal from "./BulkImportModal";
+import EdicionRapidaModal from "./EdicionRapidaModal";
 import * as XLSX from "xlsx";
 import CustomSelect from "@/components/ui/CustomSelect";
 import PriceInput from "@/components/ui/PriceInput";
@@ -46,6 +47,7 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
   const [bulkDeleteModal, setBulkDeleteModal] = useState(false);
   
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isEdicionRapidaOpen, setIsEdicionRapidaOpen] = useState(false);
   const [regeneratingSlug, setRegeneratingSlug] = useState(false);
   const [categoriaFiltrada, setCategoriaFiltrada] = useState<string>("");
   const [subcategoriaFiltrada, setSubcategoriaFiltrada] = useState<string>("");
@@ -263,6 +265,7 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
         nombre: p.nombre,
         marca: p.marca,
         categoria: p.categoria || "Fragancias",
+        codigo_interno: p.codigo_interno || "",
         precio_venta: p.precio_venta || 0,
         porcentaje_recargo_lista: porcentajeRecargo,
         precio_lista: Math.round(calculateListPrice(p.precio_venta || 0, porcentajeRecargo)),
@@ -463,6 +466,13 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
               <ArrowUp size={10} className="text-white absolute -right-1 -bottom-1 bg-[#1A1A1A] rounded-full group-hover:-translate-y-0.5 transition-transform" />
             </div>
             Exportar
+          </button>
+          <button
+            onClick={() => setIsEdicionRapidaOpen(true)}
+            className="flex items-center gap-2 bg-[#1A1A1A] text-white border border-[#2D2D2D] font-bold px-4 py-2.5 text-sm tracking-wider hover:bg-[#252525] transition-colors whitespace-nowrap"
+          >
+            <Edit2 size={16} className="text-[#D4AF37]" />
+            Edición Rápida
           </button>
           <button
             onClick={regenerateSlugs}
@@ -968,6 +978,17 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
       <BulkImportModal
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}
+        onSuccess={() => {
+          fetchProductos();
+          router.refresh();
+        }}
+      />
+
+      {/* Modal Edición Rápida */}
+      <EdicionRapidaModal
+        isOpen={isEdicionRapidaOpen}
+        onClose={() => setIsEdicionRapidaOpen(false)}
+        productos={productos}
         onSuccess={() => {
           fetchProductos();
           router.refresh();

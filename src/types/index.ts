@@ -22,6 +22,7 @@ export interface Producto {
   nombre: string;
   marca: string;
   slug: string;
+  codigo_interno?: string | null;
   descripcion: string;
   descripcion_corta?: string;
   precio_venta: number;
