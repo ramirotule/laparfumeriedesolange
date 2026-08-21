@@ -298,7 +298,6 @@ export default function CheckoutClient({ userEmail, perfil }: Props) {
                   value={apellido}
                   onChange={(e) => setApellido(e.target.value)}
                   className={`w-full bg-black border ${submitted && !apellido ? "border-red-500" : "border-[#1A1A1A]"} text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors`}
-                  placeholder="González"
                 />
                 {submitted && !apellido && <p className="text-red-500 text-[10px] mt-1">Campo requerido</p>}
               </div>
@@ -313,7 +312,6 @@ export default function CheckoutClient({ userEmail, perfil }: Props) {
                   onChange={(e) => setTelefono(e.target.value)}
                   type="tel"
                   className={`w-full bg-black border ${submitted && !telefono ? "border-red-500" : "border-[#1A1A1A]"} text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors`}
-                  placeholder="2954 000000"
                 />
                 {submitted && !telefono && <p className="text-red-500 text-[10px] mt-1">Campo requerido</p>}
               </div>
@@ -339,7 +337,6 @@ export default function CheckoutClient({ userEmail, perfil }: Props) {
                   value={direccion}
                   onChange={(e) => setDireccion(e.target.value)}
                   className={`w-full bg-black border ${submitted && needsAddress && !direccion ? "border-red-500" : "border-[#1A1A1A]"} text-white px-3 py-2.5 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors`}
-                  placeholder="Calle 123, Barrio, piso/depto"
                 />
                 {submitted && needsAddress && !direccion && (
                   <p className="text-red-500 text-[10px] mt-1">Campo requerido</p>
