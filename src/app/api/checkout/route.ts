@@ -254,7 +254,9 @@ export async function POST(req: NextRequest) {
             failure: `${baseUrl}/checkout?error=pago_fallido`,
             pending: `${baseUrl}/checkout/confirmacion?id=${orderId}&mp=pending`,
           },
-          auto_return: "approved",
+          // auto_return exige que back_urls.success sea https; en local
+          // (http://localhost) MP lo rechaza con un 400 si se lo mandamos.
+          ...(baseUrl.startsWith("https://") ? { auto_return: "approved" } : {}),
           external_reference: orderId,
           statement_descriptor: "La Parfumerie de Solange",
           notification_url: `${baseUrl}/api/webhooks/mercadopago`,
