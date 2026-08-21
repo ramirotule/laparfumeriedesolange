@@ -32,6 +32,25 @@ const categorias = ["Fragancias", "Cuidados de la Piel", "Bienestar", "Aromatiza
 
 const supabase = createClient();
 
+async function convertToWebp(file: File, quality = 0.82): Promise<File> {
+  if (file.type === "image/gif") return file; // preserva animación
+  try {
+    const bitmap = await createImageBitmap(file);
+    const canvas = document.createElement("canvas");
+    canvas.width = bitmap.width;
+    canvas.height = bitmap.height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return file;
+    ctx.drawImage(bitmap, 0, 0);
+    const blob: Blob | null = await new Promise(resolve => canvas.toBlob(resolve, "image/webp", quality));
+    if (!blob) return file;
+    const webpName = file.name.replace(/\.[^.]+$/, "") + ".webp";
+    return new File([blob], webpName, { type: "image/webp" });
+  } catch {
+    return file; // si algo falla, sube el original en vez de bloquear la carga
+  }
+}
+
 function generateSlug(nombre: string, marca: string) {
   return `${nombre}-${marca}`
     .toLowerCase()
@@ -532,14 +551,14 @@ export default function ProductoForm({ producto = {}, isEdit = false }: Props) {
                     const newImages: string[] = [];
                     
                     for (let i = 0; i < files.length; i++) {
-                      const file = files[i];
+                      const file = await convertToWebp(files[i]);
                       const fileExt = file.name.split('.').pop();
                       const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
                       const filePath = `productos/${fileName}`;
-                      
+
                       const { error: uploadError } = await supabase.storage
                         .from('productos')
-                        .upload(filePath, file);
+                        .upload(filePath, file, { contentType: file.type });
                         
                       if (uploadError) {
                         console.error("Error subiendo imagen:", uploadError);
