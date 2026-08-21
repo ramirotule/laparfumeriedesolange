@@ -88,6 +88,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Debés iniciar sesión para comprar." }, { status: 401 });
     }
 
+    const supabase = getServiceSupabase();
+
+    const { data: perfilActual } = await supabase
+      .from("perfiles")
+      .select("rol")
+      .eq("id", user.id)
+      .single();
+
+    if (perfilActual?.rol === "admin") {
+      return NextResponse.json(
+        { error: "Las cuentas de administrador no pueden realizar compras." },
+        { status: 403 }
+      );
+    }
+
     const body: CheckoutBody = await req.json();
     const {
       items,
@@ -137,7 +152,6 @@ export async function POST(req: NextRequest) {
     const costoEnvio = shipping.costo;
     const total = subtotal + (costoEnvio ?? 0);
 
-    const supabase = getServiceSupabase();
     const direccionCompleta = buildDireccionCompleta(body);
 
     const { data: pedido, error } = await supabase
@@ -182,7 +196,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No se pudo crear el pedido" }, { status: 500 });
     }
 
-    // Actualizar perfil del cliente con datos del checkout
+    // Actualizar perfil del cliente con datos del checkout. Nunca pisa el
+    // rol de un perfil existente — solo lo setea en "cliente" al crearlo.
     await supabase.from("perfiles").upsert({
       id: user.id,
       nombre: nombre.trim(),
@@ -191,7 +206,7 @@ export async function POST(req: NextRequest) {
       direccion: needsAddress ? direccion?.trim() || null : null,
       localidad: body.localidad?.trim() || null,
       provincia: body.provincia?.trim() || null,
-      rol: "cliente",
+      ...(perfilActual ? {} : { rol: "cliente" }),
     });
 
     const orderId = pedido.id as string;
