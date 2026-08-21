@@ -257,6 +257,7 @@ export async function POST(req: NextRequest) {
           auto_return: "approved",
           external_reference: orderId,
           statement_descriptor: "La Parfumerie de Solange",
+          notification_url: `${baseUrl}/api/webhooks/mercadopago`,
         }),
       });
 
