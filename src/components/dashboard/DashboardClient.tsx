@@ -125,7 +125,16 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
 
   async function toggleActivo(id: string, activo: boolean) {
     setLoading(id);
-    await supabase.from("productos").update({ activo: !activo }).eq("id", id);
+    const { data, error } = await supabase
+      .from("productos")
+      .update({ activo: !activo })
+      .eq("id", id)
+      .select("id");
+    if (error || !data?.length) {
+      toast.error("No se pudo actualizar el producto. Volvé a iniciar sesión e intentá de nuevo.");
+      setLoading(null);
+      return;
+    }
     setProductos((prev) =>
       prev.map((p) => (p.id === id ? { ...p, activo: !activo } : p))
     );
@@ -135,7 +144,16 @@ export default function DashboardClient({ productos: initialProductos }: Props) 
   async function bulkToggleActivo(activo: boolean) {
     setBulkLoading(true);
     const ids = Array.from(selectedIds);
-    await supabase.from("productos").update({ activo }).in("id", ids);
+    const { data, error } = await supabase
+      .from("productos")
+      .update({ activo })
+      .in("id", ids)
+      .select("id");
+    if (error || data?.length !== ids.length) {
+      toast.error("No se pudieron actualizar todos los productos. Volvé a iniciar sesión e intentá de nuevo.");
+      setBulkLoading(false);
+      return;
+    }
     setProductos((prev) =>
       prev.map((p) => (selectedIds.has(p.id) ? { ...p, activo } : p))
     );

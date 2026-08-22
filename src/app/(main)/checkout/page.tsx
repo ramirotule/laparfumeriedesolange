@@ -19,10 +19,6 @@ export default async function CheckoutPage() {
     .eq("id", user.id)
     .single();
 
-  if (perfil?.rol === "admin") {
-    redirect("/dashboard");
-  }
-
   return (
     <Suspense>
       <CheckoutClient
